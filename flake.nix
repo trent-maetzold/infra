@@ -16,15 +16,6 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    disko-zfs = {
-      url = "github:numtide/disko-zfs";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.disko.follows = "disko";
-    };
   };
 
   outputs = {
@@ -34,8 +25,6 @@
     nixos-wsl,
     lazyvim,
     llm-agents,
-    disko,
-    disko-zfs,
     ...
   } @ inputs: let
     inherit (nixpkgs) lib;
@@ -74,6 +63,7 @@
       };
   in {
     inherit nixosModules homeManagerModules;
+    overlays.default = llm-agents.overlays.shared-nixpkgs;
 
     packages = forAllSystems (system: let
       pkgs = pkgsFor system;

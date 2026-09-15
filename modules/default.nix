@@ -10,7 +10,6 @@
     ./home-manager.nix
     ./llama-swap
     ./wsl.nix
-    ./zfs-datasets.nix
     home-manager.nixosModules.home-manager
     nixos-wsl.nixosModules.wsl
   ];

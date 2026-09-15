@@ -12,8 +12,13 @@ infra.
 ```nix
 inputs.asgard.url = "github:tm/asgard";
 
-# module args (specialArgs): lazyvim, home-manager, nixos-wsl, disko-zfs
-# pkgs needs the llm-agents overlay: llm-agents.overlays.shared-nixpkgs
+# nixpkgs carrying the overlay the modules expect (llm-agents)
+pkgs = import asgard.inputs.nixpkgs {
+  inherit system;
+  overlays = [ asgard.overlays.default ];
+};
+
+# module args (specialArgs) the modules read: lazyvim, home-manager, nixos-wsl
 imports = [ asgard.nixosModules.default ];
 ```
 
