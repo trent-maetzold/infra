@@ -6,9 +6,9 @@
 }: {
   config = lib.mkIf config.wsl.enable {
     nixpkgs.config.allowUnfreePackages = ["nvidia-container-toolkit"];
-    wsl = lib.mkDefault {
-      useWindowsDriver = true;
-      startMenuLaunchers = true;
+    wsl = {
+      useWindowsDriver = lib.mkDefault true;
+      startMenuLaunchers = lib.mkDefault true;
     };
     environment.systemPackages = lib.mkAfter (with pkgs; [
       (writeShellScriptBin "wslview" ''exec wsl-open "$@"'')

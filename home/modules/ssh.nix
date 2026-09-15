@@ -2,7 +2,7 @@
   programs.ssh = {
     enable = lib.mkDefault true;
     enableDefaultConfig = lib.mkDefault false;
-    settings = lib.mkDefault {
+    settings = {
       "*" = {
         ForwardAgent = false;
         AddKeysToAgent = "no";

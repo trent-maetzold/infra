@@ -7,22 +7,22 @@
   config = lib.mkMerge [
     {programs.tmux.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.tmux.enable {
-      programs.tmux = lib.mkDefault {
-        terminal = "tmux-256color";
-        shell = "${pkgs.zsh}/bin/zsh";
-        keyMode = "vi";
+      programs.tmux = {
+        terminal = lib.mkDefault "tmux-256color";
+        shell = lib.mkDefault "${pkgs.zsh}/bin/zsh";
+        keyMode = lib.mkDefault "vi";
 
-        clock24 = true;
-        mouse = true;
-        disableConfirmationPrompt = true;
+        clock24 = lib.mkDefault true;
+        mouse = lib.mkDefault true;
+        disableConfirmationPrompt = lib.mkDefault true;
 
-        baseIndex = 1;
-        sensibleOnTop = true;
+        baseIndex = lib.mkDefault 1;
+        sensibleOnTop = lib.mkDefault true;
 
-        plugins = with pkgs.tmuxPlugins; [
+        plugins = lib.mkDefault (with pkgs.tmuxPlugins; [
           tmux-which-key
-        ];
-        extraConfig = ''
+        ]);
+        extraConfig = lib.mkDefault ''
           set -as terminal-features ",xterm*:RGB"
 
           set -g extended-keys on

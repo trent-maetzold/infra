@@ -7,21 +7,21 @@
     {programs.zsh.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.zsh.enable {
       programs = {
-        zsh = lib.mkDefault {
-          autosuggestion.enable = true;
-          syntaxHighlighting.enable = true;
+        zsh = {
+          autosuggestion.enable = lib.mkDefault true;
+          syntaxHighlighting.enable = lib.mkDefault true;
           oh-my-zsh = {
-            enable = true;
-            plugins = [
+            enable = lib.mkDefault true;
+            plugins = lib.mkDefault [
               "sudo"
               "docker"
               "git"
             ];
           };
         };
-        starship = lib.mkDefault {
-          enable = true;
-          enableZshIntegration = true;
+        starship = {
+          enable = lib.mkDefault true;
+          enableZshIntegration = lib.mkDefault true;
           settings = {
             add_newline = false;
             character = {

@@ -9,10 +9,10 @@
     (lib.mkIf config.programs.git.enable {
       programs = {
         git = {
-          settings = lib.mkDefault {
-            init.defaultBranch = "main";
-            pull.rebase = true;
-            push.autoSetupRemote = true;
+          settings = {
+            init.defaultBranch = lib.mkDefault "main";
+            pull.rebase = lib.mkDefault true;
+            push.autoSetupRemote = lib.mkDefault true;
           };
           ignores = lib.mkDefault [".serena"];
         };

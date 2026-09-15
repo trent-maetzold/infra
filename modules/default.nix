@@ -17,13 +17,13 @@
 
   config = {
     security.sudo.wheelNeedsPassword = lib.mkDefault false;
-    services.openssh.settings = lib.mkDefault {
-      PermitRootLogin = "no";
-      PasswordAuthentication = false;
+    services.openssh.settings = {
+      PermitRootLogin = lib.mkDefault "no";
+      PasswordAuthentication = lib.mkDefault false;
     };
-    i18n = lib.mkDefault {
-      defaultLocale = "en_US.UTF-8";
-      extraLocaleSettings = {
+    i18n = {
+      defaultLocale = lib.mkDefault "en_US.UTF-8";
+      extraLocaleSettings = lib.mkDefault {
         LC_ADDRESS = "en_US.UTF-8";
         LC_IDENTIFICATION = "en_US.UTF-8";
         LC_MEASUREMENT = "en_US.UTF-8";

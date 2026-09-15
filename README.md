@@ -19,14 +19,19 @@ imports = [ asgard.nixosModules.default ];
 
 ## Rules
 
-- Every setting is `lib.mkDefault` — a consumer can override any leaf — with
-the exceptions the module system forces:
+- `lib.mkDefault` on the leaves — a consumer overrides any leaf; `lib.mkMerge`
+  for structure (parents stay plain, or priority filtering drops the whole
+  subtree when another module defines the same parent). Exceptions:
+
   - append-style package lists (`home.packages`, `environment.systemPackages`,...)
     use `lib.mkAfter`: nixpkgs/home-manager define those at normal priority,
     and priority filtering silently drops a `mkDefault` list.
-  - `nixpkgs.config.*` takes plain values (override wrappers leak into their
-    reads), as do keys nixpkgs already defines plainly (`nix.settings.trusted-users`
-    → `mkAfter`).
+  - passthrough attrs (`nixpkgs.config.*`, `programs.ssh.settings`,
+    `programs.starship.settings`, `programs.pi-coding-agent.settings`, the
+    distrobox containers) take plain values: their readers see the override
+    wrapper, not the value.
+  - keys nixpkgs already defines plainly (`nix.settings.trusted-users`) use
+    `mkAfter` so both survive.
 - No `user`, no hostnames, no secrets, no paths outside this repo.
 - Config files (`home/config/*`) are part of the defaults; anything that
   differs per deployment lives in the consumer.

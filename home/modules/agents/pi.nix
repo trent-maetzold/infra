@@ -7,11 +7,11 @@
   config = lib.mkMerge [
     {programs.pi-coding-agent.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.pi-coding-agent.enable {
-      programs.pi-coding-agent = lib.mkDefault {
-        extraPackages = with pkgs; [
+      programs.pi-coding-agent = {
+        extraPackages = lib.mkDefault (with pkgs; [
           nodejs
           bun
-        ];
+        ]);
         settings = {
           packages = [
             "npm:pi-zentui"

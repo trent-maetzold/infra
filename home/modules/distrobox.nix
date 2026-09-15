@@ -17,7 +17,7 @@ in {
             ".local/bin/distrobox-host-exec".source = lib.mkDefault "${pkgs.distrobox}/bin/distrobox-host-exec";
           };
         };
-        programs.distrobox = lib.mkDefault {
+        programs.distrobox = {
           containers = {
             bx = {
               image = lib.mkDefault "archlinux:base-devel";
