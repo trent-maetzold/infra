@@ -20,7 +20,7 @@
         lazygit.enable = lib.mkDefault true;
       };
       home = {
-        packages = lib.mkDefault (with pkgs; [forgejo-cli]);
+        packages = lib.mkAfter (with pkgs; [forgejo-cli]);
         shellAliases.lg = lib.mkDefault "lazygit";
       };
     })

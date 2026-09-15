@@ -11,7 +11,7 @@
     (lib.mkIf config.languages.python.enable {
       programs.lazyvim.extras.lang.python.enable = lib.mkDefault true;
       home = {
-        packages = lib.mkDefault (with pkgs; [
+        packages = lib.mkAfter (with pkgs; [
           uv
           basedpyright
           ruff

@@ -11,7 +11,7 @@
     (lib.mkIf config.languages.rust.enable {
       programs.lazyvim.extras.lang.rust.enable = lib.mkDefault true;
       home = {
-        packages = lib.mkDefault (with pkgs; [
+        packages = lib.mkAfter (with pkgs; [
           rustup
           lldb
         ]);

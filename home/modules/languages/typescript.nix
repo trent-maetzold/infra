@@ -10,7 +10,7 @@
     {languages.typescript.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.typescript.enable {
       programs.lazyvim.extras.lang.typescript.enable = lib.mkDefault true;
-      home.packages = lib.mkDefault (with pkgs; [
+      home.packages = lib.mkAfter (with pkgs; [
         nodejs
         pnpm
         bun

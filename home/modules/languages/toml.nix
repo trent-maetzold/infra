@@ -10,7 +10,7 @@
     {languages.toml.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.toml.enable {
       programs.lazyvim.extras.lang.toml.enable = lib.mkDefault true;
-      home.packages = lib.mkDefault [pkgs.taplo];
+      home.packages = lib.mkAfter [pkgs.taplo];
     })
   ];
 }

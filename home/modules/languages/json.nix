@@ -10,7 +10,7 @@
     {languages.json.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.json.enable {
       programs.lazyvim.extras.lang.json.enable = lib.mkDefault true;
-      home.packages = lib.mkDefault [pkgs.vscode-langservers-extracted];
+      home.packages = lib.mkAfter [pkgs.vscode-langservers-extracted];
     })
   ];
 }

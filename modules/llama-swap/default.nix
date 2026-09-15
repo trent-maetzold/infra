@@ -26,22 +26,21 @@ in {
   };
 
   config = mkIf config.services.llama-swap.enable {
-    nixpkgs.config.allowUnfreePackages = lib.mkDefault [
+    nixpkgs.config.allowUnfreePackages = [
       "cuda_cccl"
       "cuda_cudart"
       "cuda_nvcc"
       "cuda_nvrtc"
       "libcublas"
     ];
-    services.llama-swap.settings = lib.mkDefault {
-      healthCheckTimeout = 1800;
-      metricsMaxInMemory = 3600;
+    services.llama-swap.settings = {
+      healthCheckTimeout = lib.mkDefault 1800;
+      metricsMaxInMemory = lib.mkDefault 3600;
     };
-    warnings = lib.mkDefault (
+    warnings =
       optional
       ((config.services.llama-swap.settings.models or {}) == {})
-      "llama-swap is enabled but no models are configured (services.llama-swap.settings.models). The service will serve nothing."
-    );
+      "llama-swap is enabled but no models are configured (services.llama-swap.settings.models). The service will serve nothing.";
 
     systemd.services.llama-swap.environment.LD_LIBRARY_PATH = lib.mkIf (wslEnabled && config.services.llama-swap.cuda.enable) (lib.mkDefault "/usr/lib/wsl/lib");
   };

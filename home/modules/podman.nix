@@ -4,7 +4,7 @@
   ...
 }: {
   services.podman.enable = lib.mkDefault true;
-  home.packages = lib.mkDefault (with pkgs; [
+  home.packages = lib.mkAfter (with pkgs; [
     podman-compose
     slirp4netns
     fuse-overlayfs

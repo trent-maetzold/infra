@@ -23,7 +23,7 @@
       homeDirectory = lib.mkDefault "/home/${config.home.username}";
       sessionPath = lib.mkDefault ["${config.home.homeDirectory}/.local/bin"];
       shellAliases.ld = lib.mkDefault "lazydocker";
-      packages = lib.mkDefault (with pkgs; [
+      packages = lib.mkAfter (with pkgs; [
         jq
         just
         tree

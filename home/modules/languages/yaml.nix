@@ -10,7 +10,7 @@
     {languages.yaml.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.yaml.enable {
       programs.lazyvim.extras.lang.yaml.enable = lib.mkDefault true;
-      home.packages = lib.mkDefault [pkgs.yaml-language-server];
+      home.packages = lib.mkAfter [pkgs.yaml-language-server];
     })
   ];
 }

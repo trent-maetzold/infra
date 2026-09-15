@@ -27,7 +27,7 @@
   config = lib.mkMerge [
     {programs.dsh.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.dsh.enable {
-      home.packages = lib.mkDefault [pkgs.llm-agents.dsh];
+      home.packages = lib.mkAfter [pkgs.llm-agents.dsh];
       systemd.user.services.dsh = lib.mkDefault {
         Unit = {
           Description = "DeepSeek Harness";

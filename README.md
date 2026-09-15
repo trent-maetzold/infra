@@ -19,7 +19,14 @@ imports = [ asgard.nixosModules.default ];
 
 ## Rules
 
-- Every setting is `lib.mkDefault` — a consumer can override any leaf.
+- Every setting is `lib.mkDefault` — a consumer can override any leaf — with
+the exceptions the module system forces:
+  - append-style package lists (`home.packages`, `environment.systemPackages`,...)
+    use `lib.mkAfter`: nixpkgs/home-manager define those at normal priority,
+    and priority filtering silently drops a `mkDefault` list.
+  - `nixpkgs.config.*` takes plain values (override wrappers leak into their
+    reads), as do keys nixpkgs already defines plainly (`nix.settings.trusted-users`
+    → `mkAfter`).
 - No `user`, no hostnames, no secrets, no paths outside this repo.
 - Config files (`home/config/*`) are part of the defaults; anything that
   differs per deployment lives in the consumer.
@@ -30,3 +37,47 @@ imports = [ asgard.nixosModules.default ];
 nix build .#options-commonmark   # every option, rendered with defaults
 nix build .#options-json         # machine-readable
 ```
+
+## Module conventions
+
+- Plain `.nix` files. No flake inputs in scope, no closures, no in-file
+  `imports` (the flake lists are the only wiring).
+- Canonical shapes, in order of preference:
+  - Gateway already exists upstream → unconditional settings (no module
+    `config` wrapper at all):
+    ```nix
+    { config, lib, pkgs, ... }: {
+      services.openssh.settings = {
+        PermitRootLogin = "no";
+        PasswordAuthentication = false;
+      };
+    }
+    ```
+  - Own effect that needs a flag → keep both top-level (module system
+    rejects a bare top-level attrset next to `config`/`options` keys):
+    ```nix
+    { config, lib, pkgs, ... }: {
+      config = lib.mkMerge [
+        { services.podman.quadlet... = ...; }                   # upstream-gated: unconditional
+        (lib.mkIf config.services.podman.enable {                # own effect: gated
+          services.podman.containers.example = { ...; };          # no identity here
+        })
+      ];
+    }
+    ```
+  - No upstream flag exists → declare a module-local option inline
+    (`services.llama-swap.cuda.enable`, ...).
+- Options are declared where they're used; no central options file.
+- Nested settings are combined into one attrset, never sibling dotted
+  paths: `deployment = { targetHost = ...; targetUser = ...; };`.
+- Flags default on (`lib.mkDefault true` on top of the gate).
+- Comments are rare: they state a non-obvious constraint, never what changed
+  from the last version (that belongs in the commit message).
+- Enable flags are never defined inside the module that reads them.
+- Shared modules never take the `user` specialArg or set per-host identity
+  options (`wsl.defaultUser`, `home.stateVersion`, ...) — those live in
+  `hosts/<name>/default.nix`.
+- Shared modules never reference secrets or agenix (`age.*`,
+  `secrets/*.age`) — only the `ragenix` CLI install; delivery is the hive's
+  `deployment.keys`.
+

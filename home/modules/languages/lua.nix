@@ -9,7 +9,7 @@
   config = lib.mkMerge [
     {languages.lua.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.lua.enable {
-      home.packages = lib.mkDefault (with pkgs; [
+      home.packages = lib.mkAfter (with pkgs; [
         lua-language-server
         stylua
       ]);

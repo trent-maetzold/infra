@@ -11,7 +11,7 @@
       useGlobalPkgs = lib.mkDefault true;
       useUserPackages = lib.mkDefault true;
       backupFileExtension = lib.mkDefault "backup";
-      extraSpecialArgs = lib.mkDefault {inherit lazyvim;};
+      extraSpecialArgs = {inherit lazyvim;};
     };
   };
 }

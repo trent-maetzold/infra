@@ -10,7 +10,7 @@
     {languages.markdown.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.markdown.enable {
       programs.lazyvim.extras.lang.markdown.enable = lib.mkDefault true;
-      home.packages = lib.mkDefault (with pkgs; [
+      home.packages = lib.mkAfter (with pkgs; [
         marksman
         markdown-toc
         markdownlint-cli2

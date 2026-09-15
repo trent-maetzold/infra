@@ -35,14 +35,12 @@
         LC_TIME = "en_US.UTF-8";
       };
     };
-    programs = lib.mkDefault {
-      nh.enable = true;
-      nix-ld = {
-        enable = true;
-        libraries = with pkgs; [stdenv.cc.cc.lib];
-      };
+    programs.nh.enable = lib.mkDefault true;
+    programs.nix-ld = {
+      enable = lib.mkDefault true;
+      libraries = lib.mkDefault (with pkgs; [stdenv.cc.cc.lib]);
     };
-    environment.systemPackages = lib.mkDefault (with pkgs; [
+    environment.systemPackages = lib.mkAfter (with pkgs; [
       gcc
       gnumake
       just
@@ -57,11 +55,11 @@
       unzip
       wget
     ]);
-    nix.settings = lib.mkDefault {
-      experimental-features = ["nix-command" "flakes"];
-      trusted-users = ["@wheel"];
-      extra-substituters = ["https://cache.numtide.com"];
-      extra-trusted-public-keys = ["niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="];
+    nix.settings = {
+      experimental-features = lib.mkDefault ["nix-command" "flakes"];
+      trusted-users = lib.mkAfter ["@wheel"];
+      extra-substituters = lib.mkDefault ["https://cache.numtide.com"];
+      extra-trusted-public-keys = lib.mkDefault ["niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="];
     };
   };
 }

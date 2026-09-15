@@ -9,7 +9,7 @@
   config = lib.mkMerge [
     {languages.bash.enable = lib.mkDefault true;}
     (lib.mkIf config.languages.bash.enable {
-      home.packages = lib.mkDefault (with pkgs; [
+      home.packages = lib.mkAfter (with pkgs; [
         bash-language-server
         shellcheck
         shfmt

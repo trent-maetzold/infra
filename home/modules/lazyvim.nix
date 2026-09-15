@@ -7,10 +7,10 @@
   config = lib.mkMerge [
     {programs.lazyvim.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.lazyvim.enable {
-      programs.lazyvim = lib.mkDefault {
-        installCoreDependencies = true;
+      programs.lazyvim = {
+        installCoreDependencies = lib.mkDefault true;
         configFiles = lib.mkDefault ../config/nvim;
-        extras = {
+        extras = lib.mkDefault {
           coding = {
             yanky.enable = true;
             blink.enable = true;
@@ -58,7 +58,7 @@
             "yaml"
           ] (name: {enable = true;});
         };
-        extraPackages = with pkgs; [
+        extraPackages = lib.mkDefault (with pkgs; [
           ghostscript
           tectonic
 
@@ -71,15 +71,15 @@
           tree-sitter
           lua51Packages.lua
           lua51Packages.luarocks
-        ];
-        treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
+        ]);
+        treesitterParsers = lib.mkDefault (with pkgs.vimPlugins.nvim-treesitter-parsers; [
           css
           scss
           latex
           svelte
           typst
           vue
-        ];
+        ]);
       };
       xdg.configFile."nvim/lua/config/nixpaths.lua".text = lib.mkDefault ''
         return {
