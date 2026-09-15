@@ -19,19 +19,46 @@ imports = [ asgard.nixosModules.default ];
 
 ## Rules
 
-- `lib.mkDefault` on the leaves — a consumer overrides any leaf; `lib.mkMerge`
-  for structure (parents stay plain, or priority filtering drops the whole
-  subtree when another module defines the same parent). Exceptions:
+**Overridable settings go on leaves.** `lib.mkDefault` does not mean
+"additive default" — it means *this definition loses to any other definition
+of the same option* (priority 1000 versus the normal 100). Put it on a parent
+attrset and the whole subtree becomes one definition, so if anything else
+defines that same parent, your entire block is discarded. Put it on a leaf
+and only that leaf yields; every other leaf keeps merging.
 
-  - append-style package lists (`home.packages`, `environment.systemPackages`,...)
-    use `lib.mkAfter`: nixpkgs/home-manager define those at normal priority,
-    and priority filtering silently drops a `mkDefault` list.
-  - passthrough attrs (`nixpkgs.config.*`, `programs.ssh.settings`,
-    `programs.starship.settings`, `programs.pi-coding-agent.settings`, the
-    distrobox containers) take plain values: their readers see the override
-    wrapper, not the value.
-  - keys nixpkgs already defines plainly (`nix.settings.trusted-users`) use
-    `mkAfter` so both survive.
+```nix
+services.openssh.settings = {              # parent: plain
+  PermitRootLogin = lib.mkDefault "no";    # leaf: overridable, everything else merges
+};
+```
+
+`lib.mkMerge` is unrelated to priority — it is just how several config
+fragments (usually with `lib.mkIf`) are combined.
+
+**Package lists use `lib.mkAfter`.** For list options the module system keeps
+only the highest-priority definitions, and nixpkgs / home-manager define
+`home.packages` and `environment.systemPackages` at normal priority. An
+`mkDefault` list would be outranked and silently dropped, so asgard's `jq`,
+`just` and `tree` would disappear the moment anything else added a package.
+`mkAfter` keeps the definition at normal priority and appends it last, so it
+always merges: nixpkgs' packages + asgard's + downstream additions. Only an
+explicit `lib.mkForce` replaces the list.
+
+**Passthrough attrs stay plain.** Some options are declared as "anything
+goes" bags whose values are read directly by other modules rather than merged
+per key: `nixpkgs.config.*`, `programs.ssh.settings`,
+`programs.starship.settings`, `programs.pi-coding-agent.settings`, the
+distrobox containers. Wrapping those in `mkDefault` leaks the wrapper
+(`{ _type = "override"; ... }`) to the reader, which errors with things like
+`expected a list but found a set` or a missing attribute. Write them plainly;
+where the leaves inside them are ordinary options, those leaves can still be
+`mkDefault`.
+
+**Keys nixpkgs already sets go through `mkAfter`.** `lib.mkDefault` yields to
+*any* other definition, so a default that nixpkgs also sets (for example
+`nix.settings.trusted-users = [ "root" ]`) would silently lose asgard's
+value. `mkAfter` merges instead, giving `[ "root" "@wheel" ]`.
+
 - No `user`, no hostnames, no secrets, no paths outside this repo.
 - Config files (`home/config/*`) are part of the defaults; anything that
   differs per deployment lives in the consumer.
