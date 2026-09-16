@@ -75,6 +75,27 @@ nix build .#options-commonmark   # every option, rendered with defaults
 nix build .#options-json         # machine-readable
 ```
 
+## hermes-agent
+
+Runs on a host, microvm, or NixOS container — never the upstream container
+mode (asserted). Preset MCP servers for the usual self-hosted assistants
+take their secrets as `${VAR}` placeholders resolved from the service env
+(`services.hermes-agent.environmentFiles`), never inline:
+
+```nix
+services.hermes-agent = {
+  enable = true;
+  assistant.mcpServers = { gmail.enable = true; arrs.enable = true; };
+  environmentFiles = [ /var/lib/secrets/hermes.env ];  # SONARR_URL=... etc.
+  settings.toolsets = [ "all" ];                        # incl. homeassistant toolset
+  settings.web.search_backend = "searxng";              # when SEARXNG_URL is set
+};
+```
+
+SABnzbd has no published npx/uvx stdio server — hermes-webui talks to it
+natively, or run `ghcr.io/ltmarx/sabnzbd-mcp` and add a plain `mcpServers`
+entry with `command = "docker"`.
+
 ## Module conventions
 
 - Plain `.nix` files. No flake inputs in scope, no closures, no in-file
