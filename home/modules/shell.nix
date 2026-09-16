@@ -12,7 +12,7 @@
           syntaxHighlighting.enable = lib.mkDefault true;
           oh-my-zsh = {
             enable = lib.mkDefault true;
-            plugins = lib.mkDefault [
+            plugins = [
               "sudo"
               "docker"
               "git"

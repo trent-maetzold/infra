@@ -19,9 +19,9 @@
         baseIndex = lib.mkDefault 1;
         sensibleOnTop = lib.mkDefault true;
 
-        plugins = lib.mkDefault (with pkgs.tmuxPlugins; [
+        plugins = with pkgs.tmuxPlugins; [
           tmux-which-key
-        ]);
+        ];
         extraConfig = lib.mkDefault ''
           set -as terminal-features ",xterm*:RGB"
 

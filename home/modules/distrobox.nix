@@ -11,7 +11,6 @@ in {
     (lib.mkIf config.programs.distrobox.enable (lib.mkMerge [
       {
         home = {
-          sessionPath = lib.mkDefault ["$HOME/.local/bin"];
           file = {
             ".local/bin/distrobox-export".source = lib.mkDefault "${pkgs.distrobox}/bin/distrobox-export";
             ".local/bin/distrobox-host-exec".source = lib.mkDefault "${pkgs.distrobox}/bin/distrobox-host-exec";

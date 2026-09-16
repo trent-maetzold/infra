@@ -58,7 +58,7 @@
             "yaml"
           ] (name: {enable = true;});
         };
-        extraPackages = lib.mkDefault (with pkgs; [
+        extraPackages = with pkgs; [
           ghostscript
           tectonic
 
@@ -71,15 +71,15 @@
           tree-sitter
           lua51Packages.lua
           lua51Packages.luarocks
-        ]);
-        treesitterParsers = lib.mkDefault (with pkgs.vimPlugins.nvim-treesitter-parsers; [
+        ];
+        treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
           css
           scss
           latex
           svelte
           typst
           vue
-        ]);
+        ];
       };
       xdg.configFile."nvim/lua/config/nixpaths.lua".text = lib.mkDefault ''
         return {

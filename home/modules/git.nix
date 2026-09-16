@@ -14,7 +14,7 @@
             pull.rebase = lib.mkDefault true;
             push.autoSetupRemote = lib.mkDefault true;
           };
-          ignores = lib.mkDefault [".serena"];
+          ignores = [".serena"];
         };
         gh.enable = lib.mkDefault true;
         lazygit.enable = lib.mkDefault true;

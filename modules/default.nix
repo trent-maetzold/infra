@@ -7,6 +7,7 @@
   ...
 }: {
   imports = [
+    ./hermes-agent.nix
     ./home-manager.nix
     ./llama-swap
     ./wsl.nix
@@ -37,7 +38,7 @@
     programs.nh.enable = lib.mkDefault true;
     programs.nix-ld = {
       enable = lib.mkDefault true;
-      libraries = lib.mkDefault (with pkgs; [stdenv.cc.cc.lib]);
+      libraries = with pkgs; [stdenv.cc.cc.lib];
     };
     environment.systemPackages = lib.mkAfter (with pkgs; [
       gcc
@@ -55,10 +56,10 @@
       wget
     ]);
     nix.settings = {
-      experimental-features = lib.mkDefault ["nix-command" "flakes"];
+      experimental-features = ["nix-command" "flakes"];
       trusted-users = lib.mkAfter ["@wheel"];
-      extra-substituters = lib.mkDefault ["https://cache.numtide.com"];
-      extra-trusted-public-keys = lib.mkDefault ["niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="];
+      extra-substituters = ["https://cache.numtide.com"];
+      extra-trusted-public-keys = ["niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="];
     };
   };
 }
