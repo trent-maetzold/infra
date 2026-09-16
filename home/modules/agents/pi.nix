@@ -8,17 +8,18 @@
     {programs.pi-coding-agent.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.pi-coding-agent.enable {
       programs.pi-coding-agent = {
-        extraPackages = lib.mkDefault (with pkgs; [
-          nodejs
-          bun
-        ]);
         settings = {
           packages = [
-            "npm:pi-zentui"
-            "npm:pi-blackhole"
-            "npm:pi-mcp-adapter"
-            "npm:pi-simplify"
+            "npm:billion-context-pi"
             "npm:pi-caveman"
+            "npm:pi-committer"
+            "npm:pi-mcp-adapter"
+            "npm:pi-memory"
+            "npm:pi-reasonix"
+            "npm:pi-simplify"
+            "npm:pi-subagents"
+            "npm:pi-web-access"
+            "npm:pi-zentui"
             "npm:@dietrichgebert/ponytail"
           ];
           theme = "dark";
@@ -26,6 +27,10 @@
           defaultModel = "deepseek-v4-flash";
           defaultThinkingLevel = "max";
         };
+        extraPackages = with pkgs; [
+          nodejs
+          bun
+        ];
       };
       home.file.".pi/agent/zentui.json".source = lib.mkDefault ../../config/pi/packages/zentui.json;
     })
