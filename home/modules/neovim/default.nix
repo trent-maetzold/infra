@@ -9,7 +9,7 @@
     (lib.mkIf config.programs.lazyvim.enable {
       programs.lazyvim = {
         installCoreDependencies = lib.mkDefault true;
-        configFiles = lib.mkDefault ../config/nvim;
+        configFiles = lib.mkDefault ../../config/nvim;
         extras = lib.mkDefault {
           coding = {
             yanky.enable = true;

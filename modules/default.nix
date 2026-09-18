@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   home-manager,
@@ -7,7 +6,6 @@
   ...
 }: {
   imports = [
-    ./hermes-agent.nix
     ./home-manager.nix
     ./llama-swap
     ./wsl.nix

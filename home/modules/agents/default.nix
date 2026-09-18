@@ -8,6 +8,7 @@
 
   imports = [
     ./dsh.nix
+    ./herdr.nix
     ./mcp.nix
     ./pi.nix
   ];

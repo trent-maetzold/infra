@@ -7,14 +7,13 @@
 }: {
   imports = [
     ./agents
+    ./languages
+    ./neovim
     ./distrobox.nix
     ./git.nix
-    ./languages
-    ./lazyvim.nix
     ./podman.nix
     ./shell.nix
     ./ssh.nix
-    ./tmux.nix
     lazyvim.homeManagerModules.default
   ];
 
@@ -30,6 +29,12 @@
       ]);
     };
     programs = {
+      btop = {
+        enable = true;
+        settings = {
+          vim_keys = true;
+        };
+      };
       lazydocker.enable = lib.mkDefault true;
       nh.enable = lib.mkDefault true;
     };
