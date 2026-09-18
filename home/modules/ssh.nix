@@ -4,13 +4,13 @@
     enableDefaultConfig = lib.mkDefault false;
     settings = {
       "*" = {
-        ForwardAgent = false;
-        AddKeysToAgent = "no";
-        Compression = false;
-        ServerAliveInterval = 0;
-        ServerAliveCountMax = 3;
-        HashKnownHosts = false;
-        UserKnownHostsFile = "~/.ssh/known_hosts";
+        ForwardAgent = lib.mkDefault false;
+        AddKeysToAgent = lib.mkDefault "no";
+        Compression = lib.mkDefault false;
+        ServerAliveInterval = lib.mkDefault 0;
+        ServerAliveCountMax = lib.mkDefault 3;
+        HashKnownHosts = lib.mkDefault false;
+        UserKnownHostsFile = lib.mkDefault "~/.ssh/known_hosts";
       };
     };
   };

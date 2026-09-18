@@ -21,17 +21,20 @@
     };
     i18n = {
       defaultLocale = lib.mkDefault "en_US.UTF-8";
-      extraLocaleSettings = lib.mkDefault {
-        LC_ADDRESS = "en_US.UTF-8";
-        LC_IDENTIFICATION = "en_US.UTF-8";
-        LC_MEASUREMENT = "en_US.UTF-8";
-        LC_MONETARY = "en_US.UTF-8";
-        LC_NAME = "en_US.UTF-8";
-        LC_NUMERIC = "en_US.UTF-8";
-        LC_PAPER = "en_US.UTF-8";
-        LC_TELEPHONE = "en_US.UTF-8";
-        LC_TIME = "en_US.UTF-8";
-      };
+      # mkDefault on each leaf, never on the attrset: a whole-value default on a
+      # submodule-typed option is dropped as soon as any other module defines a
+      # nested path inside it.
+      extraLocaleSettings = lib.genAttrs [
+        "LC_ADDRESS"
+        "LC_IDENTIFICATION"
+        "LC_MEASUREMENT"
+        "LC_MONETARY"
+        "LC_NAME"
+        "LC_NUMERIC"
+        "LC_PAPER"
+        "LC_TELEPHONE"
+        "LC_TIME"
+      ] (_: lib.mkDefault "en_US.UTF-8");
     };
     programs.nh.enable = lib.mkDefault true;
     programs.nix-ld = {

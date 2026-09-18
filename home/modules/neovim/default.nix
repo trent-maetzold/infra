@@ -10,53 +10,42 @@
       programs.lazyvim = {
         installCoreDependencies = lib.mkDefault true;
         configFiles = lib.mkDefault ../../config/nvim;
-        extras = lib.mkDefault {
+        # NOTE: mkDefault must sit on each leaf, never on a whole attrset:
+        # a whole-value def loses against nested-path defs from other modules
+        # (the languages/* modules define extras.lang.*.enable), so everything
+        # else in it silently falls back to the option default.
+        extras = {
           coding = {
-            yanky.enable = true;
-            blink.enable = true;
-            mini-comment.enable = true;
-            mini-snippets.enable = true;
-            mini-surround.enable = true;
+            yanky.enable = lib.mkDefault true;
+            blink.enable = lib.mkDefault true;
+            mini-comment.enable = lib.mkDefault true;
+            mini-snippets.enable = lib.mkDefault true;
+            mini-surround.enable = lib.mkDefault true;
           };
           dap = {
-            core.enable = true;
-            nlua.enable = true;
+            core.enable = lib.mkDefault true;
+            nlua.enable = lib.mkDefault true;
           };
           editor = {
-            inc-rename.enable = true;
-            aerial.enable = true;
-            harpoon2.enable = true;
-            illuminate.enable = true;
-            mini-files.enable = true;
-            overseer.enable = true;
-            refactoring.enable = true;
+            inc-rename.enable = lib.mkDefault true;
+            aerial.enable = lib.mkDefault true;
+            harpoon2.enable = lib.mkDefault true;
+            illuminate.enable = lib.mkDefault true;
+            mini-files.enable = lib.mkDefault true;
+            overseer.enable = lib.mkDefault true;
+            refactoring.enable = lib.mkDefault true;
           };
-          test.core.enable = true;
+          test.core.enable = lib.mkDefault true;
           ui = {
-            smear-cursor.enable = true;
-            treesitter-context.enable = true;
+            smear-cursor.enable = lib.mkDefault true;
+            treesitter-context.enable = lib.mkDefault true;
           };
           util = {
-            dot.enable = true;
-            mini-hipatterns.enable = true;
+            dot.enable = lib.mkDefault true;
+            mini-hipatterns.enable = lib.mkDefault true;
           };
-          formatting.prettier.enable = true;
-          linting.eslint.enable = true;
-
-          lang = lib.genAttrs [
-            "docker"
-            "git"
-            "go"
-            "json"
-            "markdown"
-            "nix"
-            "python"
-            "rust"
-            "sql"
-            "toml"
-            "typescript"
-            "yaml"
-          ] (name: {enable = true;});
+          formatting.prettier.enable = lib.mkDefault true;
+          linting.eslint.enable = lib.mkDefault true;
         };
         extraPackages = with pkgs; [
           ghostscript

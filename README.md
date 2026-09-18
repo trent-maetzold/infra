@@ -47,7 +47,10 @@ only the highest-priority definitions, and nixpkgs / home-manager define
 `just` and `tree` would disappear the moment anything else added a package.
 `mkAfter` keeps the definition at normal priority and appends it last, so it
 always merges: nixpkgs' packages + asgard's + downstream additions. Only an
-explicit `lib.mkForce` replaces the list.
+`lib.mkForce` replaces the list — asgard uses one, on the distrobox
+`containers.ini` file, because home-manager generates that same file from
+`programs.distrobox.containers`; deployments customise the option, not the
+file.
 
 **Passthrough attrs stay plain.** Some options are declared as "anything
 goes" bags whose values are read directly by other modules rather than merged
@@ -57,7 +60,11 @@ distrobox containers. Wrapping those in `mkDefault` leaks the wrapper
 (`{ _type = "override"; ... }`) to the reader, which errors with things like
 `expected a list but found a set` or a missing attribute. Write them plainly;
 where the leaves inside them are ordinary options, those leaves can still be
-`mkDefault`.
+`mkDefault`. A key written plainly there is a permanent definition though: a
+deployment that wants a different value for that same key would hit a
+same-priority conflict and need `mkForce`, and `mkDefault` cannot rescue it
+(wrapper leak) — so asgard only writes keys in those bags that no deployment
+is expected to redefine.
 
 **Keys nixpkgs already sets go through `mkAfter`.** `lib.mkDefault` yields to
 *any* other definition, so a default that nixpkgs also sets (for example

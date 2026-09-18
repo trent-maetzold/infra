@@ -28,15 +28,17 @@
     {programs.dsh.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.dsh.enable {
       home.packages = lib.mkAfter [pkgs.llm-agents.dsh];
-      systemd.user.services.dsh = lib.mkDefault {
+      # mkDefault per leaf, never on the attrset: a whole-value default on a
+      # submodule-typed option loses to nested defs from other modules.
+      systemd.user.services.dsh = {
         Unit = {
-          Description = "DeepSeek Harness";
+          Description = lib.mkDefault "DeepSeek Harness";
           Wants = ["network.target"];
           After = ["network.target"];
         };
         Service = {
-          Type = "simple";
-          ExecStart = let
+          Type = lib.mkDefault "simple";
+          ExecStart = lib.mkDefault (let
             trusted = lib.optionals (config.programs.dsh.trustedHosts != []) (
               ["--trusted-host"] ++ config.programs.dsh.trustedHosts
             );
@@ -50,10 +52,10 @@
               ]
               ++ trusted
               ++ ["--no-open"];
-          in "${pkgs.llm-agents.dsh}/bin/dsh ${lib.escapeShellArgs args}";
-          WorkingDirectory = "%h";
-          Restart = "on-failure";
-          RestartSec = 10;
+          in "${pkgs.llm-agents.dsh}/bin/dsh ${lib.escapeShellArgs args}");
+          WorkingDirectory = lib.mkDefault "%h";
+          Restart = lib.mkDefault "on-failure";
+          RestartSec = lib.mkDefault 10;
         };
         Install.WantedBy = ["default.target"];
       };

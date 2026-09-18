@@ -23,10 +23,10 @@
           enable = lib.mkDefault true;
           enableZshIntegration = lib.mkDefault true;
           settings = {
-            add_newline = false;
+            add_newline = lib.mkDefault false;
             character = {
-              success_symbol = "[❯](bold green)";
-              error_symbol = "[❯](bold red)";
+              success_symbol = lib.mkDefault "[❯](bold green)";
+              error_symbol = lib.mkDefault "[❯](bold red)";
             };
           };
         };

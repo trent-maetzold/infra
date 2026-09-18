@@ -28,7 +28,7 @@
         file = {
           ".agents" = {
             source = lib.mkDefault ../../config/agents;
-            recursive = true;
+            recursive = lib.mkDefault true;
           };
         };
         shellAliases.mini = lib.mkDefault "uvx --from mini-swe-agent mini";

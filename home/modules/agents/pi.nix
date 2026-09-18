@@ -22,10 +22,7 @@
             "npm:pi-zentui"
             "npm:@dietrichgebert/ponytail"
           ];
-          theme = "dark";
-          defaultProvider = "opencode-go";
-          defaultModel = "deepseek-v4-flash";
-          defaultThinkingLevel = "max";
+          theme = lib.mkDefault "dark";
         };
         extraPackages = with pkgs; [
           nodejs

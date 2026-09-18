@@ -30,9 +30,9 @@
     };
     programs = {
       btop = {
-        enable = true;
+        enable = lib.mkDefault true;
         settings = {
-          vim_keys = true;
+          vim_keys = lib.mkDefault true;
         };
       };
       lazydocker.enable = lib.mkDefault true;

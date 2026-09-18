@@ -21,29 +21,34 @@ in {
             bx = {
               image = lib.mkDefault "archlinux:base-devel";
               additional_packages = lib.mkDefault "zsh";
-              entry = true;
+              entry = lib.mkDefault true;
               init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
-              make_wrapper = true;
+              make_wrapper = lib.mkDefault true;
             };
           };
           settings = {
-            container_manager = "podman";
-            container_always_pull = "1";
+            container_manager = lib.mkDefault "podman";
+            container_always_pull = lib.mkDefault "1";
           };
         };
       }
 
       (lib.mkIf (containers != {}) {
+        # mkForce, not plain: home-manager's distrobox module generates this same
+        # file from cfg.containers, so at equal priority the two defs conflict.
+        # Downstream customises containers through programs.distrobox.containers
+        # (this file is generated from the merged option), not by replacing it.
         xdg.configFile."distrobox/containers.ini".source = lib.mkForce (
           (pkgs.formats.ini {listsAsDuplicateKeys = true;}).generate
           "distrobox-containers.ini"
           (lib.mapAttrs (_: v: lib.removeAttrs v ["make_wrapper"]) containers)
         );
-        home.file = lib.mkDefault (lib.mapAttrs' (name: cont: {
+
+        home.file = lib.mapAttrs' (name: cont: {
           name = ".local/bin/${name}";
           value = {
-            executable = true;
-            text = ''
+            executable = lib.mkDefault true;
+            text = lib.mkDefault ''
               #!${pkgs.bash}/bin/bash
 
               # Generated for the "${name}" container (make_wrapper = true).
@@ -64,7 +69,7 @@ in {
               fi
             '';
           };
-        }) (lib.filterAttrs (_: cont: cont.make_wrapper or false) containers));
+        }) (lib.filterAttrs (_: cont: cont.make_wrapper or false) containers);
       })
     ]))
   ];

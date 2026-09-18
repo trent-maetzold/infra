@@ -7,16 +7,13 @@
     {programs.mcp.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.mcp.enable {
       programs.mcp = {
-        servers = lib.mkDefault {
-          context7 = {
-            url = "https://mcp.context7.com/mcp";
-          };
-          deepwiki = {
-            url = "https://mcp.deepwiki.com/mcp";
-          };
+        # mkDefault per leaf, never on the attrset (see home/modules/neovim/default.nix).
+        servers = {
+          context7.url = lib.mkDefault "https://mcp.context7.com/mcp";
+          deepwiki.url = lib.mkDefault "https://mcp.deepwiki.com/mcp";
           parallel-search = {
-            url = "https://search.parallel.ai/mcp";
-            directTools = true;
+            url = lib.mkDefault "https://search.parallel.ai/mcp";
+            directTools = lib.mkDefault true;
           };
         };
       };

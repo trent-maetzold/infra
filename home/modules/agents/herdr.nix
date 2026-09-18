@@ -8,16 +8,16 @@
     {programs.herdr.enable = lib.mkDefault true;}
     (lib.mkIf config.programs.herdr.enable {
       programs.herdr = {
-        package = pkgs.llm-agents.herdr;
+        package = lib.mkDefault pkgs.llm-agents.herdr;
         settings = {
-          onboarding = false;
+          onboarding = lib.mkDefault false;
           ui = {
-            sidebar_width = 32;
-            agent_panel_sort = "priority";
-            status_indicators = "symbols";
-            show_agent_labels_on_pane_borders = true;
-            toast.delivery = "system";
-            sound.enabled = true;
+            sidebar_width = lib.mkDefault 32;
+            agent_panel_sort = lib.mkDefault "priority";
+            status_indicators = lib.mkDefault "symbols";
+            show_agent_labels_on_pane_borders = lib.mkDefault true;
+            toast.delivery = lib.mkDefault "system";
+            sound.enabled = lib.mkDefault true;
           };
         };
       };

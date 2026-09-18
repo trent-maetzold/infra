@@ -22,9 +22,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-    services.llama-swap.settings.models = lib.mkDefault (lib.filterAttrs (_: v: v != null) {
+    services.llama-swap.settings.models = lib.filterAttrs (_: v: v != null) {
       "qwopus3.6-35b-a3b-coder" = modelDefinition "qwopus3.6-35b-a3b-coder" {
-        cmd = ''
+        cmd = lib.mkDefault ''
           ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
             -hf Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF:Q4_K_M \
             --no-mmproj --reasoning-budget 0 --ctx-size 262144 --flash-attn on \
@@ -34,12 +34,12 @@ in {
         capabilities = {
           "in" = ["text"];
           out = ["text"];
-          tools = true;
-          context = 262144;
+          tools = lib.mkDefault true;
+          context = lib.mkDefault 262144;
         };
       };
       "refact-1.6b-fim" = modelDefinition "refact-1.6b-fim" {
-        cmd = ''
+        cmd = lib.mkDefault ''
           ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
             -hf mradermacher/Refact-1_6B-fim-i1-GGUF:i1-Q6_K \
             --ctx-size 4096 --flash-attn on --parallel 1 \
@@ -49,12 +49,12 @@ in {
         capabilities = {
           "in" = ["text"];
           out = ["text"];
-          tools = false;
-          context = 4096;
+          tools = lib.mkDefault false;
+          context = lib.mkDefault 4096;
         };
       };
       "lfm2.5-2.6b" = modelDefinition "lfm2.5-2.6b" {
-        cmd = ''
+        cmd = lib.mkDefault ''
           ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
             -hf LiquidAI/LFM2.5-2.6B-GGUF:Q4_K_M \
             --ctx-size 131072 --temp 0.1 --top-k 50 --repeat-penalty 1.1 \
@@ -63,12 +63,12 @@ in {
         capabilities = {
           "in" = ["text"];
           out = ["text"];
-          tools = true;
-          context = 131072;
+          tools = lib.mkDefault true;
+          context = lib.mkDefault 131072;
         };
       };
       "lfm2.5-8b-a1b" = modelDefinition "lfm2.5-8b-a1b" {
-        cmd = ''
+        cmd = lib.mkDefault ''
           ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
             -hf LiquidAI/LFM2.5-8B-A1B-GGUF:Q4_K_M \
             --ctx-size 128000 --temp 0.1 --top-k 50 --repeat-penalty 1.1 \
@@ -77,10 +77,10 @@ in {
         capabilities = {
           "in" = ["text"];
           out = ["text"];
-          tools = true;
-          context = 128000;
+          tools = lib.mkDefault true;
+          context = lib.mkDefault 128000;
         };
       };
-    });
+    };
   };
 }
