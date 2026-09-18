@@ -56,15 +56,18 @@ file.
 goes" bags whose values are read directly by other modules rather than merged
 per key: `nixpkgs.config.*`, `programs.ssh.settings`,
 `programs.starship.settings`, `programs.pi-coding-agent.settings`, the
-distrobox containers. Wrapping those in `mkDefault` leaks the wrapper
-(`{ _type = "override"; ... }`) to the reader, which errors with things like
-`expected a list but found a set` or a missing attribute. Write them plainly;
-where the leaves inside them are ordinary options, those leaves can still be
-`mkDefault`. A key written plainly there is a permanent definition though: a
-deployment that wants a different value for that same key would hit a
-same-priority conflict and need `mkForce`, and `mkDefault` cannot rescue it
-(wrapper leak) — so asgard only writes keys in those bags that no deployment
-is expected to redefine.
+distrobox containers. Write them plainly; where the leaves inside them are
+ordinary options, those leaves can still be `mkDefault`. A default on the
+whole bag buys nothing: it is dropped the moment a deployment defines anything
+in that option, and takes the sibling defaults with it (downstream
+`s.k.a = "down"` against `s.k = lib.mkDefault { a = "x"; ty = "y"; }` leaves
+`ty` at the option's own default, while `s.k.ty = lib.mkDefault "y"` keeps
+it), and in shapes where the merge does keep the wrapper it reaches the reader
+as `{ _type = "override"; ... }`. A key written plainly there is a permanent
+definition though: a deployment that wants a different value for that same key
+would hit a same-priority conflict and need `mkForce`, and `mkDefault` cannot
+rescue it — so asgard only writes keys in those bags that no deployment is
+expected to redefine.
 
 **Keys nixpkgs already sets go through `mkAfter`.** `lib.mkDefault` yields to
 *any* other definition, so a default that nixpkgs also sets (for example
