@@ -8,6 +8,7 @@
   imports = [
     ./home-manager.nix
     ./llama-swap
+    ./podman.nix
     ./wsl.nix
     home-manager.nixosModules.home-manager
     nixos-wsl.nixosModules.wsl
