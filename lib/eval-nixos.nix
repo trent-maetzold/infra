@@ -1,4 +1,3 @@
-# Evaluate asgard's NixOS modules standalone — options docs, downstream probes.
 {
   lib,
   nixpkgs,

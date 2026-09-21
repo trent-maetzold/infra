@@ -1,4 +1,3 @@
-# nixpkgs with asgard's overlays applied, for one system.
 {
   nixpkgs,
   overlays,

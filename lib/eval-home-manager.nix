@@ -1,4 +1,3 @@
-# Evaluate asgard's home-manager modules standalone.
 {
   lib,
   homeManagerModules,

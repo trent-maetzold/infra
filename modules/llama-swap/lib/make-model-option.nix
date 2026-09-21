@@ -1,5 +1,5 @@
 # The `services.llama-swap.models.<name>` switch for one model. The model files
-# (models/gpu.nix, models/cpu.nix) are otherwise just data.
+# (models/default.nix, models/gpu.nix) are otherwise just data.
 {lib}: name:
 lib.mkOption {
   type = lib.types.bool;

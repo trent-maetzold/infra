@@ -1,5 +1,3 @@
-# asgard's lib: flake.nix's helpers, one file each. `specialArgs` is the flake's
-# inputs, so `lib.<helper>` is all flake.nix needs to reach.
 {
   nixpkgs,
   inputs,
@@ -11,8 +9,6 @@
 
   specialArgs = inputs;
 
-  # Modules get evaluated standalone (options docs, downstream probes), so a
-  # config that doesn't satisfy every dependency still has to evaluate.
   noCheck = import ./no-check.nix;
 in {
   forAllSystems = import ./for-all-systems.nix {inherit lib;};
