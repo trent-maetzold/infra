@@ -17,4 +17,6 @@ in {
       };
     })
   ];
+
+  options.home-manager.enable = lib.mkEnableOption "the tm home profile (account + home-manager wiring)";
 }

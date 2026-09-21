@@ -11,7 +11,7 @@ in {
     (lib.mkIf cfg.enable {
       programs.lazyvim = {
         configFiles = lib.mkDefault ../../config/nvim;
-        extraPackages = with pkgs; [
+        extraPackages = lib.mkAfter (with pkgs; [
           ghostscript
           tectonic
           imagemagick
@@ -22,7 +22,7 @@ in {
           tree-sitter
           lua51Packages.lua
           lua51Packages.luarocks
-        ];
+        ]);
         extras = {
           coding = {
             blink.enable = lib.mkDefault true;
@@ -57,14 +57,14 @@ in {
           };
         };
         installCoreDependencies = lib.mkDefault true;
-        treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
+        treesitterParsers = lib.mkAfter (with pkgs.vimPlugins.nvim-treesitter-parsers; [
           css
           scss
           latex
           svelte
           typst
           vue
-        ];
+        ]);
       };
       xdg.configFile."nvim/lua/config/nixpaths.lua".text = lib.mkDefault ''
         return {

@@ -14,10 +14,10 @@ in {
         ".pi/agent/zentui.json".source = lib.mkDefault ../../config/pi/packages/zentui.json;
       };
       programs.pi-coding-agent = {
-        extraPackages = with pkgs; [
+        extraPackages = lib.mkAfter (with pkgs; [
           bun
           nodejs
-        ];
+        ]);
         settings = {
           packages = [
             "@dietrichgebert/ponytail"

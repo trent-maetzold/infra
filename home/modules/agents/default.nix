@@ -20,7 +20,7 @@ in {
           source = lib.mkDefault ../../config/agents;
           recursive = lib.mkDefault true;
         };
-        packages = with pkgs;
+        packages = lib.mkAfter (with pkgs;
           (with llm-agents; [
             agent-browser
             bernstein
@@ -32,7 +32,7 @@ in {
           ++ [
             ffmpeg
             ungoogled-chromium
-          ];
+          ]);
         shellAliases.mini = lib.mkDefault "uvx --from mini-swe-agent mini";
       };
     })
