@@ -18,7 +18,6 @@ in {
         {outputs = ["out" "lib"];} "mkdir -p $out $lib"
       );
     };
-    nixpkgs.config.allowUnfreePackages = ["nvidia-container-toolkit"];
     wsl = {
       startMenuLaunchers = lib.mkDefault true;
       useWindowsDriver = lib.mkDefault true;

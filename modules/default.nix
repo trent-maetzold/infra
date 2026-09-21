@@ -12,6 +12,7 @@ in {
     ./home-manager.nix
     ./llama-swap
     ./podman.nix
+    ./nvidia
     ./wsl.nix
     home-manager.nixosModules.home-manager
     nixos-wsl.nixosModules.wsl
