@@ -11,7 +11,6 @@ in {
   imports = [
     ./home-manager.nix
     ./llama-swap
-    ./podman.nix
     ./nvidia
     ./wsl.nix
     home-manager.nixosModules.home-manager
@@ -23,6 +22,7 @@ in {
     (lib.mkIf cfg.enable {
       environment.systemPackages = lib.mkAfter (with pkgs; [
         alejandra
+        btop
         curl
         gcc
         git
