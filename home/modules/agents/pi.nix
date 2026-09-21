@@ -33,7 +33,6 @@ in {
             "npm:pi-subagents"
             "npm:pi-web-access"
             "npm:pi-zentui"
-            "npm:remote-pi"
           ];
           theme = lib.mkDefault "everforest-light-soft/everforest-dark-soft";
         };
