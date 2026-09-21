@@ -13,10 +13,12 @@
     else pkgs.llama-cpp
   ) "llama-server";
 in {
-  imports = [./models.nix];
+  imports = [
+    ./models
+  ];
 
   config = lib.mkIf cfg.enable {
-    nixpkgs.config.allowUnfreePackages = [
+    nixpkgs.config.allowUnfreePackages = lib.optionals cfg.cuda.enable [
       "cuda_cccl"
       "cuda_cudart"
       "cuda_nvcc"
