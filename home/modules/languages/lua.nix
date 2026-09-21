@@ -3,16 +3,18 @@
   lib,
   pkgs,
   ...
-}: {
-  options.languages.lua.enable = lib.mkEnableOption "Lua language support (edit, run, debug)";
-
+}: let
+  cfg = config.languages.lua;
+in {
   config = lib.mkMerge [
     {languages.lua.enable = lib.mkDefault true;}
-    (lib.mkIf config.languages.lua.enable {
+    (lib.mkIf cfg.enable {
       home.packages = lib.mkAfter (with pkgs; [
         lua-language-server
         stylua
       ]);
     })
   ];
+
+  options.languages.lua.enable = lib.mkEnableOption "Lua language support (edit, run, debug)";
 }

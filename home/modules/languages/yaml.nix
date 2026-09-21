@@ -3,14 +3,16 @@
   lib,
   pkgs,
   ...
-}: {
-  options.languages.yaml.enable = lib.mkEnableOption "YAML language support";
-
+}: let
+  cfg = config.languages.yaml;
+in {
   config = lib.mkMerge [
     {languages.yaml.enable = lib.mkDefault true;}
-    (lib.mkIf config.languages.yaml.enable {
-      programs.lazyvim.extras.lang.yaml.enable = lib.mkDefault true;
+    (lib.mkIf cfg.enable {
       home.packages = lib.mkAfter [pkgs.yaml-language-server];
+      programs.lazyvim.extras.lang.yaml.enable = lib.mkDefault true;
     })
   ];
+
+  options.languages.yaml.enable = lib.mkEnableOption "YAML language support";
 }

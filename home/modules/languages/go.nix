@@ -3,19 +3,21 @@
   lib,
   pkgs,
   ...
-}: {
-  options.languages.go.enable = lib.mkEnableOption "Go language support (edit, build, run, debug)";
-
+}: let
+  cfg = config.languages.go;
+in {
   config = lib.mkMerge [
     {languages.go.enable = lib.mkDefault true;}
-    (lib.mkIf config.languages.go.enable {
-      programs.lazyvim.extras.lang.go.enable = lib.mkDefault true;
+    (lib.mkIf cfg.enable {
       home.packages = lib.mkAfter (with pkgs; [
+        delve
         go
         gopls
         gotools
-        delve
       ]);
+      programs.lazyvim.extras.lang.go.enable = lib.mkDefault true;
     })
   ];
+
+  options.languages.go.enable = lib.mkEnableOption "Go language support (edit, build, run, debug)";
 }

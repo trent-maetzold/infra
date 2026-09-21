@@ -3,13 +3,10 @@
   lib,
   pkgs,
   ...
-}: {
-  config = lib.mkIf config.wsl.enable {
-    nixpkgs.config.allowUnfreePackages = ["nvidia-container-toolkit"];
-    wsl = {
-      useWindowsDriver = lib.mkDefault true;
-      startMenuLaunchers = lib.mkDefault true;
-    };
+}: let
+  cfg = config.wsl;
+in {
+  config = lib.mkIf cfg.enable {
     environment.systemPackages = lib.mkAfter (with pkgs; [
       (writeShellScriptBin "wslview" ''exec wsl-open "$@"'')
       wsl-open
@@ -20,6 +17,11 @@
         pkgs.runCommand "wsl-nvidia-driver-stub"
         {outputs = ["out" "lib"];} "mkdir -p $out $lib"
       );
+    };
+    nixpkgs.config.allowUnfreePackages = ["nvidia-container-toolkit"];
+    wsl = {
+      startMenuLaunchers = lib.mkDefault true;
+      useWindowsDriver = lib.mkDefault true;
     };
   };
 }

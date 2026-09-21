@@ -14,13 +14,6 @@
     };
   modelDefinition = name: def: mkIf cfg.models.${name} def;
 in {
-  options.services.llama-swap.models = {
-    "qwopus3.6-35b-a3b-coder" = modelOption "qwopus3.6-35b-a3b-coder";
-    "refact-1.6b-fim" = modelOption "refact-1.6b-fim";
-    "lfm2.5-2.6b" = modelOption "lfm2.5-2.6b";
-    "lfm2.5-8b-a1b" = modelOption "lfm2.5-8b-a1b";
-  };
-
   config = mkIf cfg.enable {
     services.llama-swap.settings.models = lib.filterAttrs (_: v: v != null) {
       "qwopus3.6-35b-a3b-coder" = modelDefinition "qwopus3.6-35b-a3b-coder" {
@@ -82,5 +75,12 @@ in {
         };
       };
     };
+  };
+
+  options.services.llama-swap.models = {
+    "qwopus3.6-35b-a3b-coder" = modelOption "qwopus3.6-35b-a3b-coder";
+    "refact-1.6b-fim" = modelOption "refact-1.6b-fim";
+    "lfm2.5-2.6b" = modelOption "lfm2.5-2.6b";
+    "lfm2.5-8b-a1b" = modelOption "lfm2.5-8b-a1b";
   };
 }

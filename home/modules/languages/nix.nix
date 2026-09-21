@@ -3,18 +3,20 @@
   lib,
   pkgs,
   ...
-}: {
-  options.languages.nix.enable = lib.mkEnableOption "Nix language support (edit, evaluate, format)";
-
+}: let
+  cfg = config.languages.nix;
+in {
   config = lib.mkMerge [
     {languages.nix.enable = lib.mkDefault true;}
-    (lib.mkIf config.languages.nix.enable {
-      programs.lazyvim.extras.lang.nix.enable = lib.mkDefault true;
+    (lib.mkIf cfg.enable {
       home.packages = lib.mkAfter (with pkgs; [
-        nil
         alejandra
+        nil
         statix
       ]);
+      programs.lazyvim.extras.lang.nix.enable = lib.mkDefault true;
     })
   ];
+
+  options.languages.nix.enable = lib.mkEnableOption "Nix language support (edit, evaluate, format)";
 }

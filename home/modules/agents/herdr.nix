@@ -3,10 +3,12 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  cfg = config.programs.herdr;
+in {
   config = lib.mkMerge [
     {programs.herdr.enable = lib.mkDefault true;}
-    (lib.mkIf config.programs.herdr.enable {
+    (lib.mkIf cfg.enable {
       programs.herdr = {
         package = lib.mkDefault pkgs.llm-agents.herdr;
         settings = {

@@ -3,25 +3,28 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  cfg = config.programs.git;
+in {
   config = lib.mkMerge [
     {programs.git.enable = lib.mkDefault true;}
-    (lib.mkIf config.programs.git.enable {
+    (lib.mkIf cfg.enable {
+      home = {
+        packages = lib.mkAfter (with pkgs; [forgejo-cli]);
+        shellAliases.lg = lib.mkDefault "lazygit";
+      };
       programs = {
+        gh.enable = lib.mkDefault true;
         git = {
+          ignores = [".serena"];
           settings = {
             init.defaultBranch = lib.mkDefault "main";
             pull.rebase = lib.mkDefault true;
             push.autoSetupRemote = lib.mkDefault true;
           };
-          ignores = [".serena"];
         };
-        gh.enable = lib.mkDefault true;
         lazygit.enable = lib.mkDefault true;
-      };
-      home = {
-        packages = lib.mkAfter (with pkgs; [forgejo-cli]);
-        shellAliases.lg = lib.mkDefault "lazygit";
+        zsh.oh-my-zsh.plugins = ["git"];
       };
     })
   ];

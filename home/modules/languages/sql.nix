@@ -2,13 +2,15 @@
   config,
   lib,
   ...
-}: {
-  options.languages.sql.enable = lib.mkEnableOption "SQL language support";
-
+}: let
+  cfg = config.languages.sql;
+in {
   config = lib.mkMerge [
     {languages.sql.enable = lib.mkDefault true;}
-    (lib.mkIf config.languages.sql.enable {
+    (lib.mkIf cfg.enable {
       programs.lazyvim.extras.lang.sql.enable = lib.mkDefault true;
     })
   ];
+
+  options.languages.sql.enable = lib.mkEnableOption "SQL language support";
 }

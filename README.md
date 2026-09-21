@@ -74,6 +74,11 @@ expected to redefine.
 `nix.settings.trusted-users = [ "root" ]`) would silently lose asgard's
 value. `mkAfter` merges instead, giving `[ "root" "@wheel" ]`.
 
+**Rootless pasta publishes IPv4 only** (`modules/podman.nix`). With IPv6 in
+play the port relay binds an address the host — or WSL — cannot reach, so the
+container's published port goes nowhere: `pasta_options = [ "--ipv4-only" ]`,
+as `mkAfter` so a deployment's own pasta flags still merge.
+
 - No `user`, no hostnames, no secrets, no paths outside this repo.
 - Config files (`home/config/*`) are part of the defaults; anything that
   differs per deployment lives in the consumer.
@@ -108,40 +113,58 @@ entry with `command = "docker"`.
 
 ## Module conventions
 
-- Plain `.nix` files. No flake inputs in scope, no closures, no in-file
-  `imports` (the flake lists are the only wiring).
-- Canonical shapes, in order of preference:
-  - Gateway already exists upstream → unconditional settings (no module
-    `config` wrapper at all):
-    ```nix
-    { config, lib, pkgs, ... }: {
-      services.openssh.settings = {
-        PermitRootLogin = "no";
-        PasswordAuthentication = false;
-      };
-    }
-    ```
-  - Own effect that needs a flag → keep both top-level (module system
-    rejects a bare top-level attrset next to `config`/`options` keys):
-    ```nix
-    { config, lib, pkgs, ... }: {
-      config = lib.mkMerge [
-        { services.podman.quadlet... = ...; }                   # upstream-gated: unconditional
-        (lib.mkIf config.services.podman.enable {                # own effect: gated
-          services.podman.containers.example = { ...; };          # no identity here
-        })
-      ];
-    }
-    ```
-  - No upstream flag exists → declare a module-local option inline
-    (`services.llama-swap.cuda.enable`, ...).
+One shape in every module — the file says out loud what turns it on:
+
+```nix
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  cfg = config.programs.zsh;
+in {
+  imports = [./other.nix];                        # only when there are any
+
+  config = lib.mkMerge [
+    {programs.zsh.enable = lib.mkDefault true;}   # asgard owns the flag
+    (lib.mkIf cfg.enable {                        # everything else is the effect
+      programs.zsh.syntaxHighlighting.enable = lib.mkDefault true;
+    })
+  ];
+
+  options.languages.bash.enable = lib.mkEnableOption "…";  # only when asgard declares it
+}
+```
+
+- Plain `.nix` files: no flake inputs in scope, no `import` of another
+  module's option set — the flake's `imports` lists are the wiring. The two
+  entry modules (`modules/default.nix`, `home/modules/default.nix`) are the
+  unconditional base: they default options someone else owns and have no gate.
+- `cfg` is the subtree the module owns; the gate is always `cfg.enable`, and
+  one module has one gate. A module that needs a second enable flag is two
+  modules. Sub-conditions of its own gate are not a second gate
+  (`hardware.nvidia-container-toolkit.enable` inside `wsl`, `containers != {}`
+  inside `distrobox`).
+- Where the flag is upstream's (`programs.zsh.enable`,
+  `virtualisation.podman.enable`, `services.llama-swap.enable`, …) asgard only
+  reads it: the consumer opts in. Where asgard declares it, asgard defaults it
+  on — `lib.mkDefault true`, next to the gate, never inside it.
+- `imports` first, one blank line after it.
+- Top-level attrs alphabetical (`config` before `options`), nested sets too,
+  except where order is semantics: `imports`, `environment.systemPackages`.
+- `let` between the function head and the module's `{`; the bindings read as
+  one list and bind whole subtrees (`cfg = config.programs.distrobox;`) rather
+  than naming a path per reference.
+- Dotted keys when the set holds one value (`home.shellAliases.ld = …`), nesting
+  when it holds several.
+- Blank line between two attrset values, never inside a list.
+- The shape is what `nix fmt` produces — never hand-wrap an argument list.
+- No comments in the config: the why belongs in the commit message, and a rule
+  or a trap that has to survive belongs in this file. Exceptions are `lib/` and
+  `overlays/` (their header states the contract the file encodes) and
+  `home/config/*`, which is content.
 - Options are declared where they're used; no central options file.
-- Nested settings are combined into one attrset, never sibling dotted
-  paths: `deployment = { targetHost = ...; targetUser = ...; };`.
-- Flags default on (`lib.mkDefault true` on top of the gate).
-- Comments are rare: they state a non-obvious constraint, never what changed
-  from the last version (that belongs in the commit message).
-- Enable flags are never defined inside the module that reads them.
 - Shared modules never take the `user` specialArg or set per-host identity
   options (`wsl.defaultUser`, `home.stateVersion`, ...) — those live in
   `hosts/<name>/default.nix`.

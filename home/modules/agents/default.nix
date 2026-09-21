@@ -3,9 +3,9 @@
   lib,
   pkgs,
   ...
-}: {
-  options.programs.agents.enable = lib.mkEnableOption "agents";
-
+}: let
+  cfg = config.programs.agents;
+in {
   imports = [
     ./herdr.nix
     ./mcp.nix
@@ -14,23 +14,29 @@
 
   config = lib.mkMerge [
     {programs.agents.enable = lib.mkDefault true;}
-    (lib.mkIf config.programs.agents.enable {
+    (lib.mkIf cfg.enable {
       home = {
-        packages = with pkgs.llm-agents; [
-          bernstein
-          gnhf
-          openspec
-          openspecui
-          qmd
-        ];
-        file = {
-          ".agents" = {
-            source = lib.mkDefault ../../config/agents;
-            recursive = lib.mkDefault true;
-          };
+        file.".agents" = {
+          source = lib.mkDefault ../../config/agents;
+          recursive = lib.mkDefault true;
         };
+        packages = with pkgs;
+          (with llm-agents; [
+            agent-browser
+            bernstein
+            gnhf
+            openspec
+            openspecui
+            qmd
+          ])
+          ++ [
+            ffmpeg
+            ungoogled-chromium
+          ];
         shellAliases.mini = lib.mkDefault "uvx --from mini-swe-agent mini";
       };
     })
   ];
+
+  options.programs.agents.enable = lib.mkEnableOption "agents";
 }

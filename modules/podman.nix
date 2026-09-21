@@ -1,9 +1,11 @@
-{lib, ...}: {
-  virtualisation.containers.containersConf.settings = {
-    network = {
-      # Rootless pasta must publish IPv4-only: with IPv6 in play the port relay
-      # binds an address the host (or WSL) cannot reach.
-      pasta_options = lib.mkAfter ["--ipv4-only"];
-    };
+{
+  config,
+  lib,
+  ...
+}: let
+  cfg = config.virtualisation.podman;
+in {
+  config = lib.mkIf cfg.enable {
+    virtualisation.containers.containersConf.settings.network.pasta_options = lib.mkAfter ["--ipv4-only"];
   };
 }

@@ -1,17 +1,25 @@
-{lib, ...}: {
-  programs.ssh = {
-    enable = lib.mkDefault true;
-    enableDefaultConfig = lib.mkDefault false;
-    settings = {
-      "*" = {
-        ForwardAgent = lib.mkDefault false;
-        AddKeysToAgent = lib.mkDefault "no";
-        Compression = lib.mkDefault false;
-        ServerAliveInterval = lib.mkDefault 0;
-        ServerAliveCountMax = lib.mkDefault 3;
-        HashKnownHosts = lib.mkDefault false;
-        UserKnownHostsFile = lib.mkDefault "~/.ssh/known_hosts";
+{
+  config,
+  lib,
+  ...
+}: let
+  cfg = config.programs.ssh;
+in {
+  config = lib.mkMerge [
+    {programs.ssh.enable = lib.mkDefault true;}
+    (lib.mkIf cfg.enable {
+      programs.ssh = {
+        enableDefaultConfig = lib.mkDefault false;
+        settings."*" = {
+          AddKeysToAgent = lib.mkDefault "no";
+          Compression = lib.mkDefault false;
+          ForwardAgent = lib.mkDefault false;
+          HashKnownHosts = lib.mkDefault false;
+          ServerAliveCountMax = lib.mkDefault 3;
+          ServerAliveInterval = lib.mkDefault 0;
+          UserKnownHostsFile = lib.mkDefault "~/.ssh/known_hosts";
+        };
       };
-    };
-  };
+    })
+  ];
 }

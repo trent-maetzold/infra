@@ -2,23 +2,13 @@
   config,
   lib,
   ...
-}: {
+}: let
+  cfg = config.programs.zsh;
+in {
   config = lib.mkMerge [
     {programs.zsh.enable = lib.mkDefault true;}
-    (lib.mkIf config.programs.zsh.enable {
+    (lib.mkIf cfg.enable {
       programs = {
-        zsh = {
-          autosuggestion.enable = lib.mkDefault true;
-          syntaxHighlighting.enable = lib.mkDefault true;
-          oh-my-zsh = {
-            enable = lib.mkDefault true;
-            plugins = [
-              "sudo"
-              "docker"
-              "git"
-            ];
-          };
-        };
         starship = {
           enable = lib.mkDefault true;
           enableZshIntegration = lib.mkDefault true;
@@ -29,6 +19,14 @@
               error_symbol = lib.mkDefault "[❯](bold red)";
             };
           };
+        };
+        zsh = {
+          autosuggestion.enable = lib.mkDefault true;
+          oh-my-zsh = {
+            enable = lib.mkDefault true;
+            plugins = ["sudo"];
+          };
+          syntaxHighlighting.enable = lib.mkDefault true;
         };
       };
     })

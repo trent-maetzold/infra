@@ -3,22 +3,24 @@
   lib,
   pkgs,
   ...
-}: {
-  options.languages.python.enable = lib.mkEnableOption "Python language support (edit, run, debug)";
-
+}: let
+  cfg = config.languages.python;
+in {
   config = lib.mkMerge [
     {languages.python.enable = lib.mkDefault true;}
-    (lib.mkIf config.languages.python.enable {
-      programs.lazyvim.extras.lang.python.enable = lib.mkDefault true;
+    (lib.mkIf cfg.enable {
       home = {
-        packages = lib.mkAfter (with pkgs; [
-          uv
-          basedpyright
-          ruff
-          python3Packages.debugpy
-        ]);
         file.".config/pyright/config.json".source = lib.mkDefault ../../config/lsp/pyright/config.json;
+        packages = lib.mkAfter (with pkgs; [
+          basedpyright
+          python3Packages.debugpy
+          ruff
+          uv
+        ]);
       };
+      programs.lazyvim.extras.lang.python.enable = lib.mkDefault true;
     })
   ];
+
+  options.languages.python.enable = lib.mkEnableOption "Python language support (edit, run, debug)";
 }
