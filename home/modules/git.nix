@@ -16,7 +16,7 @@ in {
       programs = {
         gh.enable = lib.mkDefault true;
         git = {
-          ignores = [".serena"];
+          ignores = lib.mkAfter [".serena"];
           settings = {
             init.defaultBranch = lib.mkDefault "main";
             pull.rebase = lib.mkDefault true;
@@ -24,7 +24,7 @@ in {
           };
         };
         lazygit.enable = lib.mkDefault true;
-        zsh.oh-my-zsh.plugins = ["git"];
+        zsh.oh-my-zsh.plugins = lib.mkAfter ["git"];
       };
     })
   ];

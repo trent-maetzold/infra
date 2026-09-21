@@ -24,7 +24,7 @@ in {
           autosuggestion.enable = lib.mkDefault true;
           oh-my-zsh = {
             enable = lib.mkDefault true;
-            plugins = ["sudo"];
+            plugins = lib.mkAfter ["sudo"];
           };
           syntaxHighlighting.enable = lib.mkDefault true;
         };

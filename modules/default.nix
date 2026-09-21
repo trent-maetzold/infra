@@ -58,7 +58,7 @@ in {
       programs.nh.enable = lib.mkDefault true;
       programs.nix-ld = {
         enable = lib.mkDefault true;
-        libraries = with pkgs; [stdenv.cc.cc.lib];
+        libraries = lib.mkAfter (with pkgs; [stdenv.cc.cc.lib]);
       };
       security.sudo.wheelNeedsPassword = lib.mkDefault false;
       services.openssh.settings = {

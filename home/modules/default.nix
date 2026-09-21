@@ -25,11 +25,13 @@ in {
       home = {
         homeDirectory = lib.mkDefault "/home/${config.home.username}";
         packages = lib.mkAfter (with pkgs; [
+          harlequin
           jq
           just
           tree
+          tredis
         ]);
-        sessionPath = ["${config.home.homeDirectory}/.local/bin"];
+        sessionPath = lib.mkAfter ["${config.home.homeDirectory}/.local/bin"];
         shellAliases.ld = lib.mkDefault "lazydocker";
       };
       programs = {

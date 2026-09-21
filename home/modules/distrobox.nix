@@ -21,7 +21,7 @@ in {
               image = lib.mkDefault "archlinux:base-devel";
               additional_packages = lib.mkDefault "zsh";
               entry = lib.mkDefault true;
-              init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
+              init_hooks = lib.mkAfter ["usermod -s /usr/bin/zsh ${config.home.username}"];
               make_wrapper = lib.mkDefault true;
             };
           };
@@ -43,7 +43,6 @@ in {
           name = ".local/bin/${name}";
           value = {
             executable = lib.mkDefault true;
-            # FIXME: make the distrobox create step part of home manager activation.
             text = lib.mkDefault ''
               #!${pkgs.bash}/bin/bash
 

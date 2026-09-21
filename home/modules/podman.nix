@@ -9,7 +9,7 @@ in {
   config = lib.mkMerge [
     {services.podman.enable = lib.mkDefault true;}
     (lib.mkIf cfg.enable {
-      programs.zsh.oh-my-zsh.plugins = ["podman"];
+      programs.zsh.oh-my-zsh.plugins = lib.mkAfter ["podman"];
       services.podman.extraPackages = lib.mkAfter (with pkgs; [podman-compose]);
     })
   ];
