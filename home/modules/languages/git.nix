@@ -12,5 +12,5 @@ in {
     })
   ];
 
-  options.languages.git.enable = lib.mkEnableOption "gitconfig/hunk editing support in editors";
+  options.languages.git.enable = lib.mkEnableOption "git language support";
 }

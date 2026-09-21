@@ -18,5 +18,5 @@ in {
     })
   ];
 
-  options.languages.bash.enable = lib.mkEnableOption "Bash/shell language support (edit, lint, debug)";
+  options.languages.bash.enable = lib.mkEnableOption "bash language support";
 }

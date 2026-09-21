@@ -16,5 +16,5 @@ in {
     })
   ];
 
-  options.languages.lua.enable = lib.mkEnableOption "Lua language support (edit, run, debug)";
+  options.languages.lua.enable = lib.mkEnableOption "lua language support";
 }

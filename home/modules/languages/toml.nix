@@ -14,5 +14,5 @@ in {
     })
   ];
 
-  options.languages.toml.enable = lib.mkEnableOption "TOML language support";
+  options.languages.toml.enable = lib.mkEnableOption "toml language support";
 }

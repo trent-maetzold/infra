@@ -18,5 +18,5 @@ in {
     })
   ];
 
-  options.home-manager.enable = lib.mkEnableOption "the tm home profile (account + home-manager wiring)";
+  options.home-manager.enable = lib.mkEnableOption "asgard's home-manager wiring";
 }

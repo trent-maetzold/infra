@@ -22,5 +22,5 @@ in {
     })
   ];
 
-  options.languages.typescript.enable = lib.mkEnableOption "TypeScript/JavaScript language support (edit, build, run, debug)";
+  options.languages.typescript.enable = lib.mkEnableOption "typescript language support";
 }

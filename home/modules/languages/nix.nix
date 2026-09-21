@@ -18,5 +18,5 @@ in {
     })
   ];
 
-  options.languages.nix.enable = lib.mkEnableOption "Nix language support (edit, evaluate, format)";
+  options.languages.nix.enable = lib.mkEnableOption "nix language support";
 }

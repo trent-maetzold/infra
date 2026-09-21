@@ -14,5 +14,5 @@ in {
     })
   ];
 
-  options.languages.yaml.enable = lib.mkEnableOption "YAML language support";
+  options.languages.yaml.enable = lib.mkEnableOption "yaml language support";
 }

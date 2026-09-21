@@ -4,7 +4,9 @@
   pkgs,
   lazyvim,
   ...
-}: {
+}: let
+  cfg = config.asgard;
+in {
   imports = [
     ./agents
     ./languages
@@ -17,24 +19,29 @@
     lazyvim.homeManagerModules.default
   ];
 
-  config = {
-    home = {
-      homeDirectory = lib.mkDefault "/home/${config.home.username}";
-      packages = lib.mkAfter (with pkgs; [
-        jq
-        just
-        tree
-      ]);
-      sessionPath = ["${config.home.homeDirectory}/.local/bin"];
-      shellAliases.ld = lib.mkDefault "lazydocker";
-    };
-    programs = {
-      btop = {
-        enable = lib.mkDefault true;
-        settings.vim_keys = lib.mkDefault true;
+  config = lib.mkMerge [
+    {asgard.enable = lib.mkDefault true;}
+    (lib.mkIf cfg.enable {
+      home = {
+        homeDirectory = lib.mkDefault "/home/${config.home.username}";
+        packages = lib.mkAfter (with pkgs; [
+          jq
+          just
+          tree
+        ]);
+        sessionPath = ["${config.home.homeDirectory}/.local/bin"];
+        shellAliases.ld = lib.mkDefault "lazydocker";
       };
-      lazydocker.enable = lib.mkDefault true;
-      nh.enable = lib.mkDefault true;
-    };
-  };
+      programs = {
+        btop = {
+          enable = lib.mkDefault true;
+          settings.vim_keys = lib.mkDefault true;
+        };
+        lazydocker.enable = lib.mkDefault true;
+        nh.enable = lib.mkDefault true;
+      };
+    })
+  ];
+
+  options.asgard.enable = lib.mkEnableOption "asgard's base home-manager defaults";
 }

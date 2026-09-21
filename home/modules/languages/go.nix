@@ -19,5 +19,5 @@ in {
     })
   ];
 
-  options.languages.go.enable = lib.mkEnableOption "Go language support (edit, build, run, debug)";
+  options.languages.go.enable = lib.mkEnableOption "go language support";
 }

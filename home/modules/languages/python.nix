@@ -22,5 +22,5 @@ in {
     })
   ];
 
-  options.languages.python.enable = lib.mkEnableOption "Python language support (edit, run, debug)";
+  options.languages.python.enable = lib.mkEnableOption "python language support";
 }

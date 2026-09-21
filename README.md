@@ -122,25 +122,38 @@ One shape in every module — the file says out loud what turns it on:
   pkgs,
   ...
 }: let
-  cfg = config.programs.zsh;
+  cfg = config.languages.bash;
 in {
-  imports = [./other.nix];                        # only when there are any
+  imports = [./other.nix];                          # only when there are any
 
   config = lib.mkMerge [
-    {programs.zsh.enable = lib.mkDefault true;}   # asgard owns the flag
-    (lib.mkIf cfg.enable {                        # everything else is the effect
-      programs.zsh.syntaxHighlighting.enable = lib.mkDefault true;
+    {languages.bash.enable = lib.mkDefault true;}   # asgard declares the flag, so asgard defaults it on
+    (lib.mkIf cfg.enable {                          # everything else is the effect
+      home.packages = lib.mkAfter (with pkgs; [shellcheck]);
     })
   ];
 
-  options.languages.bash.enable = lib.mkEnableOption "…";  # only when asgard declares it
+  options.languages.bash.enable = lib.mkEnableOption "bash language support";
 }
 ```
 
+When the flag is upstream's (`programs.zsh.enable`,
+`virtualisation.podman.enable`, `services.llama-swap.enable`) the `options`
+block is not asgard's to write: `cfg` points at the upstream subtree, the
+`lib.mkDefault true` entry is all asgard adds, and the consumer opts out.
+
 - Plain `.nix` files: no flake inputs in scope, no `import` of another
-  module's option set — the flake's `imports` lists are the wiring. The two
-  entry modules (`modules/default.nix`, `home/modules/default.nix`) are the
-  unconditional base: they default options someone else owns and have no gate.
+  module's option set — the flake's `imports` lists are the wiring. Every
+  module is gated, including the two entry modules: `modules/default.nix`
+  (`asgard.enable`, the NixOS base), `home/modules/default.nix`
+  (`asgard.enable` in home-manager's namespace, the home base) and
+  `modules/home-manager.nix` (`home-manager.enable`, the account + wiring).
+  A deployment that imports asgard everywhere turns a machine off with
+  `asgard.enable = false` / `home-manager.enable = false`, never by editing its
+  import list.
+- The master switches gate only their own module's content: `asgard.enable`
+  does not reach into `podman`, `wsl`, `llama-swap` or the home modules — those
+  answer to their own flag.
 - `cfg` is the subtree the module owns; the gate is always `cfg.enable`, and
   one module has one gate. A module that needs a second enable flag is two
   modules. Sub-conditions of its own gate are not a second gate
@@ -149,7 +162,12 @@ in {
 - Where the flag is upstream's (`programs.zsh.enable`,
   `virtualisation.podman.enable`, `services.llama-swap.enable`, …) asgard only
   reads it: the consumer opts in. Where asgard declares it, asgard defaults it
-  on — `lib.mkDefault true`, next to the gate, never inside it.
+  on — `lib.mkDefault true`, next to the gate, never inside it. `asgard.enable`
+  itself is declared by asgard on both sides.
+- `lib.mkEnableOption` text is one shape everywhere: a lowercase noun phrase
+  naming what the flag turns on, no parentheses, no articles, no user or host
+  names — `"bash language support"`, `"asgard's agent tooling"`, `"cuda support
+  for llama-cpp"`. Rendered as "Whether to enable …".
 - `imports` first, one blank line after it.
 - Top-level attrs alphabetical (`config` before `options`), nested sets too,
   except where order is semantics: `imports`, `environment.systemPackages`.

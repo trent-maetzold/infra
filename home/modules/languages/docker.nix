@@ -17,5 +17,5 @@ in {
     })
   ];
 
-  options.languages.docker.enable = lib.mkEnableOption "Dockerfile/compose language support";
+  options.languages.docker.enable = lib.mkEnableOption "docker language support";
 }

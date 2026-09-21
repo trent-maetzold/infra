@@ -20,5 +20,5 @@ in {
     })
   ];
 
-  options.languages.rust.enable = lib.mkEnableOption "Rust language support (edit, build, run, debug)";
+  options.languages.rust.enable = lib.mkEnableOption "rust language support";
 }

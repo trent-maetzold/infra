@@ -18,5 +18,5 @@ in {
     })
   ];
 
-  options.languages.markdown.enable = lib.mkEnableOption "Markdown language support (edit, lint)";
+  options.languages.markdown.enable = lib.mkEnableOption "markdown language support";
 }

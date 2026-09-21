@@ -12,5 +12,5 @@ in {
     })
   ];
 
-  options.languages.sql.enable = lib.mkEnableOption "SQL language support";
+  options.languages.sql.enable = lib.mkEnableOption "sql language support";
 }

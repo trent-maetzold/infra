@@ -14,5 +14,5 @@ in {
     })
   ];
 
-  options.languages.json.enable = lib.mkEnableOption "JSON language support";
+  options.languages.json.enable = lib.mkEnableOption "json language support";
 }

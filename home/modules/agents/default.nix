@@ -38,5 +38,5 @@ in {
     })
   ];
 
-  options.programs.agents.enable = lib.mkEnableOption "agents";
+  options.programs.agents.enable = lib.mkEnableOption "asgard's agent tooling";
 }

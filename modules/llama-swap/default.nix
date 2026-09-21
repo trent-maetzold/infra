@@ -37,7 +37,7 @@ in {
   };
 
   options = {
-    services.llama-swap.cuda.enable = lib.mkEnableOption "CUDA build of llama-cpp (for llama-server)";
+    services.llama-swap.cuda.enable = lib.mkEnableOption "cuda support for llama-cpp";
     services.llama-swap.llamaServer = lib.mkOption {
       type = lib.types.path;
       default = llamaServer;
