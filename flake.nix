@@ -27,48 +27,20 @@
     llm-agents,
     ...
   } @ inputs: let
-    inherit (nixpkgs) lib;
-
     nixosModules.default = ./modules;
     homeManagerModules.default = ./home/modules;
-    specialArgs = inputs;
-    overlays = [llm-agents.overlays.shared-nixpkgs];
 
-    systems = ["x86_64-linux" "aarch64-linux"];
-    forAllSystems = lib.genAttrs systems;
-    pkgsFor = system: import nixpkgs {inherit system overlays;};
-
-    checkOff = {_module.check = false;};
-
-    evalNixos = pkgs:
-      lib.evalModules {
-        modules = [nixosModules.default checkOff];
-        specialArgs =
-          {
-            modulesPath = "${nixpkgs}/nixos/modules";
-            inherit pkgs;
-          }
-          // specialArgs;
-      };
-
-    evalHome = pkgs:
-      lib.evalModules {
-        modules = [homeManagerModules.default checkOff];
-        specialArgs = {inherit pkgs;} // specialArgs;
-      };
-
-    optionsDoc = pkgs: eval:
-      pkgs.nixosOptionsDoc {
-        options = builtins.removeAttrs eval.options ["_module"];
-      };
+    overlays = import ./overlays {inherit nixpkgs llm-agents;};
+    lib = import ./lib {
+      inherit nixpkgs inputs nixosModules homeManagerModules overlays;
+    };
   in {
-    inherit nixosModules homeManagerModules;
-    overlays.default = llm-agents.overlays.shared-nixpkgs;
+    inherit nixosModules homeManagerModules overlays;
 
-    packages = forAllSystems (system: let
-      pkgs = pkgsFor system;
-      nixosDoc = optionsDoc pkgs (evalNixos pkgs);
-      homeDoc = optionsDoc pkgs (evalHome pkgs);
+    packages = lib.forAllSystems (system: let
+      pkgs = lib.pkgsFor system;
+      nixosDoc = lib.optionsDoc pkgs (lib.evalNixos pkgs);
+      homeDoc = lib.optionsDoc pkgs (lib.evalHomeManager pkgs);
     in {
       options-json = pkgs.runCommand "asgard-options-json" {} ''
         mkdir -p $out/nixos $out/home-manager
@@ -80,6 +52,6 @@
       '';
     });
 
-    formatter = forAllSystems (system: (pkgsFor system).alejandra);
+    formatter = lib.forAllSystems (system: (lib.pkgsFor system).alejandra);
   };
 }
