@@ -1,12 +1,15 @@
 return {
 	{
-		"catppuccin/nvim",
-		name = "catppuccin",
+		"neanias/everforest-nvim",
+		name = "everforest",
+		opts = {
+			background = "soft",
+		},
 	},
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "catppuccin-frappe",
+			colorscheme = "everforest",
 		},
 	},
 }

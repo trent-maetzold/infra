@@ -14,16 +14,18 @@ in {
         ".pi/agent/zentui.json".source = lib.mkDefault ../../config/pi/packages/zentui.json;
       };
       programs.pi-coding-agent = {
+        package = lib.mkDefault pkgs.llm-agents.pi;
         extraPackages = lib.mkAfter (with pkgs; [
           bun
           nodejs
         ]);
         settings = {
-          packages = [
+          packages = lib.mkAfter [
             "@dietrichgebert/ponytail"
             "npm:billion-context-pi"
             "npm:pi-caveman"
             "npm:pi-committer"
+            "npm:pi-everforest"
             "npm:pi-mcp-adapter"
             "npm:pi-memory"
             "npm:pi-reasonix"
@@ -33,7 +35,7 @@ in {
             "npm:pi-zentui"
             "npm:remote-pi"
           ];
-          theme = lib.mkDefault "dark";
+          theme = lib.mkDefault "everforest-light-soft/everforest-dark-soft";
         };
       };
     })
