@@ -7,9 +7,7 @@
   options.programs.agents.enable = lib.mkEnableOption "agents";
 
   imports = [
-    ./dsh.nix
     ./herdr.nix
-    ./kilo.nix
     ./mcp.nix
     ./pi.nix
   ];
@@ -20,7 +18,6 @@
       home = {
         packages = with pkgs.llm-agents; [
           bernstein
-          freebuff
           gnhf
           openspec
           openspecui
