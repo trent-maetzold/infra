@@ -21,6 +21,7 @@
             "npm:pi-web-access"
             "npm:pi-zentui"
             "npm:@dietrichgebert/ponytail"
+            "npm:@pi-unipi/fusion"
           ];
           theme = lib.mkDefault "dark";
         };
@@ -30,6 +31,7 @@
         ];
       };
       home.file.".pi/agent/zentui.json".source = lib.mkDefault ../../config/pi/packages/zentui.json;
+      home.file.".pi/agent/caveman.json".source = lib.mkDefault ../../config/pi/packages/caveman.json;
     })
   ];
 }
