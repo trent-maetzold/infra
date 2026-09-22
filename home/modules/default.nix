@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  lazyvim,
   ...
 }: let
   cfg = config.asgard;
@@ -16,7 +15,6 @@ in {
     ./podman.nix
     ./shell.nix
     ./ssh.nix
-    lazyvim.homeManagerModules.default
   ];
 
   config = lib.mkMerge [

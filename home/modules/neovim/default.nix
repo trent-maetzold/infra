@@ -2,10 +2,13 @@
   config,
   lib,
   pkgs,
+  lazyvim,
   ...
 }: let
   cfg = config.programs.lazyvim;
 in {
+  imports = [lazyvim.homeManagerModules.default];
+
   config = lib.mkMerge [
     {programs.lazyvim.enable = lib.mkDefault true;}
     (lib.mkIf cfg.enable {

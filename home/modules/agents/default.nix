@@ -9,6 +9,7 @@ in {
   imports = [
     ./herdr.nix
     ./mcp.nix
+    ./omp.nix
     ./pi.nix
   ];
 

@@ -69,6 +69,12 @@ would hit a same-priority conflict and need `mkForce`, and `mkDefault` cannot
 rescue it — so asgard only writes keys in those bags that no deployment is
 expected to redefine.
 
+**Guardrail lists use `lib.mkAfter` too.** `programs.omp.settings.bash.patterns`
+and `programs.omp.settings.extensions` are lists, and lists merge by
+replacement, so an `mkDefault` rule set yields whole to any deployment that
+defines its own: one downstream `bash.patterns` would drop every `rm -rf`
+denial. `mkAfter` keeps asgard's rules and appends the deployment's.
+
 **Keys nixpkgs already sets go through `mkAfter`.** `lib.mkDefault` yields to
 *any* other definition, so a default that nixpkgs also sets (for example
 `nix.settings.trusted-users = [ "root" ]`) would silently lose asgard's
