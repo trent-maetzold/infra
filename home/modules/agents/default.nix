@@ -24,17 +24,26 @@ in {
         packages = lib.mkAfter (with pkgs;
           (with llm-agents; [
             agent-browser
+            beads
             bernstein
+            but
+            executor
             gnhf
+            mardi-gras
             openspec
             openspecui
             qmd
+            semble
           ])
           ++ [
+            dolt
             ffmpeg
+            git
+            jq
+            mini-swe-agent
+            tmux
             ungoogled-chromium
           ]);
-        shellAliases.mini = lib.mkDefault "uvx --from mini-swe-agent mini";
       };
     })
   ];
