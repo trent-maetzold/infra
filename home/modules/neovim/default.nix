@@ -25,9 +25,13 @@ in {
           tree-sitter
           lua51Packages.lua
           lua51Packages.luarocks
+          llm-agents.copilot-language-server
         ]);
         extras = {
-          ai.sidekick.enable = true;
+          ai = {
+            copilot-native.enable = true;
+            sidekick.enable = true;
+          };
           coding = {
             blink.enable = lib.mkDefault true;
             mini-comment.enable = lib.mkDefault true;

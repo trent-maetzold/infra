@@ -24,17 +24,17 @@ in {
         };
         packages = lib.mkAfter (with pkgs;
           (with llm-agents; [
-            agent-browser
             beads
             bernstein
             but
+            codegraph
             executor
             gnhf
             mardi-gras
             openspec
             openspecui
             qmd
-            semble
+            terminal-browser
           ])
           ++ [
             dolt

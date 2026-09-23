@@ -56,7 +56,7 @@ in {
     };
 
     settings = lib.mkOption {
-      type = yaml.type;
+      inherit (yaml) type;
       default = {};
       description = ''
         mini.yaml keys for `mini` to run with, merged over the built-in

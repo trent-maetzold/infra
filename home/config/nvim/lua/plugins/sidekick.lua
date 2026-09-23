@@ -2,7 +2,12 @@ return {
 	{
 		"folke/sidekick.nvim",
 		opts = {
+			nes = { enabled = false },
 			cli = {
+				mux = {
+					backend = "tmux",
+					enabled = true,
+				},
 				tools = {
 					mini = {
 						cmd = { "mini" },
@@ -18,20 +23,12 @@ return {
 			},
 		},
 		keys = {
-			{ "<leader>a", "", desc = "+ai", mode = { "n", "v" } },
 			{
 				"<leader>am",
 				function()
 					require("sidekick.cli").toggle({ name = "mini", focus = true })
 				end,
-				desc = "Sidekick Toggle mini",
-			},
-			{
-				"<leader>ai",
-				function()
-					require("sidekick.cli").toggle({ name = "pi", focus = true })
-				end,
-				desc = "Sidekick Toggle pi",
+				desc = "Sidekick Toggle mini-swe-agent",
 			},
 			{
 				"<leader>ao",
@@ -39,6 +36,13 @@ return {
 					require("sidekick.cli").toggle({ name = "omp", focus = true })
 				end,
 				desc = "Sidekick Toggle omp",
+			},
+			{
+				"<leader>ai",
+				function()
+					require("sidekick.cli").toggle({ name = "pi", focus = true })
+				end,
+				desc = "Sidekick Toggle pi",
 			},
 		},
 	},
