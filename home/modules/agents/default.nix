@@ -9,6 +9,7 @@ in {
   imports = [
     ./herdr.nix
     ./mcp.nix
+    ./mini-swe-agent.nix
     ./omp.nix
     ./pi.nix
   ];
@@ -40,7 +41,6 @@ in {
             ffmpeg
             git
             jq
-            mini-swe-agent
             tmux
             ungoogled-chromium
           ]);
