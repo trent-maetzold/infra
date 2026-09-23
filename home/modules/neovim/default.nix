@@ -27,6 +27,7 @@ in {
           lua51Packages.luarocks
         ]);
         extras = {
+          ai.sidekick.enable = true;
           coding = {
             blink.enable = lib.mkDefault true;
             mini-comment.enable = lib.mkDefault true;
