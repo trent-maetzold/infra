@@ -24,7 +24,6 @@ in {
         homeDirectory = lib.mkDefault "/home/${config.home.username}";
         packages = lib.mkAfter (with pkgs; [
           harlequin
-          jq
           just
           tree
           tredis
@@ -37,7 +36,6 @@ in {
           enable = lib.mkDefault true;
           settings.vim_keys = lib.mkDefault true;
         };
-        lazydocker.enable = lib.mkDefault true;
         nh.enable = lib.mkDefault true;
       };
     })

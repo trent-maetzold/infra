@@ -10,7 +10,10 @@ in {
     {services.podman.enable = lib.mkDefault true;}
     (lib.mkIf cfg.enable {
       home.packages = lib.mkAfter (with pkgs; [podman-compose]);
-      programs.zsh.oh-my-zsh.plugins = lib.mkAfter ["podman"];
+      programs = {
+        lazydocker.enable = lib.mkDefault true;
+        zsh.oh-my-zsh.plugins = lib.mkAfter ["podman"];
+      };
     })
   ];
 }
