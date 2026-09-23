@@ -20,11 +20,18 @@ return {
 		keys = {
 			{ "<leader>a", "", desc = "+ai", mode = { "n", "v" } },
 			{
-				"<leader>aa",
+				"<leader>am",
 				function()
 					require("sidekick.cli").toggle({ name = "mini", focus = true })
 				end,
 				desc = "Sidekick Toggle mini",
+			},
+			{
+				"<leader>ai",
+				function()
+					require("sidekick.cli").toggle({ name = "pi", focus = true })
+				end,
+				desc = "Sidekick Toggle pi",
 			},
 			{
 				"<leader>ao",
