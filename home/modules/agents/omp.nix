@@ -7,42 +7,16 @@
 }: let
   cfg = config.programs.omp;
 
-  deny = match: {
+  guardrails = import ./guardrails.nix;
+
+  deny = map (match: {
     inherit match;
     approval = "deny";
-  };
-  prompt = match: {
+  });
+  prompt = map (match: {
     inherit match;
     approval = "prompt";
-  };
-
-  recursiveForce = [
-    "-rf"
-    "-fr"
-    "-Rf"
-    "-RF"
-    "-fR"
-    "-rF"
-    "-r -f"
-    "-f -r"
-    "-R -f"
-    "-f -R"
-    "-r --force"
-    "--force -r"
-    "--recursive --force"
-    "--force --recursive"
-  ];
-
-  rmShapes = shape: [
-    "rm ${shape}"
-    "rm ${shape} *"
-    "* rm ${shape}"
-    "* rm ${shape} *"
-    "*/rm ${shape}"
-    "*/rm ${shape} *"
-  ];
-
-  bashPatterns = lib.concatMap (shape: map deny (rmShapes shape)) recursiveForce ++ map prompt ["ssh" "ssh *"];
+  });
 in {
   imports = [oh-my-pi.homeManagerModules.default];
 
@@ -52,9 +26,20 @@ in {
       programs.omp = {
         package = lib.mkDefault pkgs.llm-agents.omp;
         settings = {
-          bash.patterns = lib.mkAfter bashPatterns;
-          extensions = lib.mkAfter ["${../../config/omp/extensions/guardrails.ts}"];
-          setupVersion = lib.mkDefault 2;
+          tools.approval = {
+            bash = lib.mkDefault "allow";
+            computer = lib.mkDefault "prompt";
+            eval = lib.mkDefault "prompt";
+          };
+          bash.patterns = lib.mkAfter (
+            deny guardrails.bash.deny.credentials
+            ++ deny guardrails.bash.deny.decryptors
+            ++ deny guardrails.bash.deny.environment
+            ++ prompt guardrails.bash.prompt.environment
+            ++ prompt guardrails.bash.prompt.removals
+            ++ prompt guardrails.bash.prompt.remotes
+          );
+          bashInterceptor.enabled = lib.mkDefault true;
           symbolPreset = lib.mkDefault "nerd";
           theme.dark = lib.mkDefault "dark-forest";
         };
