@@ -9,8 +9,6 @@ in {
   imports = [
     ./herdr.nix
     ./mcp.nix
-    ./mini-swe-agent.nix
-    ./omp.nix
     ./pi.nix
   ];
 
@@ -24,20 +22,15 @@ in {
         };
         packages = lib.mkAfter (with pkgs;
           (with llm-agents; [
-            beads
             bernstein
             but
             codegraph
             executor
             gnhf
-            mardi-gras
-            openspec
-            openspecui
             qmd
             terminal-browser
           ])
           ++ [
-            dolt
             ffmpeg
             git
             jq
