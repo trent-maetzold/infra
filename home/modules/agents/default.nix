@@ -28,7 +28,7 @@ in {
             executor
             gnhf
             openspec
-            openspec-ui
+            openspecui
             qmd
             terminal-browser
           ])
