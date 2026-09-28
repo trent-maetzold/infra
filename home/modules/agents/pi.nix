@@ -43,7 +43,7 @@ in {
             "npm:billion-context-pi"
             "npm:pi-advisor-flow"
             "npm:pi-caveman"
-            "npm:pi-committer"
+            # "npm:pi-committer"
             "npm:pi-everforest"
             "npm:pi-goal-x"
             "npm:pi-reasonix"

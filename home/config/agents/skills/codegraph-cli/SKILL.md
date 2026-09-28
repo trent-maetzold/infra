@@ -1,6 +1,6 @@
 ---
 name: codegraph-cli
-description: Use the standalone CodeGraph CLI to answer structural codebase questions without MCP. Use when an agent can run shell commands in a repository with codegraph on PATH and should prefer codegraph index, sync, status, query, files, context, callers, callees, impact, and affected over grep/read loops for symbol lookup, call relationships, impact analysis, focused context, indexed file lists, and affected tests.
+description: Use the standalone CodeGraph CLI to answer structural codebase questions without MCP. Use when an agent can run shell commands in a repository with codegraph on PATH and should prefer codegraph explore, node, context, query, callers, callees, impact, affected, files, status, sync, and init over grep/read loops for call paths, symbol lookup, impact analysis, focused context, indexed file lists, and affected tests.
 ---
 
 # CodeGraph CLI
@@ -19,10 +19,11 @@ whole files with grep/read.
    ```
 
 2. If the project is not initialized and the user wants CodeGraph for this repo,
-   build the index:
+   build the index. `-y` skips the prompts, which a non-interactive run needs,
+   and `-i` is deprecated (init indexes on its own):
 
    ```bash
-   codegraph init -i
+   codegraph init -y
    ```
 
 3. If files changed since the index was built, refresh it:
@@ -41,21 +42,48 @@ project root. Setup commands such as `init`, `index`, `sync`, `status`,
 
 ## Command Selection
 
-| Intent                               | Command                                                   |
-| ------------------------------------ | --------------------------------------------------------- |
-| Build or rebuild the index           | `codegraph index [path] --force`                          |
-| Refresh changed files                | `codegraph sync [path] --quiet`                           |
-| Check index health and counts        | `codegraph status [path] --json`                          |
-| Find a symbol by name                | `codegraph query <search> --kind <kind> --limit <n>`      |
-| List indexed files                   | `codegraph files --format tree --max-depth <n>`           |
-| Get task-focused code context        | `codegraph context <task> --max-nodes <n> --max-code <n>` |
-| Find incoming calls                  | `codegraph callers <symbol> --limit <n>`                  |
-| Find outgoing calls                  | `codegraph callees <symbol> --limit <n>`                  |
-| Estimate change blast radius         | `codegraph impact <symbol> --depth <n>`                   |
-| Find tests affected by changed files | `codegraph affected [files...] --quiet`                   |
-| Clear a stale indexing lock          | `codegraph unlock [path]`                                 |
+| Intent                               | Command                                             |
+| ------------------------------------ | --------------------------------------------------- |
+| Get a call path and its source       | `codegraph explore <query...> --max-files <n>`      |
+| Read one symbol or file with a trail | `codegraph node [name] --file <file> --offset <n>`  |
+| Build or rebuild the index           | `codegraph index [path]`                            |
+| Refresh changed files                | `codegraph sync [path] --quiet`                     |
+| Check index health and counts        | `codegraph status [path] --json`                    |
+| Find a symbol by name                | `codegraph query <search> --kind <kind> --limit <n>` |
+| List indexed files                   | `codegraph files --format tree --max-depth <n>`     |
+| Get task-focused code context        | `codegraph context <task> --max-nodes <n>`          |
+| Find incoming calls                  | `codegraph callers <symbol> --limit <n>`            |
+| Find outgoing calls                  | `codegraph callees <symbol> --limit <n>`            |
+| Estimate change blast radius         | `codegraph impact <symbol> --depth <n>`             |
+| Find tests affected by changed files | `codegraph affected [files...] --quiet`             |
+| Clear a stale indexing lock          | `codegraph unlock [path]`                           |
 
 ## Read Commands
+
+### `explore`
+
+```bash
+codegraph explore "how does main reach beta"
+codegraph explore "request validation" --max-files 4 --path ../repo
+```
+
+The one-call starting point: a numbered call path between the symbols matching
+the query, each with its location, then their source. Use it whenever the
+question is "how does X get to Y"; drop to `node` or `context` for one specific
+symbol. `--max-files` caps how many files contribute source.
+
+### `node`
+
+```bash
+codegraph node alpha
+codegraph node --file src/api.py --offset 40 --limit 60
+codegraph node --file src/api.py --symbols-only
+```
+
+One symbol's source plus its caller/callee trail. With `--file` it reads a file
+with line numbers plus the symbols depending on it instead, which is the indexed
+way to read a known range; `--offset`/`--limit` bound that range and
+`--symbols-only` drops the body.
 
 ### `status`
 
@@ -95,7 +123,7 @@ kind, name, score, file path, line number, and signature when available.
 ### `context`
 
 ```bash
-codegraph context "fix the login flow" --max-nodes 30 --max-code 6
+codegraph context "fix the login flow" --max-nodes 30
 codegraph context "how requests reach the database" --format json
 codegraph context "authentication middleware" --path ../repo --no-code
 ```
@@ -142,17 +170,23 @@ dependents traversed.
 ## Maintenance Commands
 
 ```bash
-codegraph init -i
-codegraph index --force
+codegraph init -y
+codegraph index
 codegraph sync
 codegraph unlock
 codegraph uninit --force
 ```
 
-Run `init -i` once per project. Use `index --force` after major dependency or
-extractor changes, `sync` after ordinary edits, and `unlock` only when a stale
-lock blocks indexing. `uninit --force` deletes `.codegraph/`; do not run it
-unless the user asked to remove the project index.
+Run `init -y` once per project: it indexes as part of init, and `-y` skips the
+prompts. Use `index` to rebuild from scratch after major dependency or extractor
+changes, `sync` after ordinary edits, and `unlock` only when a stale lock blocks
+indexing. `--force` on `init`/`index` only waives the "looks like your home
+directory" guard, not a general force; on `uninit` it skips the confirmation.
+`uninit --force` deletes `.codegraph/`; do not run it unless the user asked to
+remove the project index.
+
+`codegraph install` wires the MCP server into an agent's config. Do not run it:
+this workflow is CLI-only by design.
 
 ## Container Notes
 

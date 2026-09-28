@@ -27,6 +27,8 @@ in {
             codegraph
             executor
             gnhf
+            openspec
+            openspec-ui
             qmd
             terminal-browser
           ])
