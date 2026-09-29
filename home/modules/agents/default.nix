@@ -22,13 +22,9 @@ in {
         };
         packages = lib.mkAfter (with pkgs;
           (with llm-agents; [
-            bernstein
             but
-            codegraph
-            executor
+            gitnexus
             gnhf
-            openspec
-            openspecui
             qmd
             terminal-browser
           ])

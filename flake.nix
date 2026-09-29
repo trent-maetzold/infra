@@ -16,10 +16,6 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    oh-my-pi = {
-      url = "github:can1357/oh-my-pi";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = {
@@ -28,14 +24,13 @@
     home-manager,
     nixos-wsl,
     lazyvim,
-    oh-my-pi,
     llm-agents,
     ...
   } @ inputs: let
     nixosModules.default = ./modules;
     homeManagerModules.default = ./home/modules;
 
-    overlays = import ./overlays {inherit nixpkgs oh-my-pi llm-agents;};
+    overlays = import ./overlays {inherit nixpkgs llm-agents;};
     lib = import ./lib {
       inherit nixpkgs inputs nixosModules homeManagerModules overlays;
     };

@@ -28,6 +28,7 @@ in {
           ".pi/agent/zentui.json".source = lib.mkDefault ../../config/pi/packages/zentui.json;
         };
       };
+      xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
       programs.pi-coding-agent = {
         package = lib.mkDefault pkgs.llm-agents.pi;
         extraPackages = lib.mkAfter (with pkgs; [
@@ -36,19 +37,31 @@ in {
         ]);
         settings = {
           packages = lib.mkAfter [
-            "npm:@dietrichgebert/ponytail"
+            "npm:@gotgenes/pi-permission-model-judge"
+            "npm:@gotgenes/pi-permission-system"
+            "npm:@gotgenes/pi-subagents"
+            "npm:@gotgenes/pi-subagents-worktrees"
+
+            "npm:@juicesharp/rpiv-advisor"
             "npm:@juicesharp/rpiv-ask-user-question"
             "npm:@juicesharp/rpiv-todo"
+
             "npm:@narumitw/pi-btw"
-            "npm:billion-context-pi"
-            "npm:pi-advisor-flow"
+            "npm:@narumitw/pi-goal"
+            "npm:@narumitw/pi-plan-mode"
+            "npm:@narumitw/pi-usage"
+
+            "npm:@dietrichgebert/ponytail"
             "npm:pi-caveman"
+
             # "npm:pi-committer"
-            "npm:pi-everforest"
-            "npm:pi-goal-x"
-            "npm:pi-reasonix"
+            "npm:pi-lens"
             "npm:pi-simplify"
-            "npm:pi-subagents"
+
+            "npm:billion-context-pi"
+            "npm:pi-reasonix"
+
+            "npm:pi-everforest"
             "npm:pi-zentui"
           ];
           theme = lib.mkDefault "everforest-light-soft/everforest-dark-soft";

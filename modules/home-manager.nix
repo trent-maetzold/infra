@@ -2,7 +2,6 @@
   config,
   lib,
   lazyvim,
-  oh-my-pi,
   ...
 }: let
   cfg = config.home-manager;
@@ -12,7 +11,7 @@ in {
     (lib.mkIf cfg.enable {
       home-manager = {
         backupFileExtension = lib.mkDefault "backup";
-        extraSpecialArgs = {inherit lazyvim oh-my-pi;};
+        extraSpecialArgs = {inherit lazyvim;};
         useGlobalPkgs = lib.mkDefault true;
         useUserPackages = lib.mkDefault true;
       };
