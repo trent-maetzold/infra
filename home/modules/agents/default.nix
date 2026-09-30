@@ -9,7 +9,7 @@ in {
   imports = [
     ./herdr.nix
     ./mcp.nix
-    ./pi.nix
+    ./pi
   ];
 
   config = lib.mkMerge [
@@ -22,11 +22,10 @@ in {
         };
         packages = lib.mkAfter (with pkgs;
           (with llm-agents; [
+            agent-browser
             but
             gitnexus
             gnhf
-            qmd
-            terminal-browser
           ])
           ++ [
             ffmpeg

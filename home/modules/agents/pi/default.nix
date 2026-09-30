@@ -24,11 +24,11 @@ in {
           '';
         };
         file = {
-          ".pi/agent/caveman.json".source = lib.mkDefault ../../config/pi/packages/caveman.json;
-          ".pi/agent/zentui.json".source = lib.mkDefault ../../config/pi/packages/zentui.json;
+          ".pi/agent/caveman.json".text = lib.mkDefault (builtins.toJSON {defaultLevel = "lite";});
+          ".pi/agent/zentui.json".source = lib.mkDefault ../../../config/pi/packages/zentui.json;
         };
       };
-      xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
+      xdg.configFile."ponytail/config.json".text = lib.mkDefault (builtins.toJSON {defaultMode = "ultra";});
       programs.pi-coding-agent = {
         package = lib.mkDefault pkgs.llm-agents.pi;
         extraPackages = lib.mkAfter (with pkgs; [
@@ -37,25 +37,21 @@ in {
         ]);
         settings = {
           packages = lib.mkAfter [
+            "npm:@dietrichgebert/ponytail"
+
             "npm:@gotgenes/pi-permission-model-judge"
             "npm:@gotgenes/pi-permission-system"
-            "npm:@gotgenes/pi-subagents"
-            "npm:@gotgenes/pi-subagents-worktrees"
 
-            "npm:@juicesharp/rpiv-advisor"
             "npm:@juicesharp/rpiv-ask-user-question"
+            "npm:@juicesharp/rpiv-btw"
             "npm:@juicesharp/rpiv-todo"
 
-            "npm:@narumitw/pi-btw"
-            "npm:@narumitw/pi-goal"
-            "npm:@narumitw/pi-plan-mode"
             "npm:@narumitw/pi-usage"
 
-            "npm:@dietrichgebert/ponytail"
-            "npm:pi-caveman"
-
+            "npm:pi-advisor-flow"
             # "npm:pi-committer"
             "npm:pi-lens"
+            "npm:pi-goal-x"
             "npm:pi-simplify"
 
             "npm:billion-context-pi"
