@@ -11,8 +11,7 @@ Desired layout: all Nix under `nix/` — `nix/modules` (NixOS), `nix/home/module
 must stay at the repo root. Restructure tracked in TODO.md.
 
 Use GitNexus for structure (`gitnexus analyze`, then `query`/`context`/`impact`)
-instead of a hand-maintained tree. The index is local: `.gitnexus/` is
-gitignored, never commit it.
+instead of a hand-maintained tree. `.gitnexus/` is local and gitignored.
 
 ## Overridability
 
@@ -21,9 +20,10 @@ The consumer wins every conflict; that is what `mkDefault`/`mkAfter` are for.
 - Overridable settings go on leaves. `mkDefault` loses to any other definition
   of that option, so a parent attrset becomes one definition and is discarded
   wholesale.
-- List options use `mkAfter` (packages, pattern lists): lists merge by
-  replacement, an `mkDefault` list would be outranked and silently dropped.
-  Use `mkAfter` for keys nixpkgs already sets too (`nix.settings.trusted-users`).
+- List options use `mkAfter` (packages, pattern lists). `mkDefault` on a list
+  loses the whole list to any consumer definition — no concatenation — while
+  `mkAfter` appends. Use `mkAfter` for keys nixpkgs already sets too
+  (`nix.settings.trusted-users`).
 - `mkMerge` combines fragments; it has nothing to do with priority.
 - Passthrough bags stay plain and are read directly, not merged per key
   (`nixpkgs.config.*`, `programs.ssh.settings`, `programs.starship.settings`,
