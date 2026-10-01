@@ -4,24 +4,23 @@ Known out-of-spec items. AGENTS.md is desired policy, not current state.
 
 ## Blockers
 
-- [ ] `home/modules/agents/default.nix` imports `./pi.nix`, which is deleted
-      (now `./pi/`, untracked). Fix the import and `git add home/modules/agents/pi/`;
-      `nix flake check` fails until then because flakes only see tracked files.
+- [x] Fix the deleted Pi/agent-config references and include the Pi module in
+      flake-visible sources. Real Home Manager activation evaluation passes.
 
 ## Structure
 
-- [ ] Restructure to `nix/{modules,home,lib,overlays}`; `flake.nix` and
-      `flake.lock` stay at the root. import-tree (github.com/denful/import-tree,
-      formerly vic/import-tree) auto-imports the tree and kills the boilerplate.
-- [ ] Move `forAllSystems`/`pkgsFor` from `lib/` back into `flake.nix` (the
-      ubiquitous-in-community pattern).
-- [ ] Adopt flake-parts + flake-utils and their idiomatic patterns.
+- [x] Restructure to `nix/{modules,home,lib,overlays}` with scoped import-tree;
+      only `flake.nix` and `flake.lock` remain as root Nix files.
+- [x] Replace `forAllSystems`/`pkgsFor` with flake-parts `systems`/`perSystem`.
+- [x] Adopt flake-parts idioms. A direct flake-utils dependency is deliberately
+      omitted: it duplicates the same system loop. Upstream flakes may retain it.
 - [ ] Import ragenix here; secret delivery stays downstream.
-- [ ] Evaluate profiles/suites if `asgard.enable` grows complex.
+- [x] Separate opt-in catalogs from defaults/development profiles. Consumer
+      disable/override checks pass without adding a second profile framework.
 
 ## Config as nix
 
-- [ ] Retire `home/config/`: nvim Lua to lazyvim config attrs, pyright and
+- [ ] Retire `nix/home/config/`: nvim Lua to lazyvim config attrs, pyright and
       rust-analyzer configs to their `languages` modules, pi package configs to
       Nix, hardcoded skills removed. Root AGENTS.md is the only survivor.
 - [ ] Add agent skills via agent-skills-nix + npins
