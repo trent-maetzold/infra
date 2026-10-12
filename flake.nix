@@ -32,8 +32,8 @@
     paseo,
     ...
   } @ inputs: let
-    nixosModules.default = ./modules;
-    homeManagerModules.default = ./home/modules;
+    nixosModules.default = ./modules/nixos;
+    homeManagerModules.default = ./modules/home;
 
     overlays = import ./overlays {inherit nixpkgs llm-agents;};
     lib = import ./lib {
