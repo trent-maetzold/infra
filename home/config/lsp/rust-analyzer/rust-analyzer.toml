@@ -1,9 +1,0 @@
-[rust-analyzer]
-# Community-standard check command: clippy instead of plain cargo check
-check.command = "clippy"
-# Perf: check only the active target, not every target in the workspace
-check.allTargets = false
-# Import organization
-imports.granularity.group = "module"
-imports.granularity.enforce = true
-imports.merge.glob = true

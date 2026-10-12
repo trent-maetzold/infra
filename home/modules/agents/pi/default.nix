@@ -13,6 +13,7 @@ in {
   config = lib.mkMerge [
     {programs.pi-coding-agent.enable = lib.mkDefault true;}
     (lib.mkIf cfg.enable {
+      imports = [./zentui.nix];
       home = {
         activation.piNpm = {
           before = [];
@@ -25,7 +26,6 @@ in {
         };
         file = {
           ".pi/agent/caveman.json".text = lib.mkDefault (builtins.toJSON {defaultLevel = "lite";});
-          ".pi/agent/zentui.json".source = lib.mkDefault ../../../config/pi/packages/zentui.json;
         };
       };
       xdg.configFile."ponytail/config.json".text = lib.mkDefault (builtins.toJSON {defaultMode = "ultra";});

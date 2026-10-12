@@ -13,7 +13,7 @@ in {
     {programs.lazyvim.enable = lib.mkDefault true;}
     (lib.mkIf cfg.enable {
       programs.lazyvim = {
-        configFiles = lib.mkDefault ../../config/nvim;
+        configFiles = lib.mkDefault ./config;
         extraPackages = lib.mkAfter (with pkgs; [
           ghostscript
           tectonic
