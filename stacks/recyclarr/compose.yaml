@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+  app:
+    container_name: recyclarr
+    image: ghcr.io/recyclarr/recyclarr:latest
+    restart: unless-stopped
+    user: 99:100
+    volumes:
+      - /mnt/cache/appdata/recyclarr/app/config:/config
+      - ./config/recyclarr.yml:/config/recyclarr.yml
+      - ./config/settings.yml:/config/settings.yml
+      - ./config/includes:/config/includes
+    networks:
+      - pvr
+    environment:
+      CRON_SCHEDULE: "@daily"
+      RECYCLARR_CREATE_CONFIG: "false"
+      TZ: "America/Chicago"
+      RADARR_HD_URL: "http://radarr_hd:7878/hd"
+      RADARR_UHD_URL: "http://radarr_uhd:7878/uhd"
+      RADARR_ANIME_URL: "http://radarr_anime:7878/anime"
+      SONARR_HD_URL: "http://sonarr_hd:8989/hd"
+      SONARR_UHD_URL: "http://sonarr_uhd:8989/uhd"
+      SONARR_ANIME_URL: "http://sonarr_anime:8989/anime"
+      ARR_API_KEY: "${ARR_API_KEY:?ARR_API_KEY is required}"
+
+networks:
+  pvr:
+    external: true

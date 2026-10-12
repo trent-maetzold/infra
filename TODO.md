@@ -10,12 +10,7 @@ Known out-of-spec items. AGENTS.md is desired policy, not current state.
 
 ## Structure
 
-- [ ] Restructure to `nix/{modules,home,lib,overlays}`; `flake.nix` and
-      `flake.lock` stay at the root. import-tree (github.com/denful/import-tree,
-      formerly vic/import-tree) auto-imports the tree and kills the boilerplate.
-- [ ] Move `forAllSystems`/`pkgsFor` from `lib/` back into `flake.nix` (the
-      ubiquitous-in-community pattern).
-- [ ] Adopt flake-parts + flake-utils and their idiomatic patterns.
+- [x] Dendritic flake-parts + Haumea layout (supersedes nix/ restructure, import-tree, flake-parts).
 - [ ] Import ragenix here; secret delivery stays downstream.
 - [ ] Evaluate profiles/suites if `asgard.enable` grows complex.
 

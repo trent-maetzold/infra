@@ -1,16 +1,19 @@
-{
-  config,
-  lib,
-  ...
-}: let
-  cfg = config.languages.sql;
-in {
-  config = lib.mkMerge [
-    {languages.sql.enable = lib.mkDefault true;}
-    (lib.mkIf cfg.enable {
-      programs.lazyvim.extras.lang.sql.enable = lib.mkDefault true;
-    })
-  ];
+{config, ...}: {
+  flake.homeModules.languages-sql = {
+    config,
+    lib,
+    ...
+  }: let
+    cfg = config.languages.sql;
+  in {
+    config = lib.mkMerge [
+      {languages.sql.enable = lib.mkDefault true;}
+      (lib.mkIf cfg.enable {
+        programs.lazyvim.extras.lang.sql.enable = lib.mkDefault true;
+      })
+    ];
 
-  options.languages.sql.enable = lib.mkEnableOption "sql language support";
+    options.languages.sql.enable = lib.mkEnableOption "sql language support";
+  };
+  flake.homeModules.default.imports = [config.flake.homeModules.languages-sql];
 }

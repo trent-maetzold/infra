@@ -1,23 +1,25 @@
 # Asgard
 
-Opinionated NixOS + home-manager defaults. A module set, not a system: hosts,
-users, and secrets belong to the consuming flake.
+Opinionated NixOS + home-manager defaults and the configurations that use them
+(flake-parts, dendritic: every file under `apps/`, `configurations/`, `lib/`,
+`modules/`, `packages/` is auto-imported by Haumea; `_`-prefixed files are
+skipped and imported by their sibling).
+
+- `modules/`: reusable, user- and host-independent capabilities and defaults.
+- `configurations/`: hosts, users, deployment, identity. Secrets live in the
+  private `secrets` flake input.
 
 ## Consuming
 
 ```nix
 inputs.asgard.url = "git+https://codeberg.org/trkm/asgard";
 
-# module args the modules read: lazyvim, home-manager, nixos-wsl
-specialArgs = asgard.inputs // inputs;
-
-# nixpkgs overlay the modules expect (llm-agents)
-overlays = [asgard.overlays.default];
-
-imports = [asgard.nixosModules.default];      # NixOS
-imports = [asgard.homeManagerModules.default]; # standalone home-manager
+imports = [asgard.nixosModules.default]; # NixOS; inputs are captured, no specialArgs
+imports = [asgard.homeModules.default];  # standalone home-manager
+nixpkgs.overlays = [asgard.overlays.default];
 ```
 
+Individual features are also exported (`nixosModules.wsl`, `homeModules.languages-nix`, ...).
 Every setting is overridable: `mkDefault` on leaves, `mkAfter` for lists.
 
 ## Commands
@@ -26,6 +28,7 @@ Every setting is overridable: `mkDefault` on leaves, `mkAfter` for lists.
 nix fmt                          # format (alejandra)
 nix flake show                   # outputs
 nix flake check                  # evaluate and run checks
+nix run .#colmena -- apply --on heimdall  # deploy (never from CI)
 nix build .#options-commonmark   # every option, rendered with defaults
 nix build .#options-json         # machine-readable options
 ```

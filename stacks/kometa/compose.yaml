@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+  app:
+    container_name: kometa
+    image: kometateam/kometa:latest
+    restart: unless-stopped
+    volumes:
+      - /mnt/cache/appdata/kometa/app/config:/config
+      - ./config/config.yml:/config/config.yml
+    networks:
+      - pvr
+    environment:
+      TZ: "America/Chicago"
+      KOMETA_TIMES: "${KOMETA_TIMES:?KOMETA_TIMES is required}"
+      KOMETA_PLEXURL: "${PLEX_URL:?PLEX_URL is required}"
+      KOMETA_PLEXTOKEN: "${PLEX_TOKEN:?PLEX_TOKEN is required}"
+      KOMETA_TMDBKEY: "${TMDB_APIKEY:?TMDB_APIKEY is required}"
+      KOMETA_MDBKEY: "${MDB_APIKEY:?MDB_APIKEY is required}"
+      KOMETA_RADARRURL: "${RADARR_URL:?RADARR_URL is required}"
+      KOMETA_RADARRAPIKEY: "${RADARR_APIKEY:?RADARR_APIKEY is required}"
+      KOMETA_SONARRURL: "${SONARR_URL:?SONARR_URL is required}"
+      KOMETA_SONARRAPIKEY: "${SONARR_APIKEY:?SONARR_APIKEY is required}"
+
+networks:
+  pvr:
+    external: true

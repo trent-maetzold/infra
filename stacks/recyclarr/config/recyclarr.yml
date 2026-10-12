@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
+radarr:
+  radarr_hd:
+    base_url: !env_var RADARR_HD_URL
+    api_key: !env_var ARR_API_KEY
+    media_naming:
+      folder: plex-tmdb
+      movie:
+        rename: true
+        standard: plex-tmdb
+    delete_old_custom_formats: true
+    include:
+      - config: radarr/hd/bluray-web.yml
+      - config: radarr/hd/remux-web.yml
+
+  radarr_uhd:
+    base_url: !env_var RADARR_UHD_URL
+    api_key: !env_var ARR_API_KEY
+    media_naming:
+      folder: plex-tmdb
+      movie:
+        rename: true
+        standard: plex-tmdb
+    delete_old_custom_formats: true
+    include:
+      - config: radarr/uhd/bluray-web.yml
+      - config: radarr/uhd/remux-web.yml
+
+  radarr_anime:
+    base_url: !env_var RADARR_ANIME_URL
+    api_key: !env_var ARR_API_KEY
+    media_naming:
+      folder: plex-tmdb
+      movie:
+        rename: true
+        standard: plex-anime-tmdb
+    delete_old_custom_formats: true
+    include:
+      - config: radarr/anime/remux.yml
+
+sonarr:
+  sonarr_hd:
+    base_url: !env_var SONARR_HD_URL
+    api_key: !env_var ARR_API_KEY
+    media_naming:
+      series: plex-tvdb
+      season: default
+      episodes:
+        rename: true
+        standard: default
+        daily: default
+        anime: default
+    delete_old_custom_formats: true
+    include:
+      - config: sonarr/hd/web.yml
+
+  sonarr_uhd:
+    base_url: !env_var SONARR_UHD_URL
+    api_key: !env_var ARR_API_KEY
+    media_naming:
+      series: plex-tvdb
+      season: default
+      episodes:
+        rename: true
+        standard: default
+        daily: default
+        anime: default
+    delete_old_custom_formats: true
+    include:
+      - config: sonarr/uhd/web.yml
+
+  sonarr_anime:
+    base_url: !env_var SONARR_ANIME_URL
+    api_key: !env_var ARR_API_KEY
+    media_naming:
+      series: plex-tvdb
+      season: default
+      episodes:
+        rename: true
+        standard: default
+        daily: default
+        anime: default
+    delete_old_custom_formats: true
+    include:
+      - config: sonarr/anime/remux.yml

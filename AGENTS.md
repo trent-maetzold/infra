@@ -6,9 +6,12 @@ in README.md.
 
 ## Structure
 
-Desired layout: all Nix under `nix/` — `nix/modules` (NixOS), `nix/home/modules`
-(home-manager), `nix/lib`, `nix/overlays`. Only `flake.nix` and `flake.lock`
-must stay at the repo root. Restructure tracked in TODO.md.
+Dendritic flake-parts: `apps/`, `configurations/`, `lib/`, `modules/`, `packages/`
+are auto-imported by Haumea; each file registers its own `flake.*` outputs and
+merges into the `default` roles. `_`-prefixed files are skipped (imported by
+siblings). `modules/` is reusable and consumer-independent; anything tied to a
+user or host lives in `configurations/`, gated with `lib.mkIf` on the feature's
+enable option. Packages and their overlays live together in `packages/`.
 
 Use GitNexus for structure (`gitnexus analyze`, then `query`/`context`/`impact`)
 instead of a hand-maintained tree. `.gitnexus/` is local and gitignored.
@@ -55,6 +58,9 @@ in {
 }
 ```
 
+- Each module file is a flake-parts module registering `flake.<class>Modules.<name>`
+  (name = path joined by `-`) around the plain module shown here; the default
+  roles merge them automatically. Inputs come from the flake-level `inputs`.
 - One module, one gate. `cfg` is the subtree the module owns; the gate is
   always `cfg.enable`. A second enable flag means two modules. Sub-conditions
   of its own gate are not a second gate.
