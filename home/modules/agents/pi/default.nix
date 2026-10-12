@@ -48,7 +48,6 @@ in {
 
             "npm:@narumitw/pi-usage"
 
-            "npm:pi-advisor-flow"
             # "npm:pi-committer"
             "npm:pi-lens"
             "npm:pi-goal-x"
