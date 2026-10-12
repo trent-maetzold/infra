@@ -5,6 +5,7 @@
     ...
   }: let
     cfg = config.programs.zsh;
+    gitCfg = config.programs.git;
   in {
     config = lib.mkMerge [
       {programs.zsh.enable = lib.mkDefault true;}
@@ -25,7 +26,7 @@
             autosuggestion.enable = lib.mkDefault true;
             oh-my-zsh = {
               enable = lib.mkDefault true;
-              plugins = lib.mkAfter ["sudo"];
+              plugins = ["sudo"] ++ lib.optional gitCfg.enable "git";
             };
             syntaxHighlighting.enable = lib.mkDefault true;
           };

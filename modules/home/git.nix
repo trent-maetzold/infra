@@ -1,34 +1,29 @@
-{config, ...}: {
-  flake.homeModules.git = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    cfg = config.programs.git;
-  in {
-    config = lib.mkMerge [
-      {programs.git.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home = {
-          packages = lib.mkAfter (with pkgs; [forgejo-cli]);
-          shellAliases.lg = lib.mkDefault "lazygit";
-        };
-        programs = {
-          gh.enable = lib.mkDefault true;
-          git = {
-            ignores = lib.mkAfter [".serena"];
-            settings = {
-              init.defaultBranch = lib.mkDefault "main";
-              pull.rebase = lib.mkDefault true;
-              push.autoSetupRemote = lib.mkDefault true;
-            };
-          };
-          lazygit.enable = lib.mkDefault true;
-          zsh.oh-my-zsh.plugins = lib.mkAfter ["git"];
-        };
-      })
-    ];
+{config, ...}: let
+  git = {pkgs, ...}: {
+    programs.git = {
+      enable = true;
+      ignores = [".serena"];
+
+      settings = {
+        init.defaultBranch = "main";
+        pull.rebase = true;
+        push.autoSetupRemote = true;
+      };
+
+      # CLI Tools
+      programs.gh.enable = true;
+      home.packages = [pkgs.forgejo-cli];
+
+      # Lazygit
+      programs.lazygit.enable = true;
+      home.shellAliases.lg = "lazygit";
+    };
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.git];
+in {
+  flake.modules.home = {inherit git;};
+
+  flake.homeModules = {
+    develop.imports = [config.flake.modules.home.git];
+    nix-admin.imports = [config.flake.modules.home.git];
+  };
 }

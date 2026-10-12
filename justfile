@@ -73,3 +73,7 @@ install target='yggdrasil' host='yggdrasil-iso':
     @nix run nixpkgs#nixos-anywhere -- --flake .#{{ target }} \
         --phases kexec,disko,install \
         root@{{ host }}
+
+# Package diff of a host's running system against this flake.
+diff host='yggdrasil':
+    @nh os build . --hostname {{ host }} --target-host {{ host }} --diff always

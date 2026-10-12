@@ -398,26 +398,6 @@
         "type": "github"
       }
     },
-    "paseo": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791813082,
-        "narHash": "sha256-l4OGgGZIitlF1cvIrV5CHZpfUbjV3iXf5Iwj35yCVFI=",
-        "owner": "getpaseo",
-        "repo": "paseo",
-        "rev": "8bc5f47b1c426bab0196c2dea16a3e4e15bb192c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "getpaseo",
-        "repo": "paseo",
-        "type": "github"
-      }
-    },
     "quadlet-nix": {
       "locked": {
         "lastModified": 1790641475,
@@ -446,7 +426,6 @@
         "llm-agents": "llm-agents",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_2",
-        "paseo": "paseo",
         "quadlet-nix": "quadlet-nix",
         "secrets": "secrets"
       }
