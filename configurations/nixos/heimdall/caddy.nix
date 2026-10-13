@@ -14,7 +14,7 @@ in {
           "github.com/caddy-dns/cloudflare@v0.2.4"
           "github.com/mholt/caddy-l4@v0.1.2"
         ];
-        hash = "sha256-EWpo+POYSfxsAE4W4T9ngK+n1bmJPzLS8A1+JGvoJvE=";
+        hash = "sha256-AV85IaY63+Jkb3JadhQFZ6CeBkzbk9AWqY0/B3KP/4U=";
       };
       globalConfig = ''
         acme_dns cloudflare {file./var/lib/secrets/cf-dns-api-token}

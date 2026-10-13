@@ -8,9 +8,15 @@
       packages = with pkgs;
         (with llm-agents; [
           agent-browser
+          bernstein
           but
+          dsh
+          freebuff
           gitnexus
           gnhf
+          openspec
+          openspecui
+          qmd
         ])
         ++ [
           ffmpeg

@@ -76,4 +76,4 @@ install target='yggdrasil' host='yggdrasil-iso':
 
 # Package diff of a host's running system against this flake.
 diff host='yggdrasil':
-    @nh os build . --hostname {{ host }} --target-host {{ host }} --diff always
+    @nh os build . --hostname {{ host }} --build-host {{ host }} --target-host {{ host }} --diff always
