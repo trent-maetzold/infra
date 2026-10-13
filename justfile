@@ -64,8 +64,8 @@ oci-output *args:
 
 facter target='yggdrasil' host='yggdrasil-iso':
     @ssh root@{{ host }} 'nix-shell -p nixos-facter --run nixos-facter > /home/nixos/facter.json'
-    @scp root@{{ host }}:/home/nixos/facter.json configurations/nixos/{{ target }}/_hardware/facter.json
-    @git add configurations/nixos/{{ target }}/_hardware/facter.json
+    @scp root@{{ host }}:/home/nixos/facter.json configurations/nixos/{{ target }}/hardware/facter.json
+    @git add configurations/nixos/{{ target }}/hardware/facter.json
     @echo 'facter.json updated — review, commit, then `just install {{ target }}`'
 
 install target='yggdrasil' host='yggdrasil-iso':

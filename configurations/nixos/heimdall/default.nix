@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   ...
 }: let
   inherit (config) flake;
@@ -14,11 +15,7 @@
         flake.nixos.network.tailscale-headscale
         "${modulesPath}/profiles/qemu-guest.nix"
       ]
-      ++ [
-        ./_hardware/disk-config.nix
-        ./_services/caddy.nix
-        ./_services/headscale.nix
-      ];
+      ++ lib.attrValues flake.nixos.heimdall;
 
     nixpkgs.hostPlatform = "aarch64-linux";
 

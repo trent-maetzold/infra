@@ -1,4 +1,4 @@
-# SNI matcher for the heimdall edge (heimdall _caddy.nix only).
+# SNI matcher for the heimdall edge (caddy only).
 #
 # The edge terminates TLS for every name in services.caddy.virtualHosts and hands
 # everything else to yggdrasil, so the matcher must name every local vhost or the
@@ -7,11 +7,13 @@
 #
 # Empty virtualHosts yields "tls": matching the plain listener wrapper passes
 # everything through, where an empty `not tls sni` would be invalid Caddyfile.
-{lib}: {virtualHosts}:
-if virtualHosts == {}
-then "tls"
-else "not tls sni ${
-  lib.concatStringsSep " " (
-    lib.concatMap (vhost: [vhost.hostName] ++ vhost.serverAliases) (lib.attrValues virtualHosts)
-  )
-}"
+{lib, ...}: {
+  flake.lib.makeCaddyPassthrough = {virtualHosts}:
+    if virtualHosts == {}
+    then "tls"
+    else "not tls sni ${
+      lib.concatStringsSep " " (
+        lib.concatMap (vhost: [vhost.hostName] ++ vhost.serverAliases) (lib.attrValues virtualHosts)
+      )
+    }";
+}
