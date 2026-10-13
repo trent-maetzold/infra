@@ -1,23 +1,23 @@
 {
   config,
   inputs,
+  lib,
   ...
 }: let
   inherit (config) flake;
   inherit (flake.lib) makeDeploymentKey;
 
   module = {
-    imports = [
-      flake.nixosModules.default
-      flake.modules.nixos.tm
-      flake.modules.nixos.tailscale-headscale
-      inputs.disko.nixosModules.disko
-      inputs.disko-zfs.nixosModules.default
-      inputs.NixVirt.nixosModules.default
-      ./_disk-config.nix
-      (import ./_quadlets.nix {inherit (inputs) quadlet-nix;})
-      (import ./_unraid-vm.nix {inherit (inputs) NixVirt;})
-    ];
+    imports =
+      [
+        flake.nixosModules.default
+        flake.nixos.users.tm
+        flake.nixos.network.tailscale-headscale
+        inputs.disko.nixosModules.disko
+        inputs.disko-zfs.nixosModules.default
+        inputs.NixVirt.nixosModules.default
+      ]
+      ++ lib.attrValues flake.nixos.yggdrasil;
 
     nixpkgs.hostPlatform = "x86_64-linux";
 
@@ -29,7 +29,7 @@
       zfs.forceImportRoot = true;
     };
 
-    hardware.facter.reportPath = ./_facter.json;
+    hardware.facter.reportPath = ./facter.json;
 
     networking = {
       hostId = "6d8a7c3f";

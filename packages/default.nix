@@ -4,19 +4,28 @@
   lib,
   ...
 }: {
-  # Package files each register flake.overlays.<name>; this composes them (alphabetical, later wins).
-  flake.overlays.default = lib.composeManyExtensions (lib.attrValues (removeAttrs config.flake.overlays ["default"]));
+  # Package files add to `perSystem.overlays`; the sets compose alphabetically (later wins).
+  flake.overlays.default = final: prev:
+    lib.composeManyExtensions (lib.attrValues config.allSystems.${prev.stdenv.hostPlatform.system}.overlays) final prev;
 
   perSystem = {
+    config,
     pkgs,
     system,
     ...
   }: {
-    _module.args.pkgs = import inputs.nixpkgs {
-      inherit system;
-      overlays = [config.flake.overlays.default];
+    options.overlays = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.raw;
+      default = {};
     };
-    formatter = pkgs.alejandra;
-    packages = {inherit (pkgs) tredis;};
+
+    config = {
+      _module.args.pkgs = import inputs.nixpkgs {
+        inherit system;
+        overlays = lib.attrValues config.overlays;
+      };
+      formatter = pkgs.alejandra;
+      packages = {inherit (pkgs) tredis;};
+    };
   };
 }

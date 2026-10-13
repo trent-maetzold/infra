@@ -1,6 +1,6 @@
 {config, ...}: {
-  flake.modules.homeManager.languages-lua = {pkgs, ...}: {
+  flake.home.languages.lua = {pkgs, ...}: {
     home.packages = with pkgs; [lua-language-server stylua];
   };
-  flake.homeModules.default.imports = [config.flake.modules.homeManager.languages-lua];
+  flake.homeModules.default.imports = [config.flake.home.languages.lua];
 }

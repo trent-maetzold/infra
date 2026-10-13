@@ -5,7 +5,7 @@
 }: let
   inherit (config) flake;
 in {
-  flake.modules.homeManager.tm = {pkgs, ...}: {
+  flake.home.users.tm = {pkgs, ...}: {
     home = {
       username = "tm";
       packages = with pkgs; [
@@ -67,11 +67,11 @@ in {
   flake.homeConfigurations.tm = inputs.home-manager.lib.homeManagerConfiguration {
     pkgs = import inputs.nixpkgs {
       system = "x86_64-linux";
-      overlays = [flake.overlays.default inputs.colmena.overlays.default];
+      overlays = [flake.overlays.default];
     };
     modules = [
       flake.homeModules.default
-      flake.modules.homeManager.tm
+      flake.home.users.tm
       {home.stateVersion = "26.11";}
     ];
   };

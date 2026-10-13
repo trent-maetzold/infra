@@ -1,6 +1,6 @@
 {config, ...}: {
-  flake.modules.homeManager.languages-git = {...}: {
+  flake.home.languages.git = {...}: {
     programs.lazyvim.extras.lang.git.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.modules.homeManager.languages-git];
+  flake.homeModules.default.imports = [config.flake.home.languages.git];
 }

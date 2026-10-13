@@ -1,0 +1,21 @@
+{lib, ...}: let
+  feature = lib.types.lazyAttrsOf (lib.types.lazyAttrsOf lib.types.deferredModule);
+in {
+  options.flake = {
+    home = lib.mkOption {
+      type = feature;
+      default = {};
+      description = "home-manager features, `<domain>.<feature>`.";
+    };
+    lib = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.raw;
+      default = {};
+      description = "Helper functions shared across files.";
+    };
+    nixos = lib.mkOption {
+      type = feature;
+      default = {};
+      description = "NixOS features, `<domain>.<feature>`.";
+    };
+  };
+}

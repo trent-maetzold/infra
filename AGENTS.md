@@ -6,21 +6,25 @@ in README.md.
 
 ## Structure
 
-Dendritic flake-parts: `apps/`, `configurations/`, `lib/`, `modules/`, `packages/`
-are auto-imported by Haumea; each file registers its own `flake.*` outputs and
-merges into the `default` roles. `_`-prefixed files are skipped (imported by
-siblings). `modules/` is reusable and consumer-independent; anything tied to a
-user or host lives in `configurations/`, gated with `lib.mkIf` on the feature's
-enable option. Packages and their overlays live together in `packages/`.
+Dendritic flake-parts: `flake.nix` loads `apps/`, `configurations/`, `lib/`,
+`modules/`, `packages/` with import-tree; each file registers its own `flake.*`
+outputs and adds itself to the `default` profiles. No relative imports (data
+paths like `./config` excepted): reach other files through `config.flake.*`.
+`modules/` is reusable and consumer-independent; anything tied to a user or host
+lives in `configurations/`. Overlays are `perSystem.overlays.<name>` set by the
+`packages/` module that owns the package; `flake.overlays.default` composes them
+and `nixosModules.default` applies it.
 
 Use GitNexus for structure (`gitnexus analyze`, then `query`/`context`/`impact`)
 instead of a hand-maintained tree. `.gitnexus/` is local and gitignored.
 
 ## Dendritic modules
 
-Every module is one feature: `flake.modules.<class>.<feature>`, `<feature>` the
-path joined by `-`. Classes: `nixos`, `homeManager` (not `home`; home-manager
-rejects it). Typed by `flake-parts.flakeModules.modules`.
+Every module is one feature at `flake.{nixos,home}.<domain>.<feature>` (options
+in `lib/features.nix`). Files sit in matching folders. Home domains: `base editor
+vcs languages ai containers`; NixOS: `base hardware platform ai`. Host-only
+features use the host as domain (`flake.nixos.heimdall.caddy`). Shared helpers
+are `flake.lib.<fn>`.
 
 - Plain values only. No `enable` options, gates, `mkDefault`, or `mkAfter`:
   importing a feature enables it.
@@ -40,8 +44,8 @@ rejects it). Typed by `flake-parts.flakeModules.modules`.
     home.packages = [pkgs.forgejo-cli];
   };
 in {
-  flake.modules.homeManager.git = git;
-  flake.homeModules.default.imports = [config.flake.modules.homeManager.git];
+  flake.home.vcs.git = git;
+  flake.homeModules.default.imports = [config.flake.home.vcs.git];
 }
 ```
 

@@ -9,7 +9,7 @@ in {
     modules = [
       flake.nixosModules.default
       flake.nixosModules.wsl
-      flake.modules.nixos.tm
+      flake.nixos.users.tm
       {
         nixpkgs.hostPlatform = "x86_64-linux";
         networking.hostName = "muninn";

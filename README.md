@@ -2,8 +2,7 @@
 
 Opinionated NixOS + home-manager defaults and the configurations that use them
 (flake-parts, dendritic: every file under `apps/`, `configurations/`, `lib/`,
-`modules/`, `packages/` is auto-imported by Haumea; `_`-prefixed files are
-skipped and imported by their sibling).
+`modules/`, `packages/` is auto-imported by import-tree).
 
 - `modules/`: reusable, user- and host-independent capabilities and defaults.
 - `configurations/`: hosts, users, deployment, identity. Secrets live in the
@@ -20,7 +19,7 @@ nixpkgs.overlays = [asgard.overlays.default];
 ```
 
 Profiles: `nixosModules.{default,wsl,nvidia}`, `homeModules.default`. Single features
-are `flake.modules.{nixos,homeManager}.<feature>` (e.g. `homeManager.languages-nix`):
+are `flake.{nixos,home}.<domain>.<feature>` (e.g. `home.languages.nix`):
 importing one enables it. Override with `lib.mkForce`.
 
 ## Commands

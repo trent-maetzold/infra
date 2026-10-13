@@ -3,7 +3,7 @@
 # `fetchFromGitHub` is no help here -- it fetches repo archives (`/archive/<rev>`),
 # and the binary only exists as a release asset (`/releases/download/<tag>`).
 {
-  flake.overlays.tredis = _final: prev: let
+  perSystem.overlays.tredis = _final: prev: let
     version = "1.2.0";
 
     # One entry per release asset we have a hash for; the throw keeps a new

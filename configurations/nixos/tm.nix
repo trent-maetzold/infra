@@ -1,14 +1,8 @@
-{
-  config,
-  inputs,
-  ...
-}: let
+{config, ...}: let
   inherit (config) flake;
 in {
-  flake.modules.nixos.tm = {pkgs, ...}: {
-    nixpkgs.overlays = [flake.overlays.default inputs.colmena.overlays.default];
-
-    home-manager.users.tm.imports = [flake.homeModules.default flake.modules.homeManager.tm];
+  flake.nixos.users.tm = {pkgs, ...}: {
+    home-manager.users.tm.imports = [flake.homeModules.default flake.home.users.tm];
 
     programs.zsh.enable = true;
     services.openssh.enable = true;

@@ -1,29 +1,14 @@
 {
-  description = "Asgard — opinionated NixOS + home-manager defaults";
-
   outputs = inputs @ {
     flake-parts,
-    haumea,
+    import-tree,
     ...
-  }: let
-    # Every .nix file under these dirs is a flake-parts module; `_`-prefixed ones are skipped.
-    discover = dirs:
-      builtins.concatMap (
-        dir:
-          inputs.nixpkgs.lib.collect builtins.isPath (haumea.lib.load {
-            src = ./. + "/${dir}";
-            loader = haumea.lib.loaders.path;
-          })
-      )
-      dirs;
-  in
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
-      imports =
-        [
-          inputs.flake-parts.flakeModules.modules
-          inputs.home-manager.flakeModules.home-manager
-        ]
-        ++ discover ["apps" "configurations" "lib" "modules" "packages"];
+      imports = [
+        inputs.home-manager.flakeModules.home-manager
+        (import-tree [./apps ./configurations ./lib ./modules ./packages])
+      ];
 
       systems = ["x86_64-linux" "aarch64-linux"];
     };
@@ -38,10 +23,7 @@
 
     # Flake
     flake-parts.url = "github:hercules-ci/flake-parts";
-    haumea = {
-      url = "github:nix-community/haumea";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    import-tree.url = "github:denful/import-tree";
 
     # Hardware
     disko = {
