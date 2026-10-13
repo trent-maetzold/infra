@@ -64,8 +64,8 @@ oci-output *args:
 
 facter target='yggdrasil' host='yggdrasil-iso':
     @ssh root@{{ host }} 'nix-shell -p nixos-facter --run nixos-facter > /home/nixos/facter.json'
-    @scp root@{{ host }}:/home/nixos/facter.json configurations/nixos/{{ target }}/facter.json
-    @git add configurations/nixos/{{ target }}/facter.json
+    @scp root@{{ host }}:/home/nixos/facter.json configurations/nixos/{{ target }}/_hardware/facter.json
+    @git add configurations/nixos/{{ target }}/_hardware/facter.json
     @echo 'facter.json updated — review, commit, then `just install {{ target }}`'
 
 install target='yggdrasil' host='yggdrasil-iso':
@@ -76,4 +76,5 @@ install target='yggdrasil' host='yggdrasil-iso':
 
 # Package diff of a host's running system against this flake.
 diff host='yggdrasil':
-    @nh os build . --hostname {{ host }} --build-host {{ host }} --target-host {{ host }} --diff always
+    @if [ "$(hostname)" = {{ host }} ]; then nh os build . --hostname {{ host }} --diff always; \
+    else nh os build . --hostname {{ host }} --build-host {{ host }} --target-host {{ host }} --diff always; fi

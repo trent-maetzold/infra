@@ -14,6 +14,8 @@ in {
         nixpkgs.hostPlatform = "x86_64-linux";
         networking.hostName = "muninn";
 
+        boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
         wsl.defaultUser = "tm";
 
         system.stateVersion = "26.05";

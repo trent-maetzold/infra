@@ -7,13 +7,11 @@
 #
 # Empty virtualHosts yields "tls": matching the plain listener wrapper passes
 # everything through, where an empty `not tls sni` would be invalid Caddyfile.
-{lib, ...}: {
-  flake.lib.makeCaddyPassthrough = {virtualHosts}:
-    if virtualHosts == {}
-    then "tls"
-    else "not tls sni ${
-      lib.concatStringsSep " " (
-        lib.concatMap (vhost: [vhost.hostName] ++ vhost.serverAliases) (lib.attrValues virtualHosts)
-      )
-    }";
-}
+{lib}: {virtualHosts}:
+if virtualHosts == {}
+then "tls"
+else "not tls sni ${
+  lib.concatStringsSep " " (
+    lib.concatMap (vhost: [vhost.hostName] ++ vhost.serverAliases) (lib.attrValues virtualHosts)
+  )
+}"

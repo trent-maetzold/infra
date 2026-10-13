@@ -1,7 +1,6 @@
 {
   config,
   inputs,
-  lib,
   ...
 }: let
   inherit (config) flake;
@@ -17,7 +16,13 @@
         inputs.disko-zfs.nixosModules.default
         inputs.NixVirt.nixosModules.default
       ]
-      ++ lib.attrValues flake.nixos.yggdrasil;
+      ++ [
+        ./_hardware/disk-config.nix
+        ./_services/clickhouse.nix
+        ./_services/postgresql.nix
+        (import ./_services/quadlets.nix {inherit inputs;})
+        (import ./_vms/mimir.nix {inherit inputs;})
+      ];
 
     nixpkgs.hostPlatform = "x86_64-linux";
 
@@ -29,7 +34,7 @@
       zfs.forceImportRoot = true;
     };
 
-    hardware.facter.reportPath = ./facter.json;
+    hardware.facter.reportPath = ./_hardware/facter.json;
 
     networking = {
       hostId = "6d8a7c3f";
