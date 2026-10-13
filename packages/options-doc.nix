@@ -16,7 +16,15 @@
         options = removeAttrs eval'.options ["_module"];
       };
     nixosDoc = doc (eval config.flake.nixosModules.default {modulesPath = "${inputs.nixpkgs}/nixos/modules";});
-    homeDoc = doc (eval config.flake.homeModules.default {});
+    # nix-index-database reads this upstream home-manager option.
+    homeStub = {
+      options.programs.nix-index.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        visible = false;
+      };
+    };
+    homeDoc = doc (eval {imports = [config.flake.homeModules.default homeStub];} {});
   in {
     packages = {
       options-json = pkgs.runCommand "asgard-options-json" {} ''

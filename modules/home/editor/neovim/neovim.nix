@@ -18,6 +18,8 @@
         sqlite
         trash-cli
         tree-sitter
+        lua-language-server
+        stylua
         lua51Packages.lua
         lua51Packages.luarocks
         llm-agents.copilot-language-server

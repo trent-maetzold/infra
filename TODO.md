@@ -17,7 +17,7 @@ Known out-of-spec items. AGENTS.md is desired policy, not current state.
 ## Config as nix
 
 - [ ] Retire `home/config/`: nvim Lua to lazyvim config attrs, pyright and
-      rust-analyzer configs to their `languages` modules, pi package configs to
+      rust-analyzer configs to their `editor.lang` modules, pi package configs to
       Nix, hardcoded skills removed. Root AGENTS.md is the only survivor.
 - [ ] Add agent skills via agent-skills-nix + npins
       (github.com/Kyure-A/agent-skills-nix, github.com/andir/npins).
@@ -35,7 +35,7 @@ Known out-of-spec items. AGENTS.md is desired policy, not current state.
 
 - [ ] Add a protobuf language module with LSP and formatter.
 - [ ] Better nix LSP or settings; suggestions are sparse.
-- [ ] Every LSP lives in `languages/` modules, wired for pi-lens.
+- [ ] Every LSP lives in `editor/lang/` modules, wired for pi-lens.
 - [ ] Fix the nvim `jk` key combo.
 
 ## Docs

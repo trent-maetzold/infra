@@ -5,18 +5,8 @@
 }: let
   inherit (config) flake;
 in {
-  flake.home.users.tm = {pkgs, ...}: {
-    home = {
-      username = "tm";
-      packages = with pkgs; [
-        age
-        colmena
-        nixos-anywhere
-        oci-cli
-        opentofu
-        ragenix
-      ];
-    };
+  flake.home.users.tm = {
+    home.username = "tm";
 
     programs = {
       git.settings.user = {

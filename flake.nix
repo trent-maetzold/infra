@@ -54,6 +54,10 @@
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     # Development
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     lazyvim.url = "github:pfassina/lazyvim-nix";
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
