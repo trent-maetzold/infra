@@ -1,39 +1,24 @@
 {config, ...}: {
-  flake.homeModules.agents = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    cfg = config.programs.agents;
-  in {
-    config = lib.mkMerge [
-      {programs.agents.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home = {
-          file.".agents" = {
-            source = lib.mkDefault ./config;
-            recursive = lib.mkDefault true;
-          };
-          packages = lib.mkAfter (with pkgs;
-            (with llm-agents; [
-              agent-browser
-              but
-              gitnexus
-              gnhf
-            ])
-            ++ [
-              ffmpeg
-              git
-              jq
-              tmux
-              ungoogled-chromium
-            ]);
-        };
-      })
-    ];
-
-    options.programs.agents.enable = lib.mkEnableOption "asgard's agent tooling";
+  flake.modules.homeManager.agents = {pkgs, ...}: {
+    home = {
+      file.".agents" = {
+        source = ./config;
+        recursive = true;
+      };
+      packages = with pkgs;
+        (with llm-agents; [
+          agent-browser
+          but
+          gitnexus
+          gnhf
+        ])
+        ++ [
+          ffmpeg
+          jq
+          tmux
+          ungoogled-chromium
+        ];
+    };
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.agents];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.agents];
 }

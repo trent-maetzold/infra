@@ -1,5 +1,5 @@
 {config, ...}: {
-  flake.nixosModules.llama-swap = {
+  flake.modules.nixos.llama-swap = {
     config,
     lib,
     pkgs,
@@ -14,7 +14,8 @@
       else pkgs.llama-cpp
     ) "llama-server";
   in {
-    config = lib.mkIf cfg.enable {
+    config = {
+      services.llama-swap.enable = true;
       nixpkgs.config.allowUnfreePackages = lib.optionals cfg.cuda.enable [
         "cuda_cccl"
         "cuda_cudart"
@@ -23,8 +24,8 @@
         "libcublas"
       ];
       services.llama-swap.settings = {
-        healthCheckTimeout = lib.mkDefault 1800;
-        metricsMaxInMemory = lib.mkDefault 3600;
+        healthCheckTimeout = 1800;
+        metricsMaxInMemory = 3600;
       };
       systemd.services.llama-swap.environment.LD_LIBRARY_PATH =
         lib.mkIf (wslEnabled && cfg.cuda.enable)
@@ -44,5 +45,4 @@
       };
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixosModules.llama-swap];
 }

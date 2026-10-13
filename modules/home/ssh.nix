@@ -1,28 +1,18 @@
 {config, ...}: {
-  flake.homeModules.ssh = {
-    config,
-    lib,
-    ...
-  }: let
-    cfg = config.programs.ssh;
-  in {
-    config = lib.mkMerge [
-      {programs.ssh.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        programs.ssh = {
-          enableDefaultConfig = lib.mkDefault false;
-          settings."*" = {
-            AddKeysToAgent = lib.mkDefault "no";
-            Compression = lib.mkDefault false;
-            ForwardAgent = lib.mkDefault false;
-            HashKnownHosts = lib.mkDefault false;
-            ServerAliveCountMax = lib.mkDefault 3;
-            ServerAliveInterval = lib.mkDefault 0;
-            UserKnownHostsFile = lib.mkDefault "~/.ssh/known_hosts";
-          };
-        };
-      })
-    ];
+  flake.modules.homeManager.ssh = {...}: {
+    programs.ssh = {
+      enable = true;
+      enableDefaultConfig = false;
+      settings."*" = {
+        AddKeysToAgent = "no";
+        Compression = false;
+        ForwardAgent = false;
+        HashKnownHosts = false;
+        ServerAliveCountMax = 3;
+        ServerAliveInterval = 0;
+        UserKnownHostsFile = "~/.ssh/known_hosts";
+      };
+    };
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.ssh];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.ssh];
 }

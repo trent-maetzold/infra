@@ -9,8 +9,8 @@
   module = {
     imports = [
       flake.nixosModules.default
-      flake.nixosModules.tm
-      flake.nixosModules.tailscale-headscale
+      flake.modules.nixos.tm
+      flake.modules.nixos.tailscale-headscale
       inputs.disko.nixosModules.disko
       inputs.disko-zfs.nixosModules.default
       inputs.NixVirt.nixosModules.default
@@ -45,8 +45,6 @@
         }
       ];
     };
-
-    services.tailscale.enable = true;
 
     system.stateVersion = "26.11";
     home-manager.users.tm.home.stateVersion = "26.11";

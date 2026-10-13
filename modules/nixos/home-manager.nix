@@ -1,23 +1,16 @@
-{config, ...}: {
-  flake.nixosModules.home-manager = {
-    config,
-    lib,
-    ...
-  }: let
-    cfg = config.home-manager;
-  in {
-    config = lib.mkMerge [
-      {home-manager.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home-manager = {
-          backupFileExtension = lib.mkDefault "backup";
-          useGlobalPkgs = lib.mkDefault true;
-          useUserPackages = lib.mkDefault true;
-        };
-      })
-    ];
+{
+  config,
+  inputs,
+  ...
+}: {
+  flake.modules.nixos.home-manager = {
+    imports = [inputs.home-manager.nixosModules.home-manager];
 
-    options.home-manager.enable = lib.mkEnableOption "asgard's home-manager wiring";
+    home-manager = {
+      backupFileExtension = "backup";
+      useGlobalPkgs = true;
+      useUserPackages = true;
+    };
   };
-  flake.nixosModules.default.imports = [config.flake.nixosModules.home-manager];
+  flake.nixosModules.default.imports = [config.flake.modules.nixos.home-manager];
 }

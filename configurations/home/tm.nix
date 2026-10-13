@@ -5,39 +5,31 @@
 }: let
   inherit (config) flake;
 in {
-  flake.homeModules.tm = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: {
-    imports = [flake.homeModules.default];
-
+  flake.modules.homeManager.tm = {pkgs, ...}: {
     home = {
       username = "tm";
-      stateVersion = lib.mkDefault "26.11";
-      packages = lib.mkAfter (with pkgs; [
+      packages = with pkgs; [
         age
         colmena
         nixos-anywhere
         oci-cli
         opentofu
         ragenix
-      ]);
+      ];
     };
 
     programs = {
-      git.settings.user = lib.mkIf config.programs.git.enable {
+      git.settings.user = {
         name = "Trent Maetzold";
         email = "trent@maetzold.co";
       };
-      nh.flake = lib.mkIf config.programs.nh.enable "/home/tm/code/asgard";
-      pi-coding-agent.settings = lib.mkIf config.programs.pi-coding-agent.enable {
+      nh.flake = "/home/tm/code/asgard";
+      pi-coding-agent.settings = {
         defaultProvider = "opencode-go";
         defaultModel = "deepseek-v4.1-flash";
         defaultThinkingLevel = "max";
       };
-      ssh.settings = lib.mkIf config.programs.ssh.enable {
+      ssh.settings = {
         heimdall = {
           HostName = "heimdall.ts.trkm.io";
           User = "tm";
@@ -77,6 +69,10 @@ in {
       system = "x86_64-linux";
       overlays = [flake.overlays.default inputs.colmena.overlays.default];
     };
-    modules = [flake.homeModules.tm];
+    modules = [
+      flake.homeModules.default
+      flake.modules.homeManager.tm
+      {home.stateVersion = "26.11";}
+    ];
   };
 }

@@ -1,25 +1,7 @@
 {config, ...}: {
-  flake.homeModules.languages-markdown = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    cfg = config.languages.markdown;
-  in {
-    config = lib.mkMerge [
-      {languages.markdown.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home.packages = lib.mkAfter (with pkgs; [
-          markdown-toc
-          markdownlint-cli2
-          marksman
-        ]);
-        programs.lazyvim.extras.lang.markdown.enable = lib.mkDefault true;
-      })
-    ];
-
-    options.languages.markdown.enable = lib.mkEnableOption "markdown language support";
+  flake.modules.homeManager.languages-markdown = {pkgs, ...}: {
+    home.packages = with pkgs; [markdown-toc markdownlint-cli2 marksman];
+    programs.lazyvim.extras.lang.markdown.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.languages-markdown];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.languages-markdown];
 }

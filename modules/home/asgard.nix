@@ -1,37 +1,27 @@
 {config, ...}: {
-  flake.homeModules.asgard = {
+  flake.modules.homeManager.asgard = {
     config,
-    lib,
     pkgs,
     ...
-  }: let
-    cfg = config.asgard;
-  in {
-    config = lib.mkMerge [
-      {asgard.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home = {
-          homeDirectory = lib.mkDefault "/home/${config.home.username}";
-          packages = lib.mkAfter (with pkgs; [
-            harlequin
-            just
-            tree
-            tredis
-          ]);
-          sessionPath = lib.mkAfter ["${config.home.homeDirectory}/.local/bin"];
-          shellAliases.ld = lib.mkDefault "lazydocker";
-        };
-        programs = {
-          btop = {
-            enable = lib.mkDefault true;
-            settings.vim_keys = lib.mkDefault true;
-          };
-          nh.enable = lib.mkDefault true;
-        };
-      })
-    ];
+  }: {
+    home = {
+      homeDirectory = "/home/${config.home.username}";
+      packages = with pkgs; [
+        harlequin
+        just
+        tree
+        tredis
+      ];
+      sessionPath = ["${config.home.homeDirectory}/.local/bin"];
+    };
 
-    options.asgard.enable = lib.mkEnableOption "asgard's base home-manager defaults";
+    programs = {
+      btop = {
+        enable = true;
+        settings.vim_keys = true;
+      };
+      nh.enable = true;
+    };
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.asgard];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.asgard];
 }

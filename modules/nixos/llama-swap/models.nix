@@ -1,5 +1,5 @@
 {config, ...}: {
-  flake.nixosModules.llama-swap-models = {
+  flake.modules.nixos.llama-swap-models = {
     config,
     lib,
     ...
@@ -8,7 +8,7 @@
     makeModelOption = import ./_make-model-option.nix {inherit lib;};
     cfg = config.services.llama-swap;
   in {
-    config = lib.mkIf cfg.enable {
+    config = {
       services.llama-swap.settings.models = lib.filterAttrs (_: v: v != null) {
         "lfm2.5-2.6b" = makeModel cfg "lfm2.5-2.6b" {
           cmd = lib.mkDefault ''
@@ -46,5 +46,4 @@
       "lfm2.5-8b-a1b" = makeModelOption "lfm2.5-8b-a1b";
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixosModules.llama-swap-models];
 }

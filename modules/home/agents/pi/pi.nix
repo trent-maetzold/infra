@@ -1,7 +1,6 @@
 {config, ...}: {
-  flake.homeModules.agents-pi = {
+  flake.modules.homeManager.agents-pi = {
     config,
-    lib,
     pkgs,
     ...
   }: let
@@ -11,59 +10,54 @@
       dangerously-allow-all-scripts=true
     '';
   in {
-    config = lib.mkMerge [
-      {programs.pi-coding-agent.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home = {
-          activation.piNpm = {
-            before = [];
-            after = ["writeBoundary"];
-            data = ''
-              run rm -rf "${cfg.configDir}/npm"
-              run mkdir -p "${cfg.configDir}/npm"
-              run install -m 644 ${npmrc} "${cfg.configDir}/npm/.npmrc"
-            '';
-          };
-          file = {
-            ".pi/agent/caveman.json".text = lib.mkDefault (builtins.toJSON {defaultLevel = "lite";});
-          };
-        };
-        xdg.configFile."ponytail/config.json".text = lib.mkDefault (builtins.toJSON {defaultMode = "ultra";});
-        programs.pi-coding-agent = {
-          package = lib.mkDefault pkgs.llm-agents.pi;
-          extraPackages = lib.mkAfter (with pkgs; [
-            bun
-            nodejs
-          ]);
-          settings = {
-            packages = lib.mkAfter [
-              "npm:@dietrichgebert/ponytail"
+    home = {
+      activation.piNpm = {
+        before = [];
+        after = ["writeBoundary"];
+        data = ''
+          run rm -rf "${cfg.configDir}/npm"
+          run mkdir -p "${cfg.configDir}/npm"
+          run install -m 644 ${npmrc} "${cfg.configDir}/npm/.npmrc"
+        '';
+      };
+      file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+    };
 
-              "npm:@gotgenes/pi-permission-model-judge"
-              "npm:@gotgenes/pi-permission-system"
+    xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
 
-              "npm:@juicesharp/rpiv-ask-user-question"
-              "npm:@juicesharp/rpiv-btw"
-              "npm:@juicesharp/rpiv-todo"
+    programs.pi-coding-agent = {
+      enable = true;
+      package = pkgs.llm-agents.pi;
+      extraPackages = with pkgs; [
+        bun
+        nodejs
+      ];
+      settings = {
+        packages = [
+          "npm:@dietrichgebert/ponytail"
 
-              "npm:@narumitw/pi-usage"
+          "npm:@gotgenes/pi-permission-model-judge"
+          "npm:@gotgenes/pi-permission-system"
 
-              # "npm:pi-committer"
-              "npm:pi-lens"
-              "npm:pi-goal-x"
-              "npm:pi-simplify"
+          "npm:@juicesharp/rpiv-ask-user-question"
+          "npm:@juicesharp/rpiv-btw"
+          "npm:@juicesharp/rpiv-todo"
 
-              "npm:billion-context-pi"
-              "npm:pi-reasonix"
+          "npm:@narumitw/pi-usage"
 
-              "npm:pi-everforest"
-              "npm:pi-zentui"
-            ];
-            theme = lib.mkDefault "everforest-light-soft/everforest-dark-soft";
-          };
-        };
-      })
-    ];
+          # "npm:pi-committer"
+          "npm:pi-lens"
+          "npm:pi-goal-x"
+          "npm:pi-simplify"
+
+          "npm:billion-context-pi"
+          "npm:pi-reasonix"
+
+          "npm:pi-everforest"
+        ];
+        theme = "everforest-light-soft/everforest-dark-soft";
+      };
+    };
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.agents-pi];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.agents-pi];
 }

@@ -12,7 +12,7 @@ Known out-of-spec items. AGENTS.md is desired policy, not current state.
 
 - [x] Dendritic flake-parts + Haumea layout (supersedes nix/ restructure, import-tree, flake-parts).
 - [ ] Import ragenix here; secret delivery stays downstream.
-- [ ] Evaluate profiles/suites if `asgard.enable` grows complex.
+- [ ] Define the exhaustive home-manager profile list and local-model (llama-swap) design.
 
 ## Config as nix
 

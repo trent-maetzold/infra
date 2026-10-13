@@ -15,12 +15,13 @@ skipped and imported by their sibling).
 inputs.asgard.url = "git+https://codeberg.org/trkm/asgard";
 
 imports = [asgard.nixosModules.default]; # NixOS; inputs are captured, no specialArgs
-imports = [asgard.homeModules.default];  # standalone home-manager
+imports = [asgard.homeModules.default];  # home-manager, every feature
 nixpkgs.overlays = [asgard.overlays.default];
 ```
 
-Individual features are also exported (`nixosModules.wsl`, `homeModules.languages-nix`, ...).
-Every setting is overridable: `mkDefault` on leaves, `mkAfter` for lists.
+Profiles: `nixosModules.{default,wsl,nvidia}`, `homeModules.default`. Single features
+are `flake.modules.{nixos,homeManager}.<feature>` (e.g. `homeManager.languages-nix`):
+importing one enables it. Override with `lib.mkForce`.
 
 ## Commands
 

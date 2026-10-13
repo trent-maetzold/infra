@@ -16,63 +16,36 @@ enable option. Packages and their overlays live together in `packages/`.
 Use GitNexus for structure (`gitnexus analyze`, then `query`/`context`/`impact`)
 instead of a hand-maintained tree. `.gitnexus/` is local and gitignored.
 
-## Overridability
+## Dendritic modules
 
-The consumer wins every conflict; that is what `mkDefault`/`mkAfter` are for.
+Every module is one feature: `flake.modules.<class>.<feature>`, `<feature>` the
+path joined by `-`. Classes: `nixos`, `homeManager` (not `home`; home-manager
+rejects it). Typed by `flake-parts.flakeModules.modules`.
 
-- Overridable settings go on leaves. `mkDefault` loses to any other definition
-  of that option, so a parent attrset becomes one definition and is discarded
-  wholesale.
-- List options use `mkAfter` (packages, pattern lists). `mkDefault` on a list
-  loses the whole list to any consumer definition — no concatenation — while
-  `mkAfter` appends. Use `mkAfter` for keys nixpkgs already sets too
-  (`nix.settings.trusted-users`).
-- `mkMerge` combines fragments; it has nothing to do with priority.
-- Passthrough bags stay plain and are read directly, not merged per key
-  (`nixpkgs.config.*`, `programs.ssh.settings`, `programs.starship.settings`,
-  `programs.pi-coding-agent.settings`, distrobox containers). Only write keys
-  no deployment is expected to redefine; a plain key is a same-priority
-  conflict for anyone who does.
-
-## Module conventions
+- Plain values only. No `enable` options, gates, `mkDefault`, or `mkAfter`:
+  importing a feature enables it.
+- Profiles (`flake.homeModules.default`, `flake.nixosModules.{default,wsl,nvidia}`)
+  are just `imports` of features. `homeModules.default` is everything;
+  `nixosModules.default` only what every host needs.
+- Consumers pick features (hosts and users in `configurations/` do the same),
+  and override with `lib.mkForce` or by not importing.
+- Upstream flags (`programs.git.enable`) are set by the feature that needs them.
+  A feature needing another imports it.
 
 ```nix
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
-  cfg = config.languages.bash;
+{config, ...}: let
+  git = {pkgs, ...}: {
+    programs.git.enable = true;
+    programs.gh.enable = true;
+    home.packages = [pkgs.forgejo-cli];
+  };
 in {
-  imports = [./other.nix]; # only when there are any
-
-  config = lib.mkMerge [
-    {languages.bash.enable = lib.mkDefault true;}
-    (lib.mkIf cfg.enable {
-      home.packages = lib.mkAfter (with pkgs; [shellcheck]);
-    })
-  ];
-
-  options.languages.bash.enable = lib.mkEnableOption "bash language support";
+  flake.modules.homeManager.git = git;
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.git];
 }
 ```
 
-- Each module file is a flake-parts module registering `flake.<class>Modules.<name>`
-  (name = path joined by `-`) around the plain module shown here; the default
-  roles merge them automatically. Inputs come from the flake-level `inputs`.
-- One module, one gate. `cfg` is the subtree the module owns; the gate is
-  always `cfg.enable`. A second enable flag means two modules. Sub-conditions
-  of its own gate are not a second gate.
-- Modules are imported unconditionally; the gate is `lib.mkIf cfg.enable` on
-  `config`. Never gate `imports` — conditionally imported modules hide their
-  options from search and generated docs.
-- Asgard-declared flags default on: `lib.mkDefault true` next to the gate,
-  never inside it. Upstream flags (`programs.zsh.enable`) are only read.
-- `mkEnableOption` text is a lowercase noun phrase naming what it turns on, no
-  articles or host names: `"bash language support"`.
-- `imports` first, blank line after. `let` sits between the function head and
-  the module body and binds whole subtrees (`cfg = config.programs.distrobox`).
+- Keep the module function inline in `let`; one feature per file.
 - Dotted keys when the set holds one value, nesting when several. Blank line
   between attrsets, never inside a list. `nix fmt` is the shape.
 - Modules never take a `user` specialArg, host identity, or secrets; secret

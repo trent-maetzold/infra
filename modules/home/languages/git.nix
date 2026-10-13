@@ -1,19 +1,6 @@
 {config, ...}: {
-  flake.homeModules.languages-git = {
-    config,
-    lib,
-    ...
-  }: let
-    cfg = config.languages.git;
-  in {
-    config = lib.mkMerge [
-      {languages.git.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        programs.lazyvim.extras.lang.git.enable = lib.mkDefault true;
-      })
-    ];
-
-    options.languages.git.enable = lib.mkEnableOption "git language support";
+  flake.modules.homeManager.languages-git = {...}: {
+    programs.lazyvim.extras.lang.git.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.languages-git];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.languages-git];
 }

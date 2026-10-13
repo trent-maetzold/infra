@@ -1,5 +1,5 @@
 {config, ...}: {
-  flake.nixosModules.llama-swap-gpu = {
+  flake.modules.nixos.llama-swap-gpu = {
     config,
     lib,
     ...
@@ -8,7 +8,7 @@
     makeModelOption = import ./_make-model-option.nix {inherit lib;};
     cfg = config.services.llama-swap;
   in {
-    config = lib.mkIf cfg.enable {
+    config = {
       services.llama-swap.settings.models = lib.filterAttrs (_: v: v != null) {
         "ornith-1.5-35b-a3b" = makeModel cfg "ornith-1.5-35b-a3b" {
           cmd = lib.mkDefault ''
@@ -49,5 +49,4 @@
       "refact-1.6b-fim" = makeModelOption "refact-1.6b-fim";
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixosModules.llama-swap-gpu];
 }

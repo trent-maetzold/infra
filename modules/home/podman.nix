@@ -1,22 +1,11 @@
 {config, ...}: {
-  flake.homeModules.podman = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    cfg = config.services.podman;
-  in {
-    config = lib.mkMerge [
-      {services.podman.enable = lib.mkDefault true;}
-      (lib.mkIf cfg.enable {
-        home.packages = lib.mkAfter (with pkgs; [podman-compose]);
-        programs = {
-          lazydocker.enable = lib.mkDefault true;
-          zsh.oh-my-zsh.plugins = lib.mkAfter ["podman"];
-        };
-      })
-    ];
+  flake.modules.homeManager.podman = {pkgs, ...}: {
+    home.packages = [pkgs.podman-compose];
+    programs = {
+      lazydocker.enable = true;
+      zsh.oh-my-zsh.plugins = ["podman"];
+    };
+    services.podman.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.podman];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.podman];
 }

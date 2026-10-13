@@ -1,10 +1,6 @@
 {config, ...}: {
-  flake.homeModules.agents-pi-zentui = {
-    config,
-    lib,
-    ...
-  }: {
-    config = lib.mkIf config.programs.pi-coding-agent.enable {
+  flake.modules.homeManager.agents-pi-zentui = {...}: {
+    config = {
       programs.pi-coding-agent.settings.packages = ["npm:pi-zentui"];
 
       home.file.".pi/agent/zentui.json".text = builtins.toJSON {
@@ -54,5 +50,5 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.homeModules.agents-pi-zentui];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.agents-pi-zentui];
 }
