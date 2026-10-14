@@ -15,7 +15,7 @@ in {
       trusted-users = ["@wheel"];
     };
 
-    nixpkgs.overlays = [flake.overlays.default];
+    nixpkgs.overlays = builtins.attrValues flake.overlays;
 
     programs = {
       nh.enable = true;

@@ -3,6 +3,7 @@
     flake-parts,
     home-manager,
     import-tree,
+    nixpkgs,
     ...
   }:
     flake-parts.lib.mkFlake {
@@ -10,11 +11,21 @@
       specialArgs = inputs;
     } {
       imports = [
+        flake-parts.flakeModules.easyOverlay
         home-manager.flakeModules.home-manager
         (import-tree [./apps ./configurations ./lib ./modules ./packages])
       ];
 
       systems = ["x86_64-linux" "aarch64-linux"];
+
+      perSystem = {
+        pkgs,
+        system,
+        ...
+      }: {
+        _module.args.pkgs = nixpkgs.legacyPackages.${system};
+        formatter = pkgs.alejandra;
+      };
     };
 
   inputs = {

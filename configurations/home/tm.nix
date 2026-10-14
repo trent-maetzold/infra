@@ -60,7 +60,7 @@ in {
   flake.homeConfigurations.tm = home-manager.lib.homeManagerConfiguration {
     pkgs = import nixpkgs {
       system = "x86_64-linux";
-      overlays = [flake.overlays.default];
+      overlays = builtins.attrValues flake.overlays;
     };
     modules = [
       flake.homeModules.default

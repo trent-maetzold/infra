@@ -1,3 +1,5 @@
 {colmena, ...}: {
-  perSystem.overlays.colmena = colmena.overlays.default;
+  perSystem = {system, ...}: {
+    overlayAttrs.colmena = colmena.packages.${system}.colmena;
+  };
 }

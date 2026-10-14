@@ -11,8 +11,8 @@ Dendritic flake-parts: `flake.nix` loads `apps/`, `configurations/`, `lib/`,
 outputs and adds itself to the `default` profiles. No relative imports (data
 paths like `./config` excepted): reach other files through `config.flake.*`.
 `modules/` is reusable and consumer-independent; anything tied to a user or host
-lives in `configurations/`. Overlays are `perSystem.overlays.<name>` set by the
-`packages/` module that owns the package; `flake.overlays.default` composes them
+lives in `configurations/`. Packages are `perSystem.packages.<name>` in `packages/`, each adding
+itself to `overlayAttrs` (flake-parts easyOverlay); `flake.overlays` composes them
 and `nixosModules.default` applies it.
 
 Use GitNexus for structure (`gitnexus analyze`, then `query`/`context`/`impact`)

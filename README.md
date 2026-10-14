@@ -28,7 +28,7 @@ importing one enables it. Override with `lib.mkForce`.
 nix fmt                          # format (alejandra)
 nix flake show                   # outputs
 nix flake check                  # evaluate and run checks
-nix run .#colmena -- apply --on heimdall  # deploy (never from CI)
+colmena apply --on heimdall  # deploy (never from CI)
 nix build .#options-commonmark   # every option, rendered with defaults
 nix build .#options-json         # machine-readable options
 ```
