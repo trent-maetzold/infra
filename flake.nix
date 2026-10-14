@@ -1,32 +1,41 @@
 {
   outputs = inputs @ {
-    flake-parts,
-    home-manager,
-    import-tree,
     nixpkgs,
+    home-manager,
+    flake-parts,
+    import-tree,
+    colmena,
+    llm-agents,
     ...
   }:
     flake-parts.lib.mkFlake {
       inherit inputs;
       specialArgs = inputs;
-    } {
+    } ({config, ...}: {
       imports = [
-        flake-parts.flakeModules.easyOverlay
         home-manager.flakeModules.home-manager
         (import-tree [./apps ./configurations ./lib ./modules ./packages])
       ];
 
       systems = ["x86_64-linux" "aarch64-linux"];
 
+      flake.overlays = {
+        colmena = colmena.overlays.default;
+        llm-agents = llm-agents.overlays.shared-nixpkgs;
+      };
+
       perSystem = {
         pkgs,
         system,
         ...
       }: {
-        _module.args.pkgs = nixpkgs.legacyPackages.${system};
+        _module.args.pkgs = import nixpkgs {
+          inherit system;
+          overlays = builtins.attrValues config.flake.overlays;
+        };
         formatter = pkgs.alejandra;
       };
-    };
+    });
 
   inputs = {
     # Base

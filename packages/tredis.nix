@@ -1,10 +1,6 @@
 {
-  perSystem = {
-    config,
-    pkgs,
-    ...
-  }: {
-    packages.tredis = pkgs.callPackage ({
+  flake.overlays.tredis = final: _prev: {
+    tredis = final.callPackage ({
       lib,
       rustPlatform,
       fetchFromGitHub,
@@ -35,7 +31,9 @@
           mainProgram = "tredis";
         };
       })) {};
+  };
 
-    overlayAttrs.tredis = config.packages.tredis;
+  perSystem = {pkgs, ...}: {
+    packages = {inherit (pkgs) tredis;};
   };
 }
