@@ -1,11 +1,11 @@
 {
   config,
-  inputs,
+  nixpkgs,
   ...
 }: let
   inherit (config) flake;
 in {
-  flake.nixosConfigurations.muninn = inputs.nixpkgs.lib.nixosSystem {
+  flake.nixosConfigurations.muninn = nixpkgs.lib.nixosSystem {
     modules = [
       flake.nixosModules.default
       flake.nixosModules.wsl

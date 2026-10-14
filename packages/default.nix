@@ -1,6 +1,6 @@
 {
   config,
-  inputs,
+  nixpkgs,
   lib,
   ...
 }: {
@@ -20,7 +20,7 @@
     };
 
     config = {
-      _module.args.pkgs = import inputs.nixpkgs {
+      _module.args.pkgs = import nixpkgs {
         inherit system;
         overlays = lib.attrValues config.overlays;
       };

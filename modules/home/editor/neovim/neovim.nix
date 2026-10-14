@@ -1,10 +1,10 @@
 {
   config,
-  inputs,
+  lazyvim,
   ...
 }: {
   flake.home.editor.neovim = {pkgs, ...}: {
-    imports = [inputs.lazyvim.homeManagerModules.default];
+    imports = [lazyvim.homeManagerModules.default];
 
     programs.lazyvim = {
       enable = true;

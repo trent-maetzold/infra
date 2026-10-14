@@ -1,6 +1,7 @@
 {
   config,
-  inputs,
+  home-manager,
+  nixpkgs,
   ...
 }: let
   inherit (config) flake;
@@ -54,8 +55,8 @@ in {
     };
   };
 
-  flake.homeConfigurations.tm = inputs.home-manager.lib.homeManagerConfiguration {
-    pkgs = import inputs.nixpkgs {
+  flake.homeConfigurations.tm = home-manager.lib.homeManagerConfiguration {
+    pkgs = import nixpkgs {
       system = "x86_64-linux";
       overlays = [flake.overlays.default];
     };

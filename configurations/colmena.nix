@@ -1,7 +1,8 @@
 {
   config,
-  inputs,
   lib,
+  colmena,
+  nixpkgs,
   ...
 }: {
   # Hosts add nodes here; `colmenaHive` is the output colmena reads.
@@ -10,10 +11,10 @@
     default = {};
   };
 
-  config.flake.colmenaHive = inputs.colmena.lib.makeHive ({
+  config.flake.colmenaHive = colmena.lib.makeHive ({
       meta = {
-        nixpkgs = import inputs.nixpkgs {system = "x86_64-linux";};
-        nodeNixpkgs.heimdall = import inputs.nixpkgs {system = "aarch64-linux";};
+        nixpkgs = import nixpkgs {system = "x86_64-linux";};
+        nodeNixpkgs.heimdall = import nixpkgs {system = "aarch64-linux";};
       };
     }
     // config.colmenaNodes);

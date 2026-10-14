@@ -1,12 +1,16 @@
 {
   outputs = inputs @ {
     flake-parts,
+    home-manager,
     import-tree,
     ...
   }:
-    flake-parts.lib.mkFlake {inherit inputs;} {
+    flake-parts.lib.mkFlake {
+      inherit inputs;
+      specialArgs = inputs;
+    } {
       imports = [
-        inputs.home-manager.flakeModules.home-manager
+        home-manager.flakeModules.home-manager
         (import-tree [./apps ./configurations ./lib ./modules ./packages])
       ];
 

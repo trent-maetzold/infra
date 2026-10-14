@@ -1,6 +1,6 @@
 {
   config,
-  inputs,
+  quadlet-nix,
   ...
 }: {
   flake.nixos.yggdrasil.quadlets = {
@@ -8,7 +8,7 @@
 
     home-manager.users.podman = {
       imports = [
-        inputs.quadlet-nix.homeManagerModules.quadlet
+        quadlet-nix.homeManagerModules.quadlet
         config.flake.home.yggdrasil.dockhand
         config.flake.home.yggdrasil.traefik
       ];

@@ -1,4 +1,4 @@
-{inputs, ...}: {
+{NixVirt, ...}: {
   flake.nixos.yggdrasil.unraid-vm = {
     boot = {
       kernelParams = [
@@ -30,7 +30,7 @@
         connections."qemu:///system".domains = [
           {
             active = true;
-            definition = inputs.NixVirt.lib.domain.writeXML {
+            definition = NixVirt.lib.domain.writeXML {
               type = "kvm";
               name = "unraid";
               uuid = "43f9066d-7ce2-4c38-9b9b-3021b4b38ab5";

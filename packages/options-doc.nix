@@ -1,6 +1,6 @@
 {
   config,
-  inputs,
+  nixpkgs,
   lib,
   ...
 }: {
@@ -15,7 +15,7 @@
       pkgs.nixosOptionsDoc {
         options = removeAttrs eval'.options ["_module"];
       };
-    nixosDoc = doc (eval config.flake.nixosModules.default {modulesPath = "${inputs.nixpkgs}/nixos/modules";});
+    nixosDoc = doc (eval config.flake.nixosModules.default {modulesPath = "${nixpkgs}/nixos/modules";});
     # nix-index-database reads this upstream home-manager option.
     homeStub = {
       options.programs.nix-index.enable = lib.mkOption {

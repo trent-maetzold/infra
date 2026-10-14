@@ -1,6 +1,7 @@
 {
   config,
-  inputs,
+  nixpkgs,
+  secrets,
   lib,
   ...
 }: let
@@ -41,7 +42,7 @@
     home-manager.users.tm.home.stateVersion = "26.11";
   };
 in {
-  flake.nixosConfigurations.heimdall = inputs.nixpkgs.lib.nixosSystem {modules = [module];};
+  flake.nixosConfigurations.heimdall = nixpkgs.lib.nixosSystem {modules = [module];};
 
   colmenaNodes.heimdall = {
     imports = [module];
@@ -53,19 +54,19 @@ in {
 
       keys = {
         cf-dns-api-token = makeDeploymentKey {
-          secretFile = inputs.secrets + "/cf-dns-api-token.age";
+          secretFile = secrets + "/cf-dns-api-token.age";
           destDir = "/var/lib/secrets";
           user = "caddy";
           group = "caddy";
         };
         headplane-cookie-secret = makeDeploymentKey {
-          secretFile = inputs.secrets + "/headplane-cookie-secret.age";
+          secretFile = secrets + "/headplane-cookie-secret.age";
           destDir = "/var/lib/secrets";
           user = "headscale";
           group = "headscale";
         };
         ts-authkey = makeDeploymentKey {
-          secretFile = inputs.secrets + "/ts-authkey.age";
+          secretFile = secrets + "/ts-authkey.age";
           destDir = "/run/keys";
         };
       };

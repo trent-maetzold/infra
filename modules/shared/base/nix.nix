@@ -1,6 +1,6 @@
 {
   config,
-  inputs,
+  nix-index-database,
   ...
 }: let
   inherit (config) flake;
@@ -16,7 +16,7 @@
     ];
 in {
   flake.nixos.base.nix = {pkgs, ...}: {
-    imports = [inputs.nix-index-database.nixosModules.nix-index];
+    imports = [nix-index-database.nixosModules.nix-index];
 
     environment.systemPackages = tools pkgs ++ [pkgs.nix-search-tv];
 
@@ -45,7 +45,7 @@ in {
     pkgs,
     ...
   }: {
-    imports = [inputs.nix-index-database.homeModules.nix-index];
+    imports = [nix-index-database.homeModules.nix-index];
 
     home.packages = tools pkgs;
 

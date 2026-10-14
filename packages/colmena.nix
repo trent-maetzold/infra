@@ -1,3 +1,3 @@
-{inputs, ...}: {
-  perSystem.overlays.colmena = inputs.colmena.overlays.default;
+{colmena, ...}: {
+  perSystem.overlays.colmena = colmena.overlays.default;
 }

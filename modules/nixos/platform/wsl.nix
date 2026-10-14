@@ -1,6 +1,6 @@
 {
   config,
-  inputs,
+  nixos-wsl,
   ...
 }: {
   flake.nixos.platform.wsl = {
@@ -9,7 +9,7 @@
     pkgs,
     ...
   }: {
-    imports = [inputs.nixos-wsl.nixosModules.wsl];
+    imports = [nixos-wsl.nixosModules.wsl];
 
     environment.systemPackages = with pkgs; [
       (writeShellScriptBin "wslview" ''exec wsl-open "$@"'')

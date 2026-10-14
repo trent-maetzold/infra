@@ -1,10 +1,10 @@
 {
   config,
-  inputs,
+  home-manager,
   ...
 }: {
   flake.nixos.base.home-manager = {
-    imports = [inputs.home-manager.nixosModules.home-manager];
+    imports = [home-manager.nixosModules.home-manager];
 
     home-manager = {
       backupFileExtension = "backup";

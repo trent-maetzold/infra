@@ -1,6 +1,10 @@
 {
   config,
-  inputs,
+  NixVirt,
+  disko,
+  disko-zfs,
+  nixpkgs,
+  secrets,
   lib,
   ...
 }: let
@@ -13,9 +17,9 @@
         flake.nixosModules.default
         flake.nixos.users.tm
         flake.nixos.network.tailscale-headscale
-        inputs.disko.nixosModules.disko
-        inputs.disko-zfs.nixosModules.default
-        inputs.NixVirt.nixosModules.default
+        disko.nixosModules.disko
+        disko-zfs.nixosModules.default
+        NixVirt.nixosModules.default
       ]
       ++ lib.attrValues flake.nixos.yggdrasil;
 
@@ -50,7 +54,7 @@
     home-manager.users.tm.home.stateVersion = "26.11";
   };
 in {
-  flake.nixosConfigurations.yggdrasil = inputs.nixpkgs.lib.nixosSystem {modules = [module];};
+  flake.nixosConfigurations.yggdrasil = nixpkgs.lib.nixosSystem {modules = [module];};
 
   colmenaNodes.yggdrasil = {
     imports = [module];
@@ -61,19 +65,19 @@ in {
 
       keys = {
         cf-dns-api-token = makeDeploymentKey {
-          secretFile = inputs.secrets + "/cf-dns-api-token.age";
+          secretFile = secrets + "/cf-dns-api-token.age";
           destDir = "/var/lib/secrets";
           user = "podman";
           group = "podman";
         };
         dockhand-env = makeDeploymentKey {
-          secretFile = inputs.secrets + "/dockhand.env.age";
+          secretFile = secrets + "/dockhand.env.age";
           destDir = "/var/lib/secrets";
           user = "podman";
           group = "podman";
         };
         ts-authkey = makeDeploymentKey {
-          secretFile = inputs.secrets + "/ts-authkey.age";
+          secretFile = secrets + "/ts-authkey.age";
           destDir = "/run/keys";
         };
       };

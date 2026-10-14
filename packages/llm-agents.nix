@@ -1,3 +1,3 @@
-{inputs, ...}: {
-  perSystem.overlays.llm-agents = inputs.llm-agents.overlays.shared-nixpkgs;
+{llm-agents, ...}: {
+  perSystem.overlays.llm-agents = llm-agents.overlays.shared-nixpkgs;
 }
