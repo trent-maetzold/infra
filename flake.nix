@@ -29,6 +29,12 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:denful/import-tree";
 
+    # Nix
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Hardware
     disko = {
       url = "github:nix-community/disko";
@@ -38,10 +44,6 @@
       url = "github:numtide/disko-zfs";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.disko.follows = "disko";
-    };
-    nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Infra
@@ -54,14 +56,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # WSL
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Homelab
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     # Development
-    nix-index-database = {
-      url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     lazyvim.url = "github:pfassina/lazyvim-nix";
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
