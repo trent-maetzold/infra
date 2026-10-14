@@ -14,6 +14,7 @@
     } ({config, ...}: {
       imports = [
         home-manager.flakeModules.home-manager
+        ./options.nix
         (import-tree [./apps ./configurations ./lib ./modules ./packages])
       ];
 

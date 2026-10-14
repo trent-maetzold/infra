@@ -5,7 +5,7 @@
     pkgs,
     ...
   }: let
-    containers = config.programs.distrobox.containers;
+    wrappers = ["bx"];
   in {
     config = lib.mkMerge [
       {
@@ -21,7 +21,6 @@
               additional_packages = "zsh";
               entry = true;
               init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
-              make_wrapper = true;
             };
           };
           settings = {
@@ -31,13 +30,7 @@
         };
       }
 
-      (lib.mkIf (containers != {}) {
-        xdg.configFile."distrobox/containers.ini".source = lib.mkForce (
-          (pkgs.formats.ini {listsAsDuplicateKeys = true;}).generate
-          "distrobox-containers.ini"
-          (lib.mapAttrs (_: v: lib.removeAttrs v ["make_wrapper"]) containers)
-        );
-
+      {
         home.file = lib.mapAttrs' (name: cont: {
           name = ".local/bin/${name}";
           value = {
@@ -57,8 +50,8 @@
               fi
             '';
           };
-        }) (lib.filterAttrs (_: cont: cont.make_wrapper or false) containers);
-      })
+        }) (lib.genAttrs wrappers lib.id);
+      }
     ];
   };
   flake.homeModules.default.imports = [config.flake.home.containers.distrobox];

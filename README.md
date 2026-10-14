@@ -19,7 +19,7 @@ nixpkgs.overlays = [asgard.overlays.default];
 ```
 
 Profiles: `nixosModules.{default,wsl,nvidia}`, `homeModules.default`. Single features
-are `flake.{nixos,home}.<domain>.<feature>` (e.g. `home.editor.lang.nix`):
+are `flake.{nixos,home}.<domain>.<feature>` (e.g. `home.lang.nix`):
 importing one enables it. Override with `lib.mkForce`.
 
 ## Commands
@@ -43,5 +43,4 @@ nix store diff-closures /run/current-system ./result  # zero extra tools
 
 ## Docs
 
-Desired policy and conventions live in AGENTS.md; known out-of-spec items in
-TODO.md.
+Desired policy and conventions live in AGENTS.md.
