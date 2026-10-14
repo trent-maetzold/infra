@@ -1,7 +1,10 @@
 {config, ...}: {
-  flake.home.containers.podman = {
-    imports = [config.flake.home.packages.podman];
-
+  flake.home.containers.podman = {pkgs, ...}: {
+    home.packages = with pkgs; [
+      fuse-overlayfs
+      podman-compose
+      slirp4netns
+    ];
     programs = {
       lazydocker.enable = true;
       zsh.oh-my-zsh.plugins = ["podman"];
