@@ -1,5 +1,5 @@
-{
-  flake.nixos.heimdall.disk-config = {
+let
+  out = {
     fileSystems = {
       "/" = {
         device = "/dev/disk/by-label/nixos";
@@ -14,4 +14,7 @@
 
     virtualisation.diskSize = 24 * 1024;
   };
+in {
+  # Features
+  features.nixos.heimdall.disk-config = out;
 }

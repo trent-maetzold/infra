@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.containers.podman = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     home.packages = with pkgs; [
       fuse-overlayfs
       podman-compose
@@ -11,5 +11,10 @@
     };
     services.podman.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.home.containers.podman];
+in {
+  # Features
+  features.home.containers.podman = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.containers.podman];
 }

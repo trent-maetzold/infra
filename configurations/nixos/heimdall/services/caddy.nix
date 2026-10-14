@@ -1,7 +1,6 @@
 {config, ...}: let
   inherit (config.flake.lib) makeCaddyPassthrough;
-in {
-  flake.nixos.heimdall.caddy = {
+  out = {
     config,
     pkgs,
     ...
@@ -32,4 +31,7 @@ in {
       '';
     };
   };
+in {
+  # Features
+  features.nixos.heimdall.caddy = out;
 }

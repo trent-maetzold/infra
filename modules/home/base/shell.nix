@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.base.shell = {...}: {
+{config, ...}: let
+  out = {...}: {
     programs = {
       starship = {
         enable = true;
@@ -24,5 +24,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.base.shell];
+in {
+  # Features
+  features.home.base.shell = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.base.shell];
 }

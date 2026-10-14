@@ -2,15 +2,15 @@
   config,
   quadlet-nix,
   ...
-}: {
-  flake.nixos.yggdrasil.quadlets = {
+}: let
+  out = {
     boot.kernel.sysctl."net.ipv4.ip_unprivileged_port_start" = 443;
 
     home-manager.users.podman = {
       imports = [
         quadlet-nix.homeManagerModules.quadlet
-        config.flake.home.yggdrasil.dockhand
-        config.flake.home.yggdrasil.traefik
+        config.features.home.yggdrasil.dockhand
+        config.features.home.yggdrasil.traefik
       ];
 
       home = {
@@ -43,4 +43,7 @@
       containers.storage.settings.storage.rootless_storage_path = "/var/lib/podman/storage";
     };
   };
+in {
+  # Features
+  features.nixos.yggdrasil.quadlets = out;
 }

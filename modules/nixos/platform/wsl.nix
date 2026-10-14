@@ -2,8 +2,8 @@
   config,
   nixos-wsl,
   ...
-}: {
-  flake.nixos.platform.wsl = {
+}: let
+  out = {
     config,
     lib,
     pkgs,
@@ -27,5 +27,10 @@
       useWindowsDriver = true;
     };
   };
-  flake.nixosModules.wsl.imports = [config.flake.nixos.platform.wsl];
+in {
+  # Features
+  features.nixos.platform.wsl = out;
+
+  # NixOS Modules
+  flake.nixosModules.wsl.imports = [config.features.nixos.platform.wsl];
 }

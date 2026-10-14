@@ -1,5 +1,5 @@
-{
-  flake.nixos.network.tailscale-headscale = {
+let
+  out = {
     services.tailscale = {
       enable = true;
       authKeyFile = "/run/keys/ts-authkey";
@@ -7,4 +7,7 @@
       extraSetFlags = ["--netfilter-mode=off"];
     };
   };
+in {
+  # Features
+  features.nixos.network.tailscale-headscale = out;
 }

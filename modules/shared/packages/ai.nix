@@ -1,5 +1,5 @@
-{
-  flake.home.packages.ai = {pkgs, ...}: {
+let
+  out = {pkgs, ...}: {
     home.packages = with pkgs;
       [ffmpeg jq ungoogled-chromium]
       ++ (with llm-agents; [
@@ -15,4 +15,7 @@
         qmd
       ]);
   };
+in {
+  # Features
+  features.home.packages.ai = out;
 }

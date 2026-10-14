@@ -1,5 +1,5 @@
-{
-  flake.home.yggdrasil.traefik = {config, ...}: {
+let
+  out = {config, ...}: {
     virtualisation.quadlet = let
       inherit (config.virtualisation.quadlet) networks volumes;
     in {
@@ -61,4 +61,7 @@
       };
     };
   };
+in {
+  # Features
+  features.home.yggdrasil.traefik = out;
 }

@@ -1,6 +1,9 @@
 let
   packages = pkgs: with pkgs; [curl gcc git gnumake just openssh openssl pkg-config tree unzip wget];
+  nixos = {pkgs, ...}: {environment.systemPackages = packages pkgs;};
+  home = {pkgs, ...}: {home.packages = packages pkgs;};
 in {
-  flake.nixos.packages.admin = {pkgs, ...}: {environment.systemPackages = packages pkgs;};
-  flake.home.packages.admin = {pkgs, ...}: {home.packages = packages pkgs;};
+  # Features
+  features.nixos.packages.admin = nixos;
+  features.home.packages.admin = home;
 }

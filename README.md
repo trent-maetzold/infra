@@ -19,7 +19,7 @@ nixpkgs.overlays = [asgard.overlays.default];
 ```
 
 Profiles: `nixosModules.{default,wsl,nvidia}`, `homeModules.default`. Single features
-are `flake.{nixos,home}.<domain>.<feature>` (e.g. `home.lang.nix`):
+are `features.{nixos,home}.<domain>.<feature>` (e.g. `home.lang.nix`):
 importing one enables it. Override with `lib.mkForce`.
 
 ## Commands

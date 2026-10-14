@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.nixos.base.i18n = {lib, ...}: {
+{config, ...}: let
+  out = {lib, ...}: {
     i18n = {
       defaultLocale = "en_US.UTF-8";
       extraLocaleSettings = lib.genAttrs [
@@ -15,5 +15,10 @@
       ] (_: "en_US.UTF-8");
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixos.base.i18n];
+in {
+  # Features
+  features.nixos.base.i18n = out;
+
+  # NixOS Modules
+  flake.nixosModules.default.imports = [config.features.nixos.base.i18n];
 }

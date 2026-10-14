@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.ai.herdr = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     programs.herdr = {
       enable = true;
       package = pkgs.llm-agents.herdr;
@@ -16,5 +16,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.ai.herdr];
+in {
+  # Features
+  features.home.ai.herdr = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.ai.herdr];
 }

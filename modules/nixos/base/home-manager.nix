@@ -2,8 +2,8 @@
   config,
   home-manager,
   ...
-}: {
-  flake.nixos.base.home-manager = {
+}: let
+  out = {
     imports = [home-manager.nixosModules.home-manager];
 
     home-manager = {
@@ -12,5 +12,10 @@
       useUserPackages = true;
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixos.base.home-manager];
+in {
+  # Features
+  features.nixos.base.home-manager = out;
+
+  # NixOS Modules
+  flake.nixosModules.default.imports = [config.features.nixos.base.home-manager];
 }

@@ -8,20 +8,20 @@
   lib,
   ...
 }: let
-  inherit (config) flake;
+  inherit (config) features flake;
   inherit (flake.lib) makeDeploymentKey;
 
   module = {
     imports =
       [
         flake.nixosModules.default
-        flake.nixos.users.tm
-        flake.nixos.network.tailscale-headscale
+        features.nixos.users.tm
+        features.nixos.network.tailscale-headscale
         disko.nixosModules.disko
         disko-zfs.nixosModules.default
         NixVirt.nixosModules.default
       ]
-      ++ lib.attrValues flake.nixos.yggdrasil;
+      ++ lib.attrValues features.nixos.yggdrasil;
 
     nixpkgs.hostPlatform = "x86_64-linux";
 

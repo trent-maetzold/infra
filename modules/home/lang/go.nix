@@ -1,7 +1,12 @@
-{config, ...}: {
-  flake.home.lang.go = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     home.packages = with pkgs; [delve go gopls gotools];
     programs.lazyvim.extras.lang.go.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.home.lang.go];
+in {
+  # Features
+  features.home.lang.go = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.lang.go];
 }

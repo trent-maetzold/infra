@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.vcs.git = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     home = {
       packages = [pkgs.forgejo-cli];
       shellAliases.lg = "lazygit";
@@ -22,5 +22,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.vcs.git];
+in {
+  # Features
+  features.home.vcs.git = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.vcs.git];
 }

@@ -1,7 +1,6 @@
 {config, ...}: let
   inherit (config.flake.lib) makeModel makeModelOption;
-in {
-  flake.nixos.ai.llama-swap-gpu = {
+  out = {
     config,
     lib,
     ...
@@ -49,4 +48,7 @@ in {
       "refact-1.6b-fim" = makeModelOption "refact-1.6b-fim";
     };
   };
+in {
+  # Features
+  features.nixos.ai.llama-swap-gpu = out;
 }

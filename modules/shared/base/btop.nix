@@ -1,13 +1,21 @@
-{config, ...}: {
-  flake.nixos.base.btop = {pkgs, ...}: {
+{config, ...}: let
+  nixos = {pkgs, ...}: {
     environment.systemPackages = [pkgs.btop];
   };
-  flake.home.base.btop = {
+  home = {
     programs.btop = {
       enable = true;
       settings.vim_keys = true;
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixos.base.btop];
-  flake.homeModules.default.imports = [config.flake.home.base.btop];
+in {
+  # Features
+  features.nixos.base.btop = nixos;
+  features.home.base.btop = home;
+
+  # NixOS Modules
+  flake.nixosModules.default.imports = [config.features.nixos.base.btop];
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.base.btop];
 }

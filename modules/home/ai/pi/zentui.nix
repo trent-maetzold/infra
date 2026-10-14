@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.ai.pi-zentui = {...}: {
+{config, ...}: let
+  out = {...}: {
     config = {
       programs.pi-coding-agent.settings.packages = ["npm:pi-zentui"];
 
@@ -50,5 +50,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.ai.pi-zentui];
+in {
+  # Features
+  features.home.ai.pi-zentui = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.ai.pi-zentui];
 }

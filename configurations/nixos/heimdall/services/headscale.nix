@@ -1,5 +1,5 @@
-{
-  flake.nixos.heimdall.headscale = {config, ...}: {
+let
+  out = {config, ...}: {
     services = {
       headscale = {
         enable = true;
@@ -32,4 +32,7 @@
       '';
     };
   };
+in {
+  # Features
+  features.nixos.heimdall.headscale = out;
 }

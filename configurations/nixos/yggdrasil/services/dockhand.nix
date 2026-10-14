@@ -1,5 +1,5 @@
-{
-  flake.home.yggdrasil.dockhand = {config, ...}: {
+let
+  out = {config, ...}: {
     virtualisation.quadlet = let
       inherit (config.virtualisation.quadlet) networks pods volumes;
     in {
@@ -72,4 +72,7 @@
       };
     };
   };
+in {
+  # Features
+  features.home.yggdrasil.dockhand = out;
 }

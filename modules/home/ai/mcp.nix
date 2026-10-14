@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.ai.mcp = {...}: {
+{config, ...}: let
+  out = {...}: {
     programs.mcp = {
       enable = true;
       servers = {
@@ -8,5 +8,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.ai.mcp];
+in {
+  # Features
+  features.home.ai.mcp = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.ai.mcp];
 }

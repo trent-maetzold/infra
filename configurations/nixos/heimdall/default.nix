@@ -5,18 +5,18 @@
   lib,
   ...
 }: let
-  inherit (config) flake;
+  inherit (config) features flake;
   inherit (flake.lib) makeDeploymentKey;
 
   module = {modulesPath, ...}: {
     imports =
       [
         flake.nixosModules.default
-        flake.nixos.users.tm
-        flake.nixos.network.tailscale-headscale
+        features.nixos.users.tm
+        features.nixos.network.tailscale-headscale
         "${modulesPath}/profiles/qemu-guest.nix"
       ]
-      ++ lib.attrValues flake.nixos.heimdall;
+      ++ lib.attrValues features.nixos.heimdall;
 
     nixpkgs.hostPlatform = "aarch64-linux";
 

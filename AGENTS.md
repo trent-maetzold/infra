@@ -20,14 +20,14 @@ instead of a hand-maintained tree. `.gitnexus/` is local and gitignored.
 
 ## Dendritic modules
 
-Every module is one feature at `flake.{nixos,home}.<domain>.<feature>` (typed
+Every module is one feature at `features.{nixos,home}.<domain>.<feature>` (typed
 in `options.nix`). Files sit in matching folders. Home domains: `base editor
 lang vcs ai containers`; NixOS: `base
 hardware platform ai`; `modules/shared/` holds features that register on both
 sides in one file (`base.nix`, `packages/<group>.nix`). `base` is a domain of
 features every config imports; `core` is a feature, a domain's leftover
 essentials (`base.core`, `lang.core`). Host-only
-features use the host as domain (`flake.nixos.heimdall.caddy`). Shared helpers
+features use the host as domain (`features.nixos.heimdall.caddy`). Shared helpers
 are `flake.lib.<fn>`.
 
 - Plain values only. No `enable` options, gates, `mkDefault`, or `mkAfter`:
@@ -48,14 +48,14 @@ are `flake.lib.<fn>`.
     home.packages = [pkgs.forgejo-cli];
   };
 in {
-  flake.home.vcs.git = git;
-  flake.homeModules.default.imports = [config.flake.home.vcs.git];
+  features.home.vcs.git = git;
+  flake.homeModules.default.imports = [config.features.home.vcs.git];
 }
 ```
 
 - A feature's own tools stay in it. Package lists serving a domain or several
   features live in `shared/packages/<name>.nix` as
-  `flake.{nixos,home}.packages.<name>`; features import them, and they never
+  `features.{nixos,home}.packages.<name>`; features import them, and they never
   join `nixosModules`/`homeModules` themselves.
 - Keep the module function inline in `let`; one feature per file.
 - Dotted keys when the set holds one value, nesting when several. Blank line

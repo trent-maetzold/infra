@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.containers.distrobox = {
+{config, ...}: let
+  out = {
     config,
     lib,
     pkgs,
@@ -54,5 +54,10 @@
       }
     ];
   };
-  flake.homeModules.default.imports = [config.flake.home.containers.distrobox];
+in {
+  # Features
+  features.home.containers.distrobox = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.containers.distrobox];
 }

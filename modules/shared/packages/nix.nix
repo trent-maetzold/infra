@@ -1,6 +1,9 @@
 let
   packages = pkgs: with pkgs; [deadnix nix-diff nix-init nix-output-monitor nix-search-tv nix-tree nix-update nurl];
+  nixos = {pkgs, ...}: {environment.systemPackages = packages pkgs;};
+  home = {pkgs, ...}: {home.packages = packages pkgs;};
 in {
-  flake.nixos.packages.nix = {pkgs, ...}: {environment.systemPackages = packages pkgs;};
-  flake.home.packages.nix = {pkgs, ...}: {home.packages = packages pkgs;};
+  # Features
+  features.nixos.packages.nix = nixos;
+  features.home.packages.nix = home;
 }

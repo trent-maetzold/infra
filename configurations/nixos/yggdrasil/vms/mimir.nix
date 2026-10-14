@@ -1,5 +1,5 @@
-{NixVirt, ...}: {
-  flake.nixos.yggdrasil.unraid-vm = {
+{NixVirt, ...}: let
+  out = {
     boot = {
       kernelParams = [
         "intel_iommu=on"
@@ -148,4 +148,7 @@
       };
     };
   };
+in {
+  # Features
+  features.nixos.yggdrasil.unraid-vm = out;
 }

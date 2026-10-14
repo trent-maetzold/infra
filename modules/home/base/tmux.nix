@@ -1,6 +1,11 @@
-{config, ...}: {
-  flake.home.base.tmux = {
+{config, ...}: let
+  out = {
     programs.tmux.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.home.base.tmux];
+in {
+  # Features
+  features.home.base.tmux = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.base.tmux];
 }

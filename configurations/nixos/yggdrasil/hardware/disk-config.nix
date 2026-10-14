@@ -1,5 +1,5 @@
-{
-  flake.nixos.yggdrasil.disk-config = let
+let
+  out = let
     makeDisk = {
       n,
       serial,
@@ -130,4 +130,7 @@
       };
     };
   };
+in {
+  # Features
+  features.nixos.yggdrasil.disk-config = out;
 }

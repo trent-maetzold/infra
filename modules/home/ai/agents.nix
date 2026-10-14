@@ -1,11 +1,16 @@
-{config, ...}: {
-  flake.home.ai.agents = {
-    imports = [config.flake.home.packages.ai];
+{config, ...}: let
+  out = {
+    imports = [config.features.home.packages.ai];
 
     home.file.".agents" = {
       source = ./config;
       recursive = true;
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.ai.agents];
+in {
+  # Features
+  features.home.ai.agents = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.ai.agents];
 }

@@ -1,7 +1,12 @@
-{config, ...}: {
-  flake.home.lang.rust = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     home.packages = with pkgs; [lldb rustup];
     programs.lazyvim.extras.lang.rust.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.home.lang.rust];
+in {
+  # Features
+  features.home.lang.rust = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.lang.rust];
 }

@@ -4,10 +4,9 @@
   nixpkgs,
   ...
 }: let
-  inherit (config) flake;
-in {
-  flake.home.users.tm = {
-    imports = with flake.home.packages; [data infra];
+  inherit (config) features flake;
+  out = {
+    imports = with features.home.packages; [data infra];
 
     home.username = "tm";
 
@@ -56,6 +55,9 @@ in {
       };
     };
   };
+in {
+  # Features
+  features.home.users.tm = out;
 
   flake.homeConfigurations.tm = home-manager.lib.homeManagerConfiguration {
     pkgs = import nixpkgs {
@@ -64,7 +66,7 @@ in {
     };
     modules = [
       flake.homeModules.default
-      flake.home.users.tm
+      features.home.users.tm
       {home.stateVersion = "26.11";}
     ];
   };

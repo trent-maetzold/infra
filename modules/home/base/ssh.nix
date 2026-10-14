@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.base.ssh = {...}: {
+{config, ...}: let
+  out = {...}: {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
@@ -14,5 +14,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.base.ssh];
+in {
+  # Features
+  features.home.base.ssh = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.base.ssh];
 }

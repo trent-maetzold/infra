@@ -3,10 +3,9 @@
   nix-index-database,
   ...
 }: let
-  inherit (config) flake;
-in {
-  flake.nixos.base.nix = {pkgs, ...}: {
-    imports = [nix-index-database.nixosModules.nix-index flake.nixos.packages.nix];
+  inherit (config) features flake;
+  nixos = {pkgs, ...}: {
+    imports = [nix-index-database.nixosModules.nix-index features.nixos.packages.nix];
 
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
@@ -26,14 +25,13 @@ in {
       };
     };
   };
-
-  flake.home.base.nix = {
+  home = {
     config,
     lib,
     pkgs,
     ...
   }: {
-    imports = [nix-index-database.homeModules.nix-index flake.home.packages.nix];
+    imports = [nix-index-database.homeModules.nix-index features.home.packages.nix];
 
     programs = {
       nh.enable = true;
@@ -48,7 +46,14 @@ in {
       nix-search-tv.enable = true;
     };
   };
+in {
+  # Features
+  features.nixos.base.nix = nixos;
+  features.home.base.nix = home;
 
-  flake.nixosModules.default.imports = [flake.nixos.base.nix];
-  flake.homeModules.default.imports = [flake.home.base.nix];
+  # NixOS Modules
+  flake.nixosModules.default.imports = [features.nixos.base.nix];
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [features.home.base.nix];
 }

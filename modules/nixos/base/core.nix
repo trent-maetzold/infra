@@ -1,6 +1,6 @@
-{config, ...}: {
-  flake.nixos.base.core = {
-    imports = [config.flake.nixos.packages.admin];
+{config, ...}: let
+  out = {
+    imports = [config.features.nixos.packages.admin];
 
     security.sudo.wheelNeedsPassword = false;
     services.openssh.settings = {
@@ -8,5 +8,10 @@
       PermitRootLogin = "no";
     };
   };
-  flake.nixosModules.default.imports = [config.flake.nixos.base.core];
+in {
+  # Features
+  features.nixos.base.core = out;
+
+  # NixOS Modules
+  flake.nixosModules.default.imports = [config.features.nixos.base.core];
 }

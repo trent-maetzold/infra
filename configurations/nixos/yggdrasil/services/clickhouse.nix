@@ -1,5 +1,5 @@
-{
-  flake.nixos.yggdrasil.clickhouse = _: {
+let
+  out = _: {
     networking.firewall.extraInputRules = ''
       ip saddr 100.64.0.0/10 tcp dport { 8123, 9000 } accept
     '';
@@ -11,4 +11,7 @@
 
     systemd.services.clickhouse.unitConfig.RequiresMountsFor = "/var/lib/clickhouse";
   };
+in {
+  # Features
+  features.nixos.yggdrasil.clickhouse = out;
 }

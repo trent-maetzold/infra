@@ -1,7 +1,6 @@
 {config, ...}: let
   inherit (config.flake.lib) makeModel makeModelOption;
-in {
-  flake.nixos.ai.llama-swap-models = {
+  out = {
     config,
     lib,
     ...
@@ -46,4 +45,7 @@ in {
       "lfm2.5-8b-a1b" = makeModelOption "lfm2.5-8b-a1b";
     };
   };
+in {
+  # Features
+  features.nixos.ai.llama-swap-models = out;
 }

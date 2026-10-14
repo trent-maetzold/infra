@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.ai.pi = {
+{config, ...}: let
+  out = {
     config,
     pkgs,
     ...
@@ -59,5 +59,10 @@
       };
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.ai.pi];
+in {
+  # Features
+  features.home.ai.pi = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.ai.pi];
 }

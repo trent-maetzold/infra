@@ -1,5 +1,5 @@
-{
-  flake.nixos.ai.llama-swap = {
+let
+  out = {
     config,
     lib,
     pkgs,
@@ -45,4 +45,7 @@
       };
     };
   };
+in {
+  # Features
+  features.nixos.ai.llama-swap = out;
 }

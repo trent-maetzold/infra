@@ -3,13 +3,13 @@
   nixpkgs,
   ...
 }: let
-  inherit (config) flake;
+  inherit (config) features flake;
 in {
   flake.nixosConfigurations.muninn = nixpkgs.lib.nixosSystem {
     modules = [
       flake.nixosModules.default
       flake.nixosModules.wsl
-      flake.nixos.users.tm
+      features.nixos.users.tm
       {
         nixpkgs.hostPlatform = "x86_64-linux";
         networking.hostName = "muninn";

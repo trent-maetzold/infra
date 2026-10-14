@@ -1,5 +1,5 @@
-{
-  flake.nixos.yggdrasil.postgresql = {pkgs, ...}: {
+let
+  out = {pkgs, ...}: {
     networking.firewall.extraInputRules = ''
       ip saddr 100.64.0.0/10 tcp dport 5432 accept
     '';
@@ -17,4 +17,7 @@
       '';
     };
   };
+in {
+  # Features
+  features.nixos.yggdrasil.postgresql = out;
 }

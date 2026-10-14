@@ -2,8 +2,8 @@
   config,
   lazyvim,
   ...
-}: {
-  flake.home.editor.neovim = {pkgs, ...}: {
+}: let
+  out = {pkgs, ...}: {
     imports = [lazyvim.homeManagerModules.default];
 
     programs.lazyvim = {
@@ -78,5 +78,10 @@
       }
     '';
   };
-  flake.homeModules.default.imports = [config.flake.home.editor.neovim];
+in {
+  # Features
+  features.home.editor.neovim = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.editor.neovim];
 }

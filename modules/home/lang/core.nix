@@ -1,5 +1,5 @@
-{config, ...}: {
-  flake.home.lang.core = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     home.packages = with pkgs; [
       alejandra
       bash-language-server
@@ -29,5 +29,10 @@
       yaml.enable = true;
     };
   };
-  flake.homeModules.default.imports = [config.flake.home.lang.core];
+in {
+  # Features
+  features.home.lang.core = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.lang.core];
 }

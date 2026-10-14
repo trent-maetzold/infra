@@ -1,7 +1,12 @@
-{config, ...}: {
-  flake.home.lang.python = {pkgs, ...}: {
+{config, ...}: let
+  out = {pkgs, ...}: {
     home.packages = with pkgs; [basedpyright python3 python3Packages.debugpy ruff uv];
     programs.lazyvim.extras.lang.python.enable = true;
   };
-  flake.homeModules.default.imports = [config.flake.home.lang.python];
+in {
+  # Features
+  features.home.lang.python = out;
+
+  # Home Manager Modules
+  flake.homeModules.default.imports = [config.features.home.lang.python];
 }
