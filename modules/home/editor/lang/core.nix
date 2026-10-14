@@ -1,22 +1,6 @@
 {config, ...}: {
-  flake.home.editor.lang.core = {pkgs, ...}: {
-    home.packages = with pkgs; [
-      alejandra
-      bash-language-server
-      docker-compose-language-service
-      dockerfile-language-server
-      markdown-toc
-      markdownlint-cli2
-      marksman
-      nil
-      prettier
-      shellcheck
-      shfmt
-      statix
-      taplo
-      vscode-langservers-extracted
-      yaml-language-server
-    ];
+  flake.home.editor.lang.core = {
+    imports = [config.flake.home.packages.lang-core];
 
     programs.lazyvim.extras.lang = {
       docker.enable = true;

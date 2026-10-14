@@ -4,21 +4,9 @@
   ...
 }: let
   inherit (config) flake;
-  tools = pkgs:
-    with pkgs; [
-      deadnix
-      nix-diff
-      nix-init
-      nix-output-monitor
-      nix-tree
-      nix-update
-      nurl
-    ];
 in {
   flake.nixos.base.nix = {pkgs, ...}: {
-    imports = [nix-index-database.nixosModules.nix-index];
-
-    environment.systemPackages = tools pkgs ++ [pkgs.nix-search-tv];
+    imports = [nix-index-database.nixosModules.nix-index flake.nixos.packages.nix];
 
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
@@ -45,9 +33,7 @@ in {
     pkgs,
     ...
   }: {
-    imports = [nix-index-database.homeModules.nix-index];
-
-    home.packages = tools pkgs;
+    imports = [nix-index-database.homeModules.nix-index flake.home.packages.nix];
 
     programs = {
       nh.enable = true;

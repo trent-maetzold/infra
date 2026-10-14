@@ -1,6 +1,7 @@
 {config, ...}: {
-  flake.home.editor.lang.js = {pkgs, ...}: {
-    home.packages = with pkgs; [bun nodejs pnpm prettier typescript-language-server vscode-extensions.ms-vscode.js-debug vtsls];
+  flake.home.editor.lang.js = {
+    imports = [config.flake.home.packages.lang-js];
+
     programs.lazyvim.extras.lang.typescript.enable = true;
   };
   flake.homeModules.default.imports = [config.flake.home.editor.lang.js];

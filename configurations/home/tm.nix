@@ -7,6 +7,8 @@
   inherit (config) flake;
 in {
   flake.home.users.tm = {
+    imports = with flake.home.packages; [data infra];
+
     home.username = "tm";
 
     programs = {

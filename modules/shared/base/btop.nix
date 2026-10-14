@@ -1,6 +1,6 @@
 {config, ...}: {
-  flake.nixos.base.btop = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.btop];
+  flake.nixos.base.btop = {
+    imports = [config.flake.nixos.packages.btop];
   };
   flake.home.base.btop = {
     programs.btop = {

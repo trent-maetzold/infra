@@ -53,8 +53,10 @@ in {
 }
 ```
 
-- Packages live with the feature that needs them. `shared/packages/<group>.nix`
-  holds only tools that belong to no feature, grouped by domain.
+- Every package list lives in `shared/packages/<name>.nix` as
+  `flake.{nixos,home}.packages.<name>`, named for the domain (`ai`) or feature
+  (`lang-python`) it serves. Features import theirs; packages never join
+  `nixosModules`/`homeModules` themselves.
 - Keep the module function inline in `let`; one feature per file.
 - Dotted keys when the set holds one value, nesting when several. Blank line
   between attrsets, never inside a list. `nix fmt` is the shape.

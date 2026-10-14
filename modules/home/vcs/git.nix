@@ -1,9 +1,8 @@
 {config, ...}: {
-  flake.home.vcs.git = {pkgs, ...}: {
-    home = {
-      packages = [pkgs.forgejo-cli];
-      shellAliases.lg = "lazygit";
-    };
+  flake.home.vcs.git = {
+    imports = [config.flake.home.packages.git];
+
+    home.shellAliases.lg = "lazygit";
 
     programs = {
       gh.enable = true;
