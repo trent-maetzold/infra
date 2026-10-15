@@ -1,13 +1,10 @@
 {config, ...}: let
-  inherit (config) features;
   out = {
     config,
     lib,
     pkgs,
     ...
   }: {
-    imports = [features.home.ai.agents features.home.ai.mcp];
-
     programs.claude-code = {
       enable = true;
       # llm-agents' build is not marked unfree, unlike nixpkgs' claude-code.

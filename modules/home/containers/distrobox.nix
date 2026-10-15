@@ -7,8 +7,6 @@
   }: let
     wrappers = ["bx"];
   in {
-    imports = [features.home.ai.agents];
-
     config = lib.mkMerge [
       {
         agents.rules.tools = ["- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."];
@@ -58,7 +56,6 @@
       }
     ];
   };
-  inherit (config) features;
 in {
   # Features
   features.home.containers.distrobox = out;

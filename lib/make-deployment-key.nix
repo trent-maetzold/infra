@@ -15,7 +15,7 @@
     user ? "root",
     group ? "root",
   }: {
-    keyCommand = ["sh" "-c" ''age -d -i "$HOME/.ssh/id_ed25519" ${lib.escapeShellArg secret}''];
+    keyCommand = ["sh" "-c" ''rage -d -i "$HOME/.ssh/id_ed25519" ${lib.escapeShellArg secret}''];
     inherit destDir user group;
   };
 }

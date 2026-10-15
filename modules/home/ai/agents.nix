@@ -7,8 +7,6 @@
     sections = ["context" "boundaries" "workflow" "style" "commands" "tools"];
     render = name: rules: lib.optionalString (rules != []) "## ${lib.toSentenceCase name}\n\n${lib.concatLines rules}";
   in {
-    imports = [features.home.packages.ai];
-
     options.agents = {
       # Filled by flake.lib.makeAgentRules; rendered in this order.
       rules = lib.genAttrs sections (_:
@@ -66,7 +64,6 @@
         // lib.mapAttrs' (name: source: lib.nameValuePair ".agents/skills/${name}" {inherit source;}) config.agents.skills;
     };
   };
-  inherit (config) features;
 in {
   # Features
   # Keyed so makeAgentRules/makeAgentSkill can import it again without duplicate options.

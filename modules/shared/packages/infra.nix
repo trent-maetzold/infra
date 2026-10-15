@@ -1,6 +1,6 @@
 {config, ...}: let
   out = {pkgs, ...}: {
-    home.packages = with pkgs; [colmena nixos-anywhere];
+    home.packages = with pkgs; [colmena nixos-anywhere rage];
   };
 in {
   # Features

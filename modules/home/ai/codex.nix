@@ -1,13 +1,10 @@
 {config, ...}: let
-  inherit (config) features;
   out = {
     config,
     lib,
     pkgs,
     ...
   }: {
-    imports = [features.home.ai.agents features.home.ai.mcp];
-
     programs.codex = {
       enable = true;
       package = lib.mkDefault pkgs.llm-agents.codex;

@@ -5,7 +5,7 @@
 }: let
   inherit (config) features flake;
   nixos = {pkgs, ...}: {
-    imports = [nix-index-database.nixosModules.nix-index features.nixos.packages.nix];
+    imports = [nix-index-database.nixosModules.nix-index];
 
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
@@ -31,7 +31,7 @@
     pkgs,
     ...
   }: {
-    imports = [nix-index-database.homeModules.nix-index features.home.ai.agents features.home.packages.nix];
+    imports = [nix-index-database.homeModules.nix-index];
 
     agents.rules.tools = ["- `nx`: run something that isn't installed, via `nix shell nixpkgs#...`: `nx jq ripgrep -- jq --version`. Packages before `--`, command after; without `--` it opens a shell."];
 

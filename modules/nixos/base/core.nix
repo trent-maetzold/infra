@@ -1,7 +1,5 @@
 {config, ...}: let
   out = {
-    imports = [config.features.nixos.packages.admin];
-
     security.sudo.wheelNeedsPassword = false;
     services.openssh = {
       enable = true;

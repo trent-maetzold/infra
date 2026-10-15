@@ -55,7 +55,8 @@ are `flake.lib.<fn>`. Features read consumer values from the module-level
   deleting a feature drops it silently. Push back on requests that break this.
 - Consumers override with `lib.mkForce` or by not importing.
 - Upstream flags (`programs.git.enable`) are set by the feature that needs them.
-  A feature needing another imports it.
+  Features never import other features: import-tree loads them all, and
+  profiles wire them together. Upstream modules (`nix-index-database`) are fine.
 
 ```nix
 {config, ...}: let
@@ -72,8 +73,8 @@ in {
 
 - A feature's own tools stay in it. Package lists serving a domain or several
   features live in `shared/packages/<name>.nix` as
-  `features.{nixos,home}.packages.<name>`; features import them, or they join a profile of
-  their own name (`homeModules.infra`).
+  `features.{nixos,home}.packages.<name>`; they join a profile (`default`, or their own
+  name like `homeModules.infra`).
 - Keep the module function inline in `let`; one feature per file.
 - Dotted keys when the set holds one value, nesting when several. Blank line
   between attrsets, never inside a list. `nix fmt` is the shape.
