@@ -15,19 +15,14 @@ in {
       };
     };
     vars = lib.mkOption {
-      type = lib.types.lazyAttrsOf lib.types.anything;
+      type = lib.types.lazyAttrsOf lib.types.raw;
       default = {};
-      description = "Infra catalog (names, addresses, identities); features read and format it themselves.";
-    };
-    colmenaNodes = lib.mkOption {
-      type = lib.types.lazyAttrsOf lib.types.deferredModule;
-      default = {};
-      description = "Colmena nodes; `flake.colmenaHive` is built from them.";
+      description = "This flake's inventory: `global` module, makeHost results in `hosts`, makeUser results in `users`.";
     };
     flake.lib = lib.mkOption {
       type = lib.types.lazyAttrsOf lib.types.raw;
       default = {};
-      description = "Helper functions shared across files.";
+      description = "Public helper functions.";
     };
   };
 }

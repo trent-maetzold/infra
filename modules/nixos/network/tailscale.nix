@@ -1,5 +1,5 @@
 {config, ...}: let
-  out = {
+  out = {config, ...}: {
     services.tailscale = {
       enable = true;
       authKeyFile = "/run/keys/ts-authkey";

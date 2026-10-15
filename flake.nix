@@ -14,18 +14,22 @@
     } ({config, ...}: {
       imports = [
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./configurations ./lib ./modules ./options ./packages ./vars])
+        (import-tree [./apps ./lib ./modules ./options ./packages ./vars])
       ];
 
-      flake.colmenaHive = colmena.lib.makeHive ({
-          meta = {
-            nixpkgs = import nixpkgs {system = "x86_64-linux";};
-            nodeNixpkgs = nixpkgs.lib.mapAttrs (n: _: import nixpkgs {system = config.vars.hosts.${n}.platform;}) config.colmenaNodes;
-          };
-        }
-        // config.colmenaNodes);
+      flake.colmenaHive = let
+        hosts = nixpkgs.lib.filterAttrs (_: h: h ? colmenaNode) config.vars.hosts;
+      in
+        colmena.lib.makeHive ({
+            meta = {
+              nixpkgs = import nixpkgs {system = "x86_64-linux";};
+              nodeNixpkgs = builtins.mapAttrs (_: h: import nixpkgs {inherit (h) system;}) hosts;
+              nodeSpecialArgs = builtins.mapAttrs (_: h: h.specialArgs) hosts;
+            };
+          }
+          // builtins.mapAttrs (_: h: h.colmenaNode) hosts);
 
-      systems = ["x86_64-linux" "aarch64-linux"];
+      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
 
       flake.overlays = {
         colmena = colmena.overlays.default;

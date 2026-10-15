@@ -1,9 +1,21 @@
 {
+  config,
+  inputs,
+  ...
+}: let
+  inherit (config.flake) nixosModules;
+  inherit (config.flake.lib) makeHost;
+  inherit (config.vars) global users;
+  specialArgs = inputs;
+in {
   vars.hosts = {
-    heimdall = {
-      platform = "aarch64-linux";
-      users = ["tm"];
-      profiles = ["qemu-guest" "tailnet"];
+    heimdall = makeHost {
+      name = "heimdall";
+      system = "aarch64-linux";
+      address = "heimdall.ts.trkm.io";
+      imports = [global nixosModules.default nixosModules.qemu-guest nixosModules.tailnet ../hosts/heimdall];
+      users = [users.tm];
+      inherit specialArgs;
 
       deployment = {
         targetHost = "hs.trkm.io";
@@ -28,21 +40,32 @@
       };
     };
 
-    mimir.ssh.mimir.User = "root";
-
-    muninn = {
-      platform = "x86_64-linux";
-      users = ["tm"];
-      profiles = ["wsl"];
+    muninn = makeHost {
+      name = "muninn";
+      address = "muninn.ts.trkm.io";
+      system = "x86_64-linux";
+      imports = [global nixosModules.default nixosModules.wsl ../hosts/muninn];
+      users = [users.tm];
       lan.address = "10.10.10.125";
+      inherit specialArgs;
     };
 
-    yggdrasil = {
-      platform = "x86_64-linux";
-      users = ["tm"];
-      profiles = ["tailnet"];
+    yggdrasil = makeHost {
+      name = "yggdrasil";
+      system = "x86_64-linux";
+      address = "yggdrasil.ts.trkm.io";
+      imports = [global nixosModules.default nixosModules.tailnet ../hosts/yggdrasil];
+      users = [users.tm];
       hostId = "6d8a7c3f";
-      ingress = "100.64.0.3";
+      inherit specialArgs;
+
+      lan = {
+        address = "10.10.20.10";
+        prefixLength = 24;
+        interfaces = ["eno1" "eno2" "eno3" "eno4"];
+        gateway = "10.10.20.1";
+        nameservers = ["10.10.20.1" "1.1.1.1"];
+      };
 
       deployment = {
         targetHost = "100.64.0.2";
@@ -64,20 +87,20 @@
           ts-authkey.secret = "ts-authkey.age";
         };
       };
+    };
+  };
 
-      lan = {
-        address = "10.10.20.10";
-        prefixLength = 24;
-        interfaces = ["eno1" "eno2" "eno3" "eno4"];
-        gateway = "10.10.20.1";
-        nameservers = ["10.10.20.1" "1.1.1.1"];
-      };
+  flake = {
+    nixosConfigurations = {
+      heimdall = config.vars.hosts.heimdall.nixosConfiguration;
+      muninn = config.vars.hosts.muninn.nixosConfiguration;
+      yggdrasil = config.vars.hosts.yggdrasil.nixosConfiguration;
+    };
 
-      ssh.yggdrasil-vnc = {
-        HostName = "yggdrasil.ts.trkm.io";
-        LocalForward = "5900 127.0.0.1:5900";
-        ExitOnForwardFailure = "yes";
-      };
+    nixosModules = {
+      heimdall = config.vars.hosts.heimdall.nixosModule;
+      muninn = config.vars.hosts.muninn.nixosModule;
+      yggdrasil = config.vars.hosts.yggdrasil.nixosModule;
     };
   };
 }
