@@ -17,8 +17,8 @@
           enable = true;
           containers = {
             bx = {
-              image = "archlinux:base-devel";
-              additional_packages = "zsh";
+              image = lib.mkDefault "archlinux:base-devel";
+              additional_packages = lib.mkDefault "zsh";
               entry = true;
               init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
             };

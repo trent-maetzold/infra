@@ -44,8 +44,9 @@ essentials (`base.core`, `lang.core`). Shared helpers
 are `flake.lib.<fn>`. Features read consumer values from the module-level
 `config.vars` option, never from flake-parts.
 
-- Plain values only. No `enable` options, gates, `mkDefault`, or `mkAfter`:
-  importing a feature enables it.
+- Plain values only. No `enable` options, gates, or `mkAfter`: importing a
+  feature enables it. `mkDefault` only on values consumers are expected to tune
+  (container images, packages, model settings).
 - Profiles (`flake.homeModules.*`, `flake.nixosModules.*`, registered empty in
   `options/profiles.nix`) are just `imports` of features. `homeModules.default`
   is everything; `nixosModules.default` only what every host needs.
