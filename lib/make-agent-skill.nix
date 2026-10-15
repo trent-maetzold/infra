@@ -1,5 +1,6 @@
-# A full skill under ~/.agents/skills/<name>. `scripts` and `references` map
-# file names to text or paths; scripts are executable.
+# A full skill under ~/.agents/skills/<name>, also handed to claude-code and
+# codex. `scripts` and `references` map file names to text or paths; scripts
+# are executable.
 {
   config,
   lib,
@@ -11,21 +12,26 @@
     text,
     scripts ? {},
     references ? {},
-  }: let
-    dir = ".agents/skills/${name}";
-    file = extra: content:
-      (
+  }: {pkgs, ...}: let
+    file = dir: executable: n: content: {
+      name = "${dir}/${n}";
+      path =
         if builtins.isPath content
-        then {source = content;}
-        else {text = content;}
-      )
-      // extra;
+        then content
+        else
+          pkgs.writeTextFile {
+            name = n;
+            text = content;
+            inherit executable;
+          };
+    };
   in {
     imports = [config.features.home.ai.agents];
 
-    home.file =
-      {"${dir}/SKILL.md".text = "---\nname: ${name}\ndescription: ${builtins.toJSON description}\n---\n\n${text}";}
-      // lib.mapAttrs' (n: c: lib.nameValuePair "${dir}/scripts/${n}" (file {executable = true;} c)) scripts
-      // lib.mapAttrs' (n: c: lib.nameValuePair "${dir}/references/${n}" (file {} c)) references;
+    agents.skills.${name} = pkgs.linkFarm "skill-${name}" (
+      [(file "." false "SKILL.md" "---\nname: ${name}\ndescription: ${builtins.toJSON description}\n---\n\n${text}")]
+      ++ lib.mapAttrsToList (file "scripts" true) scripts
+      ++ lib.mapAttrsToList (file "references" false) references
+    );
   };
 }

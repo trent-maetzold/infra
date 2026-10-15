@@ -6,6 +6,7 @@ let
         agent-browser
         bernstein
         but
+        cursor-agent
         dsh
         freebuff
         gitnexus
