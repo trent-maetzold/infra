@@ -7,8 +7,12 @@
   }: let
     wrappers = ["bx"];
   in {
+    imports = [features.home.ai.agents];
+
     config = lib.mkMerge [
       {
+        agents.rules.tools = ["- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."];
+
         home.file = {
           ".local/bin/distrobox-export".source = "${pkgs.distrobox}/bin/distrobox-export";
           ".local/bin/distrobox-host-exec".source = "${pkgs.distrobox}/bin/distrobox-host-exec";
@@ -54,6 +58,7 @@
       }
     ];
   };
+  inherit (config) features;
 in {
   # Features
   features.home.containers.distrobox = out;
