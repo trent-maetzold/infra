@@ -6,12 +6,13 @@ auto-imported by import-tree), plus this flake's own hosts and users.
 
 - `modules/`: reusable features, joined into profiles
   (`nixosModules.*`, `homeModules.*`).
-- `lib/`: the public functions (`flake.lib.*`, contract below).
+- `lib/`: the contract functions (`flake.lib.*`, below); feature helpers
+  (`makeAgentRules`, `makeAgentSkill`) live with their feature.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser` with literal
   arguments; the only place routing results into `flake.*`.
 - `hosts/<h>/`, `home/<u>/`: plain (non-dendritic) modules for one host or
   user, passed to the functions through `imports`. Deployment keys are age
-  files on the deploying machine, read by path at apply time.
+  files on the deploying machine, decrypted with rage at apply time.
 
 ## Consuming (the contract)
 

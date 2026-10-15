@@ -1,117 +1,70 @@
 # AGENTS.md
 
-Asgard is a reusable NixOS + home-manager module set. It ships defaults; the
-consuming flake ships hosts, users, and secrets. Build and check commands live
-in README.md.
+Asgard: reusable NixOS + home-manager features. Consumers bring hosts, users and
+secrets. Commands are in README.md.
 
-## Structure
+## Before you edit
 
-Dendritic flake-parts: `flake.nix` loads `apps/`, `lib/`, `modules/`,
-`options/`, `packages/`, `vars/` with import-tree; each file registers its own
-`flake.*` outputs. No relative imports (data paths like `./config` excepted):
-reach other files through `config.flake.*`. Packages live in `packages/`: each
-module sets `flake.overlays.<name>` and `perSystem.packages`; consumers apply
-`attrValues flake.overlays` and `nixosModules.default` applies it.
+1. Run `gitnexus analyze`, then `query`/`context`/`impact` to find code. No
+   hand-kept tree.
+2. Read the file you are changing and one neighbour; copy their shape.
+3. After editing: `nix fmt`, evaluate every `nixosConfigurations.<h>` and
+   `legacyPackages.x86_64-linux.homeConfigurations.tm`, then
+   `nix flake check --no-build`.
 
-The public contract (README) is the profiles plus `flake.lib.make*`. The
-functions return values (modules, configurations, colmena nodes) and never
-write `flake.*`, so consumers need neither flake-parts nor this pattern.
+## Where things go
 
-- `modules/`: reusable features joined into profiles. Never names a host or user.
-- `lib/`: every function. Glue only reacts (`mkIf config.programs.git.enable`);
-  enabling is a feature's job.
-- `vars/`: this flake's inventory, calling `makeHost`/`makeUser` with literal
-  arguments (`global.nix` holds the shared stateVersion and `vars`), and the
-  only place routing results into `flake.*`. All PII and infra identity lives
-  here.
-- `hosts/<h>/`, `home/<u>/`: plain, non-dendritic modules for one host or user,
-  passed through `imports`.
-- stateVersion is per flake: set once through `makeStateVersion` in
-  `vars/global.nix`, never in a feature.
+- `modules/<side>/<domain>/<feature>.nix`: one feature; never names a host or
+  user. `modules/shared/` registers on both sides.
+- `lib/`: the consumer contract only (`makeUser`, `makeHost`,
+  `makeStateVersion`, `makeDeploymentKey`).
+- A feature's own options and functions live with it: `ai/agents/rules.nix`
+  declares `agents.rules` and `makeAgentRules`.
+- `options/`: global flake-parts options and the empty profile registry.
+- `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
+  infra identity (names, emails, addresses, hostIds) lives here.
+- `hosts/<h>/`, `home/<u>/`: plain modules for one host or user. They import
+  profiles, never a single feature, so deleting a feature can't break them
+  silently. Push back on requests that break this.
 
-Use GitNexus for structure (`gitnexus analyze`, then `query`/`context`/`impact`)
-instead of a hand-maintained tree. `.gitnexus/` is local and gitignored.
+`flake.nix` loads `apps lib modules options packages vars` with import-tree. No
+relative imports except data paths: reach other files through `config.flake.*`.
 
-## Dendritic modules
-
-Every module is one feature at `features.{nixos,home}.<domain>.<feature>` (typed
-in `options/`). Files sit in matching folders. Home domains: `base editor
-lang vcs ai containers`; NixOS: `base
-hardware network platform ai`; `modules/shared/` holds features that register on both
-sides in one file (`base.nix`, `packages/<group>.nix`). `base` is a domain of
-features every config imports; `core` is a feature, a domain's leftover
-essentials (`base.core`, `lang.core`). Shared helpers
-are `flake.lib.<fn>`. Features read consumer values from the module-level
-`config.vars` option, never from flake-parts.
-
-- Plain values only. No `enable` options, gates, or `mkAfter`: importing a
-  feature enables it. `mkDefault` only on values consumers are expected to tune
-  (container images, packages, model settings).
-- Profiles (`flake.homeModules.*`, `flake.nixosModules.*`, registered empty in
-  `options/profiles.nix`) are just `imports` of features. `homeModules.default`
-  is everything; `nixosModules.default` only what every host needs.
-- Hosts and users import profiles plus their own `hosts/<h>`/`home/<u>` modules;
-  in this repo, never a single feature from `vars/`, `hosts/` or `home/`, so
-  deleting a feature drops it silently. Push back on requests that break this.
-- Consumers override with `lib.mkForce` or by not importing.
-- Upstream flags (`programs.git.enable`) are set by the feature that needs them.
-  Features never import other features: import-tree loads them all, and
-  profiles wire them together. Upstream modules (`nix-index-database`) are fine.
+## Writing a feature
 
 ```nix
 {config, ...}: let
-  git = {pkgs, ...}: {
+  out = {pkgs, ...}: {
     programs.git.enable = true;
-    programs.gh.enable = true;
     home.packages = [pkgs.forgejo-cli];
   };
 in {
-  features.home.vcs.git = git;
+  # Features
+  features.home.vcs.git = out;
+
+  # Home Manager Modules
   flake.homeModules.default.imports = [config.features.home.vcs.git];
 }
 ```
 
-- A feature's own tools stay in it. Package lists serving a domain or several
-  features live in `shared/packages/<name>.nix` as
-  `features.{nixos,home}.packages.<name>`; they join a profile (`default`, or their own
-  name like `homeModules.infra`).
-- Keep the module function inline in `let`; one feature per file.
-- Dotted keys when the set holds one value, nesting when several. Blank line
-  between attrsets, never inside a list. `nix fmt` is the shape.
-- Modules never take a `user` specialArg, host identity, or secrets; secret
-  delivery is downstream.
+- Importing a feature enables it. No `enable` options, gates or `mkAfter`.
+  `mkDefault` only on values consumers tune (images, packages, models).
+- Features never import other features; profiles wire them. Upstream modules
+  (`home-manager`, `nix-index-database`) are imported by the feature using them.
+- Shared package lists: `shared/packages/<name>.nix`, joined to a profile.
+- Read consumer values from module-level `config.vars`. Never take a `user`
+  specialArg, host identity or secrets.
+- stateVersion is set once, via `makeStateVersion` in `vars/global.nix`.
 
-## Config as nix
+Domains: home `base editor lang vcs ai containers`; NixOS `base hardware network
+platform ai`. `base` is imported everywhere; `core` is a domain's leftovers.
 
-Defaults live in Nix, not config files. `home/config/` shrinks toward nothing:
-Nvim Lua becomes lazyvim config attrs, LSP configs move to their `lang`
-module, pi configs become Nix. Only content that cannot be expressed as Nix
-attributes survives (skills; the global AGENTS.md is `agents.rules`, filled by
-`makeAgentRules`).
+## Style
 
-## Code style
-
-- Formatted with Alejandra, which does not settle newline whitespace — keep it
-  consistent.
-- Attr and arg ordering stays consistent: hierarchical (config > lib > pkgs)
-  when importance decides, alphabetical when it reads better.
-- Plain attrsets over complicated functional forms. When a function is
-  unavoidable, pull it into `lib/` — except patterns every community flake
-  defines in place (`forAllSystems`, `pkgsFor`): those belong in the flake.
-- Prefer mature, robust flakes over hand-rolled equivalents when they make this
-  flake easier to read or edit.
-
-## Brevity
-
-- Comments: only the non-obvious, as short as needed. Why a change was made is
-  a commit message.
-- Code: as short as needed. No inline nested bash; rethink the approach.
-
-## Ponytail
-
-The active skill's laziness is house style, with one exception: prefer a mature
-library over hand-rolled code even when it adds a dependency — less code to
-read and maintain wins.
-
-More lines are the failure mode. Agents get code working but bloat it: re-read
-every edit and collapse what fits on one line.
+- Fewest lines. Re-read every edit and collapse what fits on one line.
+- Nix over config files; only what Nix can't express (skills) stays as files.
+- Plain attrsets over functions. A mature flake or library beats hand-rolled
+  code, even as a new dependency.
+- Comments only where a reader would stumble. Why goes in the commit message.
+- Alejandra formats. Blank lines between attrsets, never inside a list. Dotted
+  keys for one value, nesting for several.

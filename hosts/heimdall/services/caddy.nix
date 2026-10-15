@@ -1,9 +1,18 @@
 {
   config,
+  lib,
   pkgs,
-  self,
   ...
-}: {
+}: let
+  # SNI matcher for TLS this edge doesn't terminate: every name outside
+  # services.caddy.virtualHosts (hostName and serverAliases) goes to the ingress.
+  # Without vhosts it is plain "tls"; an empty `not tls sni` is invalid.
+  vhostNames = lib.concatMap (vhost: [vhost.hostName] ++ vhost.serverAliases) (lib.attrValues config.services.caddy.virtualHosts);
+  passthrough =
+    if vhostNames == []
+    then "tls"
+    else "not tls sni ${lib.concatStringsSep " " vhostNames}";
+in {
   services.caddy = {
     enable = true;
     email = config.vars.acmeEmail;
@@ -19,7 +28,7 @@
       servers :443 {
         listener_wrappers {
           layer4 {
-            @upstream ${self.lib.makeCaddyPassthrough {virtualHosts = config.services.caddy.virtualHosts;}}
+            @upstream ${passthrough}
             route @upstream {
               proxy ${config.vars.ingress}:443
             }
