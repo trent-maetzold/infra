@@ -33,7 +33,7 @@
   }: {
     imports = [nix-index-database.homeModules.nix-index];
 
-    agents.rules.tools = ["- `nx`: run something that isn't installed, via `nix shell nixpkgs#...`: `nx jq ripgrep -- jq --version`. Packages before `--`, command after; without `--` it opens a shell."];
+    agents.md.tools = ["- `nx`: run something that isn't installed, via `nix shell nixpkgs#...`: `nx jq ripgrep -- jq --version`. Packages before `--`, command after; without `--` it opens a shell."];
 
     # A script, not an alias, so non-interactive agent shells get it.
     home.packages = [

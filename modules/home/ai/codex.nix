@@ -8,7 +8,7 @@
     programs.codex = {
       enable = true;
       package = lib.mkDefault pkgs.llm-agents.codex;
-      context = config.agents.markdown;
+      context = config.agents.md.text;
       enableMcpIntegration = true;
       inherit (config.agents) skills;
     };

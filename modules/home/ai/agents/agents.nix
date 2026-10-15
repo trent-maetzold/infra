@@ -1,7 +1,7 @@
 {config, ...}: let
   out = {lib, ...}: {
     agents = {
-      rules = {
+      md = {
         context = ["- I over-explain. Distill my requests to the facts; answer the same way."];
         boundaries = ["- **ALWAYS** read documentation. Context7 and DeepWiki MCPs are available."];
         workflow = [

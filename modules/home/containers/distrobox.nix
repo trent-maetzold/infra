@@ -9,7 +9,7 @@
   in {
     config = lib.mkMerge [
       {
-        agents.rules.tools = ["- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."];
+        agents.md.tools = ["- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."];
 
         home.file = {
           ".local/bin/distrobox-export".source = "${pkgs.distrobox}/bin/distrobox-export";
