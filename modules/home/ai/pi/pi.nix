@@ -11,7 +11,9 @@
     '';
 
     # Merged into a mutable settings.json so pi keeps runtime choices (model, thinking level).
-    settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" {
+    settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
+  in {
+    programs.pi-coding-agent.settings = {
       packages = [
         "npm:@dietrichgebert/ponytail"
 
@@ -36,7 +38,7 @@
       ];
       theme = "everforest-light-soft/everforest-dark-soft";
     };
-  in {
+
     home = {
       activation = {
         piNpm = {
@@ -58,7 +60,11 @@
           '';
         };
       };
-      file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+      file = {
+        # pi rewrites it, so the activation above owns it, not a store symlink.
+        "${cfg.configDir}/settings.json".enable = false;
+        ".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+      };
     };
 
     xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
