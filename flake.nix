@@ -14,9 +14,16 @@
     } ({config, ...}: {
       imports = [
         home-manager.flakeModules.home-manager
-        ./options.nix
-        (import-tree [./apps ./configurations ./lib ./modules ./packages])
+        (import-tree [./apps ./configurations ./lib ./modules ./options ./packages ./vars])
       ];
+
+      flake.colmenaHive = colmena.lib.makeHive ({
+          meta = {
+            nixpkgs = import nixpkgs {system = "x86_64-linux";};
+            nodeNixpkgs = nixpkgs.lib.mapAttrs (n: _: import nixpkgs {system = config.vars.hosts.${n}.platform;}) config.colmenaNodes;
+          };
+        }
+        // config.colmenaNodes);
 
       systems = ["x86_64-linux" "aarch64-linux"];
 

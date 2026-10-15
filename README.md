@@ -2,11 +2,17 @@
 
 Opinionated NixOS + home-manager defaults and the configurations that use them
 (flake-parts, dendritic: every file under `apps/`, `configurations/`, `lib/`,
-`modules/`, `packages/` is auto-imported by import-tree).
+`modules/`, `options/`, `packages/`, `vars/` is auto-imported by import-tree).
 
 - `modules/`: reusable, user- and host-independent capabilities and defaults.
-- `configurations/`: hosts, users, deployment, identity. Secrets live in the
+- `configurations/`: only modules tightly coupled to one host (`hosts/<h>/`) or
+  user (`users/<u>/`), plus the `base.nix` that build them. Secrets live in the
   private `secrets` flake input.
+- `vars/`: the infra catalog (`vars.*`: names, emails, addresses, domains).
+  Consumers read `config.vars` and format values themselves.
+  `vars/{global,hosts,users}.nix` read as an inventory; `configurations/{hosts,users}/base.nix`
+  turn `vars.hosts`/`vars.users` into nixos/home modules, `nixosConfigurations`,
+  `homeConfigurations` and (with `deployment`) colmena nodes and keys.
 
 ## Consuming
 

@@ -3,9 +3,12 @@
     imports = [config.features.nixos.packages.admin];
 
     security.sudo.wheelNeedsPassword = false;
-    services.openssh.settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
+    services.openssh = {
+      enable = true;
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "no";
+      };
     };
   };
 in {
