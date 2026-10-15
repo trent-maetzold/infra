@@ -6,6 +6,7 @@
   inherit (config.flake) nixosModules;
   inherit (config.flake.lib) makeHost;
   inherit (config.vars) global users;
+  secrets = "/home/tm/code/nix-secrets";
   specialArgs = inputs;
 in {
   vars.hosts = {
@@ -24,18 +25,18 @@ in {
 
         keys = {
           cf-dns-api-token = {
-            secret = "cf-dns-api-token.age";
+            secret = "${secrets}/cf-dns-api-token.age";
             destDir = "/var/lib/secrets";
             user = "caddy";
             group = "caddy";
           };
           headplane-cookie-secret = {
-            secret = "headplane-cookie-secret.age";
+            secret = "${secrets}/headplane-cookie-secret.age";
             destDir = "/var/lib/secrets";
             user = "headscale";
             group = "headscale";
           };
-          ts-authkey.secret = "ts-authkey.age";
+          ts-authkey.secret = "${secrets}/ts-authkey.age";
         };
       };
     };
@@ -73,18 +74,18 @@ in {
 
         keys = {
           cf-dns-api-token = {
-            secret = "cf-dns-api-token.age";
+            secret = "${secrets}/cf-dns-api-token.age";
             destDir = "/var/lib/secrets";
             user = "podman";
             group = "podman";
           };
           dockhand-env = {
-            secret = "dockhand.env.age";
+            secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
             user = "podman";
             group = "podman";
           };
-          ts-authkey.secret = "ts-authkey.age";
+          ts-authkey.secret = "${secrets}/ts-authkey.age";
         };
       };
     };

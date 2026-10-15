@@ -10,8 +10,8 @@ auto-imported by import-tree), plus this flake's own hosts and users.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser` with literal
   arguments; the only place routing results into `flake.*`.
 - `hosts/<h>/`, `home/<u>/`: plain (non-dendritic) modules for one host or
-  user, passed to the functions through `imports`. Secrets live in the private
-  `secrets` flake input.
+  user, passed to the functions through `imports`. Deployment keys are age
+  files on the deploying machine, read by path at apply time.
 
 ## Consuming (the contract)
 
@@ -46,7 +46,7 @@ let
     address = "box.example.com";      # ssh HostName
     hostId = "deadbeef";
     lan = {address = "10.0.0.2"; prefixLength = 24; gateway = "10.0.0.1"; nameservers = []; interfaces = ["eno1"];};
-    deployment = {targetHost = "10.0.0.2"; keys.x.secret = "x.age";};
+    deployment = {targetHost = "10.0.0.2"; keys.x.secret = "/path/to/x.age";};
   };
 in {
   nixosConfigurations.box = box.nixosConfiguration;

@@ -103,8 +103,5 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Secrets
-    secrets.url = "git+file:///home/tm/code/nix-secrets";
   };
 }
