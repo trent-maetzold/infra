@@ -1,6 +1,6 @@
-# Agents reach MCP servers only through per-server commands (`deepwiki <tool>
-# key=value`) and `mcp-list`: mcporter with `mcp.servers` baked in, itself off
-# PATH. skillz serves ~/.agents/skills as tools.
+# Agents reach MCP servers only through `mcp-<server> <tool> key=value` and
+# `mcp-list`: mcporter with `mcp.servers` baked in, itself off PATH. The skills
+# server (skillz) serves ~/.agents/skills as tools.
 {config, ...}: let
   out = {
     config,
@@ -23,7 +23,7 @@
         context7.url = "https://mcp.context7.com/mcp";
         deepwiki.url = "https://mcp.deepwiki.com/mcp";
 
-        skillz = {
+        skills = {
           command = lib.getExe pkgs.skillz;
           args = ["${config.home.homeDirectory}/.agents/skills"];
         };
@@ -31,10 +31,10 @@
 
       home.packages = [
         (pkgs.runCommand "mcp-servers" {nativeBuildInputs = [pkgs.makeWrapper];}
-          (lib.concatLines ([(wrap "mcp-list" "list")] ++ map (s: wrap s "call ${s}") (lib.attrNames config.mcp.servers))))
+          (lib.concatLines ([(wrap "mcp-list" "list")] ++ map (s: wrap "mcp-${s}" "call ${s}") (lib.attrNames config.mcp.servers))))
       ];
 
-      agents.md.tools = ["- MCP: `mcp-list [server] --schema` shows servers, tools and arguments; `<server> <tool> key=value` (e.g. `deepwiki ask_wiki_question repoName=o/r question=...`) calls one."];
+      agents.md.tools = ["- MCP: `mcp-list [server] --schema` shows servers, tools and arguments; `mcp-<server> <tool> key=value` (e.g. `mcp-deepwiki ask_wiki_question repoName=o/r question=...`) calls one."];
     };
   };
 in {
