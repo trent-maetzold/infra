@@ -11,6 +11,7 @@
         pydantic
         pydantic-settings
         python-frontmatter
+        pyyaml
         typer
       ];
 

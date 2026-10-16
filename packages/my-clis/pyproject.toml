@@ -2,7 +2,7 @@
 name = "my-clis"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = ["pydantic", "pydantic-settings", "python-frontmatter", "typer"]
+dependencies = ["pydantic", "pydantic-settings", "python-frontmatter", "pyyaml", "typer"]
 
 [project.scripts]
 skills = "my_clis.skills:app"

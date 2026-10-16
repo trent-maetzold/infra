@@ -1,10 +1,11 @@
-"""List, show and search agent skills."""
+"""List, describe, show and search agent skills."""
 
 from pathlib import Path
 
 import frontmatter
 import typer
-from pydantic import BaseModel
+import yaml
+from pydantic import BaseModel, ConfigDict
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,7 @@ class Settings(BaseSettings):
 
 
 class Skill(BaseModel):
+    model_config = ConfigDict(extra="allow")
     name: str
     description: str
     body: str
@@ -21,7 +23,8 @@ class Skill(BaseModel):
     @classmethod
     def load(cls, path: Path) -> "Skill":
         post = frontmatter.load(path / "SKILL.md")
-        return cls(name=path.name, description=" ".join(str(post.get("description", "")).split()), body=post.content)
+        description = " ".join(str(post.get("description", "")).split())
+        return cls.model_validate(post.metadata | {"name": path.name, "description": description, "body": post.content})
 
 
 app = typer.Typer(no_args_is_help=True)
@@ -36,6 +39,13 @@ def list_() -> None:
     """List skills with their descriptions."""
     for s in skills():
         print(f"{s.name}: {s.description}")
+
+
+@app.command()
+def describe(name: str) -> None:
+    """Print a skill's frontmatter as YAML."""
+    skill = Skill.load(Settings().dir / name)
+    print(yaml.safe_dump(skill.model_dump(exclude={"body"}), sort_keys=False, allow_unicode=True, width=1 << 16), end="")
 
 
 @app.command()
