@@ -47,7 +47,10 @@ in {
 }
 ```
 
-- Importing a feature enables it. No `enable` options, gates or `mkAfter`.
+- Importing a feature enables it: features have no `enable` option, no gates, no `mkAfter`.
+  A part inside a feature may get `<feature>.<part>.enable` only if all hold:
+  it runs on its own (a gateway, a web UI), consumers disagree on it, and
+  splitting it into its own feature would duplicate the shared config.
   `mkDefault` only on values consumers tune (images, packages, models).
 - Features never import other features; profiles wire them. Upstream modules
   (`home-manager`, `nix-index-database`) are imported by the feature using them.
