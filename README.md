@@ -61,6 +61,8 @@ Features read your values from `config.vars` (`tailnet` needs
 - `makeStateVersion v` → module setting `system`/`home` stateVersion; once per flake.
 - `makeDeploymentKey {secret, destDir?, user?, group?}` → colmena key, decrypted
   with rage from an age file on the deploying machine at apply time.
+- `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
+  script as `bin/<name>`, run on a Nix Python with its dependencies (pyproject-nix).
 - `makeAgentRules {context boundaries workflow style commands tools}` → home
   module adding lines to those `~/.agents/AGENTS.md` sections (`agents.md.<section>`).
 - `makeAgentSkill {name, description, text, scripts?, references?}` → home
