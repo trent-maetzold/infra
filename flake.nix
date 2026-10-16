@@ -14,7 +14,7 @@
     } ({config, ...}: {
       imports = [
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./lib ./modules ./options ./packages ./vars])
+        (import-tree [./apps ./lib ./modules ./options ./packages ./services ./vars])
       ];
 
       flake.colmenaHive = let

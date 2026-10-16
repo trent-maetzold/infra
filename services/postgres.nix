@@ -1,0 +1,35 @@
+# Defaults for any host where a feature enables `services.postgresql`:
+# PostgreSQL 18 with pgvector, reachable over the tailnet with passwords.
+{config, ...}: let
+  postgres = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: {
+    config = lib.mkIf config.services.postgresql.enable {
+      networking.firewall.extraInputRules = ''
+        ip saddr 100.64.0.0/10 tcp dport 5432 accept
+      '';
+
+      services.postgresql = {
+        package = pkgs.postgresql_18;
+        extensions = ps: [ps.pgvector];
+        enableTCPIP = true;
+
+        authentication = ''
+          local all all peer
+          host all all 127.0.0.1/32 scram-sha-256
+          host all all ::1/128 scram-sha-256
+          host all all 100.64.0.0/10 scram-sha-256
+        '';
+      };
+    };
+  };
+in {
+  # Features
+  features.nixos.services.postgres = postgres;
+
+  # NixOS Modules
+  flake.nixosModules.default.imports = [config.features.nixos.services.postgres];
+}
