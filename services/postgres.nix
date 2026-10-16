@@ -1,9 +1,13 @@
 # PostgreSQL 18 with pgvector, reachable over the tailnet with passwords;
 # features needing a database import it.
 let
-  postgres = {pkgs, ...}: {
+  postgres = {
+    config,
+    pkgs,
+    ...
+  }: {
     networking.firewall.extraInputRules = ''
-      ip saddr 100.64.0.0/10 tcp dport 5432 accept
+      ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
     '';
 
     services.postgresql = {
@@ -17,7 +21,7 @@ let
         local all all scram-sha-256
         host all all 127.0.0.1/32 scram-sha-256
         host all all ::1/128 scram-sha-256
-        host all all 100.64.0.0/10 scram-sha-256
+        host all all ${config.vars.tailnet.subnet} scram-sha-256
       '';
     };
   };

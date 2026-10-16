@@ -1,6 +1,6 @@
-{
+{config, ...}: {
   networking.firewall.extraInputRules = ''
-    ip saddr 100.64.0.0/10 tcp dport { 8123, 9000 } accept
+    ip saddr ${config.vars.tailnet.subnet} tcp dport { 8123, 9000 } accept
   '';
 
   services.clickhouse = {

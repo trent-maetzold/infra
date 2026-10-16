@@ -7,6 +7,8 @@
   quadlet-nix,
   ...
 }: let
+  inherit (config.features.nixos) services;
+
   honcho = {
     env = "/var/lib/secrets/honcho-env";
 
@@ -28,15 +30,15 @@
     };
   };
 
-  nixos = {
+  nixos = {config, ...}: {
     imports = [
-      config.features.nixos.services.postgres
-      config.features.nixos.services.redis
+      services.postgres
+      services.redis
       quadlet-nix.nixosModules.quadlet
     ];
 
     networking.firewall.extraInputRules = ''
-      ip saddr 100.64.0.0/10 tcp dport 8000 accept
+      ip saddr ${config.vars.tailnet.subnet} tcp dport 8000 accept
     '';
 
     services = {

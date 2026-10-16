@@ -16,6 +16,7 @@
       tailnet = {
         loginServer = "https://hs.trkm.io";
         domain = "ts.trkm.io";
+        subnet = "100.64.0.0/10";
       };
     };
   };
