@@ -1,5 +1,5 @@
-# Agent skills via agent-skills-nix, linked to ~/.agents/skills (codex, pi) and
-# ~/.claude/skills. Add registry skills with
+# Agent skills via agent-skills-nix, linked to ~/.local/share/skills, outside the
+# dirs harnesses scan, so agents reach them only through the `skills` CLI. Add registry skills with
 # `programs.agent-skills.{sources.<name>.path, skills.enable}`, or write one with
 # makeAgentSkill. `scripts` and `references` map file names to text or paths;
 # scripts are executable.
@@ -18,16 +18,9 @@
     programs.agent-skills = {
       enable = true;
 
-      targets = {
-        agents = {
-          dest = ".agents/skills";
-          structure = "link";
-        };
-
-        claude = {
-          dest = ".claude/skills";
-          structure = "link";
-        };
+      targets.local = {
+        dest = ".local/share/skills";
+        structure = "link";
       };
     };
   };
@@ -36,7 +29,10 @@ in {
   features.home.ai.agent-skills = {pkgs, ...}: {
     imports = [skills];
     home.packages = [pkgs.my-clis];
-    agents.md.tools = ["- `skills`: `skills list`, `skills search <text>`, `skills describe <name>`, `skills show <name>` for the skills in ~/.agents/skills."];
+    agents.md.tools = [
+      "- `skills`: `skills list`, `skills search <text>`, `skills describe <name>`, `skills show <name>`."
+      "- Skills are not in ~/.agents/skills or ~/.claude/skills; find and load them only through `skills`."
+    ];
 
     programs.agent-skills = {
       sources.i-have-adhd = {

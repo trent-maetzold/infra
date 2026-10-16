@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SKILLS_")
-    dir: Path = Path.home() / ".agents/skills"
+    dir: Path = Path.home() / ".local/share/skills"
 
 
 class Skill(BaseModel):
