@@ -26,7 +26,10 @@
   };
 in {
   # Features
-  features.home.ai.agent-skills = skills;
+  features.home.ai.agent-skills = {
+    imports = [skills];
+    agents.skills = builtins.mapAttrs (name: _: ./skills + "/${name}") (builtins.readDir ./skills);
+  };
 
   # Home Manager Modules
   flake.homeModules.default.imports = [config.features.home.ai.agent-skills];
