@@ -1,6 +1,6 @@
-# Agents reach MCP servers only through mcp-cli: `mcp.servers`, in
-# mcp_servers.json's schema, is baked into the mcp-cli wrapper, so no agent
-# config or ~/.config file lists them. skillz serves ~/.agents/skills as tools.
+# Agents reach MCP servers only through per-server commands (`deepwiki <tool>
+# key=value`) and `mcp-list`: mcporter with `mcp.servers` baked in, itself off
+# PATH. skillz serves ~/.agents/skills as tools.
 {config, ...}: let
   out = {
     config,
@@ -9,6 +9,12 @@
     ...
   }: let
     json = pkgs.formats.json {};
+    # `imports = []` stops mcporter merging Claude, Codex and editor configs.
+    settings = json.generate "mcporter.json" {
+      mcpServers = config.mcp.servers;
+      imports = [];
+    };
+    wrap = name: flags: "makeWrapper ${lib.getExe pkgs.llm-agents.mcporter} $out/bin/${name} --set MCPORTER_CONFIG ${settings} --add-flags '${flags}'";
   in {
     options.mcp.servers = lib.mkOption {type = lib.types.attrsOf json.type;};
 
@@ -24,15 +30,11 @@
       };
 
       home.packages = [
-        (pkgs.symlinkJoin {
-          inherit (pkgs.mcp-cli) name meta;
-          paths = [pkgs.mcp-cli];
-          nativeBuildInputs = [pkgs.makeWrapper];
-          postBuild = "wrapProgram $out/bin/mcp-cli --set MCP_CONFIG_PATH ${json.generate "mcp_servers.json" {mcpServers = config.mcp.servers;}}";
-        })
+        (pkgs.runCommand "mcp-servers" {nativeBuildInputs = [pkgs.makeWrapper];}
+          (lib.concatLines ([(wrap "mcp-list" "list")] ++ map (s: wrap s "call ${s}") (lib.attrNames config.mcp.servers))))
       ];
 
-      agents.md.tools = ["- `mcp-cli`: every MCP tool and skill from one CLI: `mcp-cli -d` lists them, `mcp-cli info <server> <tool>` shows the schema, `mcp-cli call <server> <tool> '<json>'` runs it."];
+      agents.md.tools = ["- MCP: `mcp-list [server] --schema` shows servers, tools and arguments; `<server> <tool> key=value` (e.g. `deepwiki ask_wiki_question repoName=o/r question=...`) calls one."];
     };
   };
 in {
