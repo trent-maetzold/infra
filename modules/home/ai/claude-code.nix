@@ -10,7 +10,6 @@
       # llm-agents' build is not marked unfree, unlike nixpkgs' claude-code.
       package = lib.mkDefault pkgs.llm-agents.claude-code;
       context = config.agents.md.text;
-      enableMcpIntegration = true;
     };
   };
 in {
