@@ -119,8 +119,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-webui.url = "github:nesquena/hermes-webui";
+
     i-have-adhd = {
       url = "github:ayghri/i-have-adhd";
+      flake = false;
+    };
+
+    oh-my-hermes = {
+      url = "github:rlaope/oh-my-hermes";
       flake = false;
     };
   };
