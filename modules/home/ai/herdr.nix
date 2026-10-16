@@ -1,10 +1,21 @@
 {config, ...}: let
-  out = {pkgs, ...}: {
+  out = {
+    lib,
+    pkgs,
+    ...
+  }: {
     programs.herdr = {
       enable = true;
-      package = pkgs.llm-agents.herdr;
+
+      # ld.bfd: ".eh_frame_hdr refers to overlapping FDEs"; lld links it.
+      package = lib.mkDefault (pkgs.llm-agents.herdr.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or []) ++ [pkgs.llvmPackages.lld];
+        env = (old.env or {}) // {RUSTFLAGS = "${old.env.RUSTFLAGS or ""} -C link-arg=-fuse-ld=lld";};
+      }));
+
       settings = {
         onboarding = false;
+
         ui = {
           sidebar_width = 32;
           agent_panel_sort = "priority";

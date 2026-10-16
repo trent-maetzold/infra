@@ -32,20 +32,19 @@
   in {
     inherit name homeModule;
 
-    nixosModule = {
-      config,
-      pkgs,
-      ...
-    }: {
+    nixosModule = {pkgs, ...}: {
       imports = [home-manager.nixosModules.home-manager];
 
       home-manager.users.${name} = homeModule;
+
+      # A login shell needs its NixOS module for /etc/shells and the system profile.
+      programs = lib.optionalAttrs (shell != null) {${shell}.enable = true;};
 
       users.users.${name} = {
         isNormalUser = true;
         extraGroups = groups;
         openssh.authorizedKeys.keys = lib.optional (publicKey != null) publicKey;
-        shell = lib.mkIf (shell != null && config.programs.${shell}.enable) pkgs.${shell};
+        shell = lib.mkIf (shell != null) pkgs.${shell};
       };
     };
 
@@ -55,6 +54,7 @@
           inherit system;
           overlays = lib.attrValues config.flake.overlays;
         };
+
         modules = [homeModule];
       };
   };

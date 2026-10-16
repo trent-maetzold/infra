@@ -19,6 +19,7 @@ in {
         Requires = "podman.socket";
         RequiresMountsFor = "/var/lib/podman";
       };
+
       podConfig = {
         networks = [networks.proxy.ref];
       };
@@ -31,20 +32,24 @@ in {
         pull = "newer";
         pod = pods.dockhand_pod.ref;
         environmentFiles = ["/var/lib/secrets/dockhand-env"];
+
         volumes = [
           "${volumes.dockhand_data.ref}:/var/lib/dockhand"
           "%t/podman/podman.sock:/var/run/docker.sock"
         ];
+
         environments = {
           TZ = "America/Chicago";
           DATA_DIR = "/var/lib/dockhand";
         };
+
         labels = {
           "traefik.enable" = "true";
           "traefik.http.routers.dockhand.rule" = "Host(`dockhand.${vars.domain}`)";
           "traefik.http.services.dockhand.loadBalancer.server.port" = "3000";
         };
       };
+
       serviceConfig = {
         Restart = "always";
         RestartSec = "10";
@@ -59,17 +64,20 @@ in {
         pod = pods.dockhand_pod.ref;
         environmentFiles = ["/var/lib/secrets/dockhand-env"];
         volumes = ["${volumes.dockhand_pgdata.ref}:/var/lib/postgresql"];
+
         environments = {
           TZ = "America/Chicago";
           POSTGRES_USER = "dockhand";
           POSTGRES_DB = "dockhand";
         };
+
         healthCmd = "pg_isready -U dockhand -d dockhand";
         healthInterval = "30s";
         healthRetries = 5;
         healthStartPeriod = "30s";
         healthTimeout = "5s";
       };
+
       serviceConfig = {
         Restart = "always";
         RestartSec = "10";

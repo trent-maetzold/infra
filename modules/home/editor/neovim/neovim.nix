@@ -9,6 +9,7 @@
     programs.lazyvim = {
       enable = true;
       configFiles = ./config;
+
       extraPackages = with pkgs; [
         ghostscript
         tectonic
@@ -24,11 +25,13 @@
         lua51Packages.luarocks
         llm-agents.copilot-language-server
       ];
+
       extras = {
         ai = {
           copilot-native.enable = true;
           sidekick.enable = true;
         };
+
         coding = {
           blink.enable = true;
           mini-comment.enable = true;
@@ -36,10 +39,12 @@
           mini-surround.enable = true;
           yanky.enable = true;
         };
+
         dap = {
           core.enable = true;
           nlua.enable = true;
         };
+
         editor = {
           aerial.enable = true;
           harpoon2.enable = true;
@@ -49,19 +54,24 @@
           overseer.enable = true;
           refactoring.enable = true;
         };
+
         formatting.prettier.enable = true;
         linting.eslint.enable = true;
         test.core.enable = true;
+
         ui = {
           smear-cursor.enable = true;
           treesitter-context.enable = true;
         };
+
         util = {
           dot.enable = true;
           mini-hipatterns.enable = true;
         };
       };
+
       installCoreDependencies = true;
+
       treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
         css
         scss

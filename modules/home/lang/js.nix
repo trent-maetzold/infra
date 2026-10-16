@@ -1,6 +1,6 @@
 {config, ...}: let
   out = {pkgs, ...}: {
-    home.packages = with pkgs; [bun nodejs pnpm prettier typescript-language-server vscode-extensions.ms-vscode.js-debug vtsls];
+    home.packages = with pkgs; [bun nodejs pnpm prettier vscode-extensions.ms-vscode.js-debug vtsls];
     programs.lazyvim.extras.lang.typescript.enable = true;
   };
 in {

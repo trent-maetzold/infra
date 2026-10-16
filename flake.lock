@@ -442,23 +442,7 @@
         "nix-index-database": "nix-index-database",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_2",
-        "quadlet-nix": "quadlet-nix",
-        "secrets": "secrets"
-      }
-    },
-    "secrets": {
-      "locked": {
-        "lastModified": 1791831027,
-        "narHash": "sha256-3knVuLG9roeofmVIi/ZqPIdVOlcQiYKI9UL1VKh/E1o=",
-        "ref": "refs/heads/main",
-        "rev": "dd91a882056b64d18eb8b70a92289f4faddbe1dd",
-        "revCount": 1,
-        "type": "git",
-        "url": "file:///home/tm/code/nix-secrets"
-      },
-      "original": {
-        "type": "git",
-        "url": "file:///home/tm/code/nix-secrets"
+        "quadlet-nix": "quadlet-nix"
       }
     },
     "stable": {

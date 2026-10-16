@@ -1,8 +1,5 @@
 {config, ...}: let
-  inherit (config) features flake;
   out = {config, ...}: {
-    imports = [features.home.packages.admin];
-
     home = {
       homeDirectory = "/home/${config.home.username}";
       sessionPath = ["${config.home.homeDirectory}/.local/bin"];

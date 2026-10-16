@@ -6,15 +6,19 @@
       "intel_iommu=on"
       "vfio-pci.ids=1000:0097"
     ];
+
     extraModprobeConfig = ''
       options vfio-pci ids=1000:0097
     '';
+
     blacklistedKernelModules = ["mpt3sas"];
     initrd.kernelModules = ["vfio_pci" "vfio" "vfio_iommu_type1"];
   };
+
   virtualisation = {
     libvirtd = {
       allowedBridges = ["br0"];
+
       qemu.verbatimConfig = ''
         user = "root"
         group = "root"
@@ -26,20 +30,26 @@
         ]
       '';
     };
+
     libvirt = {
       enable = true;
+
       connections."qemu:///system".domains = [
         {
           active = true;
+
           definition = NixVirt.lib.domain.writeXML {
             type = "kvm";
             name = "unraid";
             uuid = "43f9066d-7ce2-4c38-9b9b-3021b4b38ab5";
+
             memory = {
               count = 64;
               unit = "GiB";
             };
+
             vcpu = {count = 16;};
+
             os = {
               type = "hvm";
               arch = "x86_64";
@@ -47,13 +57,17 @@
               boot = [{dev = "hd";}];
               bootmenu = {enable = true;};
             };
+
             cpu = {mode = "host-passthrough";};
+
             features = {
               acpi = {};
               apic = {};
             };
+
             clock = {
               offset = "utc";
+
               timer = [
                 {
                   name = "rtc";
@@ -69,11 +83,14 @@
                 }
               ];
             };
+
             on_poweroff = "destroy";
             on_reboot = "restart";
             on_crash = "restart";
+
             devices = {
               emulator = "/run/libvirt/nix-emulators/qemu-system-x86_64";
+
               controller = [
                 {
                   type = "usb";
@@ -86,37 +103,46 @@
                   index = 0;
                 }
               ];
+
               disk = [
                 {
                   type = "block";
                   device = "disk";
+
                   driver = {
                     name = "qemu";
                     type = "raw";
                     cache = "none";
                     io = "native";
                   };
+
                   source = {dev = "/dev/zvol/tank/unraid-cache";};
+
                   target = {
                     dev = "sda";
                     bus = "scsi";
                   };
+
                   serial = "unraid-cache";
                 }
               ];
+
               interface = {
                 type = "bridge";
                 source = {bridge = "br0";};
                 model = {type = "virtio";};
               };
+
               graphics = {
                 type = "vnc";
                 autoport = true;
+
                 listen = {
                   type = "address";
                   address = "127.0.0.1";
                 };
               };
+
               video = {
                 model = {
                   type = "qxl";
@@ -124,8 +150,10 @@
                   vram = 65536;
                 };
               };
+
               serial = {type = "pty";};
               console = {type = "pty";};
+
               input = [
                 {
                   type = "tablet";
@@ -133,6 +161,7 @@
                 }
               ];
             };
+
             qemu-commandline = {
               arg = [
                 {value = "-device";}

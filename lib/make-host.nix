@@ -50,10 +50,12 @@
   in
     {
       inherit name system specialArgs nixosModule;
+
       nixosConfiguration = nixpkgs.lib.nixosSystem {
         inherit specialArgs;
         modules = [nixosModule];
       };
+
       ssh =
         {${name}.HostName = address;}
         // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;};

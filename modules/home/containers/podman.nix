@@ -4,11 +4,15 @@
       fuse-overlayfs
       podman-compose
       slirp4netns
+      # For tools that shell out to `docker`, without the Docker API socket.
+      (writeShellScriptBin "docker" ''exec ${podman}/bin/podman "$@"'')
     ];
+
     programs = {
       lazydocker.enable = true;
       zsh.oh-my-zsh.plugins = ["podman"];
     };
+
     services.podman.enable = true;
   };
 in {

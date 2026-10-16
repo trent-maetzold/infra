@@ -2,6 +2,7 @@
   nixos = {pkgs, ...}: {
     environment.systemPackages = [pkgs.btop];
   };
+
   home = {
     programs.btop = {
       enable = true;

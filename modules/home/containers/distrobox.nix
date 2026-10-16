@@ -9,32 +9,38 @@
   in {
     config = lib.mkMerge [
       {
+        agents.md.tools = ["- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."];
+
         home.file = {
           ".local/bin/distrobox-export".source = "${pkgs.distrobox}/bin/distrobox-export";
           ".local/bin/distrobox-host-exec".source = "${pkgs.distrobox}/bin/distrobox-host-exec";
         };
+
         programs.distrobox = {
           enable = true;
+
           containers = {
             bx = {
-              image = "archlinux:base-devel";
-              additional_packages = "zsh";
+              image = lib.mkDefault "archlinux:base-devel";
+              additional_packages = lib.mkDefault "zsh";
               entry = true;
               init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
             };
           };
+
           settings = {
             container_manager = "podman";
             container_always_pull = "1";
           };
         };
       }
-
       {
         home.file = lib.mapAttrs' (name: cont: {
           name = ".local/bin/${name}";
+
           value = {
             executable = true;
+
             text = ''
               #!${pkgs.bash}/bin/bash
 
