@@ -30,12 +30,14 @@ in {
             user = "caddy";
             group = "caddy";
           };
+
           headplane-cookie-secret = {
             secret = "${secrets}/headplane-cookie-secret.age";
             destDir = "/var/lib/secrets";
             user = "headscale";
             group = "headscale";
           };
+
           ts-authkey.secret = "${secrets}/ts-authkey.age";
         };
       };
@@ -79,12 +81,14 @@ in {
             user = "podman";
             group = "podman";
           };
+
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
             user = "podman";
             group = "podman";
           };
+
           ts-authkey.secret = "${secrets}/ts-authkey.age";
         };
       };

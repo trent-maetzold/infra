@@ -1,5 +1,6 @@
 {config, ...}: let
   inherit (config.flake.lib) makeModel makeModelOption;
+
   out = {
     config,
     lib,
@@ -18,6 +19,7 @@
               --temp 0.6 --top-p 0.95 --top-k 20 \
               --n-gpu-layers 999 --cpu-moe --threads 8 --timeout 900
           '';
+
           capabilities = {
             "in" = ["text"];
             out = ["text"];
@@ -25,6 +27,7 @@
             context = lib.mkDefault 262144;
           };
         };
+
         "refact-1.6b-fim" = makeModel cfg "refact-1.6b-fim" {
           cmd = lib.mkDefault ''
             ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
@@ -33,6 +36,7 @@
               --n-gpu-layers 99 --threads 8 --timeout 900 \
               --cache-reuse 64
           '';
+
           capabilities = {
             "in" = ["text"];
             out = ["text"];

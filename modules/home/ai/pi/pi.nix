@@ -16,26 +16,21 @@
     programs.pi-coding-agent.settings = {
       packages = [
         "npm:@dietrichgebert/ponytail"
-
         "npm:@gotgenes/pi-permission-model-judge"
         "npm:@gotgenes/pi-permission-system"
-
         "npm:@juicesharp/rpiv-ask-user-question"
         "npm:@juicesharp/rpiv-btw"
         "npm:@juicesharp/rpiv-todo"
-
         "npm:@narumitw/pi-usage"
-
         # "npm:pi-committer"
         "npm:pi-lens"
         "npm:pi-goal-x"
         "npm:pi-simplify"
-
         "npm:billion-context-pi"
         "npm:pi-reasonix"
-
         "npm:pi-everforest"
       ];
+
       theme = "everforest-light-soft/everforest-dark-soft";
     };
 
@@ -44,15 +39,18 @@
         piNpm = {
           before = [];
           after = ["writeBoundary"];
+
           data = ''
             run rm -rf "${cfg.configDir}/npm"
             run mkdir -p "${cfg.configDir}/npm"
             run install -m 644 ${npmrc} "${cfg.configDir}/npm/.npmrc"
           '';
         };
+
         piSettings = {
           before = [];
           after = ["writeBoundary"];
+
           data = ''
             merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${cfg.configDir}/settings.json" ${settings} 2>/dev/null || cat ${settings})
             run rm -f "${cfg.configDir}/settings.json"
@@ -60,6 +58,7 @@
           '';
         };
       };
+
       file = {
         # pi rewrites it, so the activation above owns it, not a store symlink.
         "${cfg.configDir}/settings.json".enable = false;
@@ -72,6 +71,7 @@
     programs.pi-coding-agent = {
       enable = true;
       package = pkgs.llm-agents.pi;
+
       extraPackages = with pkgs; [
         bun
         nodejs

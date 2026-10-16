@@ -18,6 +18,7 @@
 
     config.home.file = lib.mapAttrs' (name: source: lib.nameValuePair ".agents/skills/${name}" {inherit source;}) config.agents.skills;
   };
+
   # Keyed so makeAgentSkill can import it again without duplicate options.
   skills = {
     key = "asgard#features.home.ai.agent-skills";
@@ -40,6 +41,7 @@ in {
   }: {pkgs, ...}: let
     file = dir: executable: n: content: {
       name = "${dir}/${n}";
+
       path =
         if builtins.isPath content
         then content

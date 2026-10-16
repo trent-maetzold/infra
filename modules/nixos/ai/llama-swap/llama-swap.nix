@@ -16,6 +16,7 @@ let
   in {
     config = {
       services.llama-swap.enable = true;
+
       nixpkgs.config.allowUnfreePackages = lib.optionals cfg.cuda.enable [
         "cuda_cccl"
         "cuda_cudart"
@@ -23,10 +24,12 @@ let
         "cuda_nvrtc"
         "libcublas"
       ];
+
       services.llama-swap.settings = {
         healthCheckTimeout = 1800;
         metricsMaxInMemory = 3600;
       };
+
       systemd.services.llama-swap.environment.LD_LIBRARY_PATH =
         lib.mkIf (wslEnabled && cfg.cuda.enable)
         (lib.mkDefault "/usr/lib/wsl/lib");
@@ -38,6 +41,7 @@ let
 
     options = {
       services.llama-swap.cuda.enable = lib.mkEnableOption "cuda support for llama-cpp";
+
       services.llama-swap.llamaServer = lib.mkOption {
         type = lib.types.path;
         default = llamaServer;

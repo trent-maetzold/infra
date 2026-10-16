@@ -22,6 +22,7 @@
 
   users = {
     groups.podman = {};
+
     users.podman = {
       isSystemUser = true;
       group = "podman";

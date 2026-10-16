@@ -4,6 +4,7 @@
   ...
 }: let
   inherit (config) features flake;
+
   nixos = {pkgs, ...}: {
     imports = [nix-index-database.nixosModules.nix-index];
 
@@ -19,12 +20,14 @@
     programs = {
       nh.enable = true;
       nix-index-database.comma.enable = true;
+
       nix-ld = {
         enable = true;
         libraries = [pkgs.stdenv.cc.cc.lib];
       };
     };
   };
+
   home = {
     config,
     lib,
@@ -52,13 +55,16 @@
     programs = {
       nh.enable = true;
       nix-index-database.comma.enable = true;
+
       nix-init = {
         enable = true;
+
         settings = {
           commit = true;
           access-tokens."github.com".command = lib.mkIf config.programs.gh.enable ["gh" "auth" "token"];
         };
       };
+
       nix-search-tv.enable = true;
     };
   };

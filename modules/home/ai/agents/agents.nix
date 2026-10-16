@@ -4,12 +4,14 @@
       md = {
         context = ["- I over-explain. Distill my requests to the facts; answer the same way."];
         boundaries = ["- **ALWAYS** read documentation. Context7 and DeepWiki MCPs are available."];
+
         workflow = [
           ''
             - Read the docs even when you think you know. Verify your own memory too.
             - Suggest tools that would help but are out of scope; don't add them, or any scope, without my approval.
           ''
         ];
+
         style = [
           ''
             - Smallest possible change, always; no pre-emptive guards, features or abstractions.
@@ -26,6 +28,7 @@
           ''
         ];
       };
+
       skills = lib.mapAttrs (name: _: ./skills + "/${name}") (builtins.readDir ./skills);
     };
   };

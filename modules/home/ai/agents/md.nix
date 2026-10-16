@@ -26,6 +26,7 @@
 
     config.home.file.".agents/AGENTS.md".text = config.agents.md.text;
   };
+
   # Keyed so makeAgentRules can import it again without duplicate options.
   md = {
     key = "asgard#features.home.ai.agents-md";

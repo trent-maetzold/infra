@@ -1,5 +1,6 @@
 {config, ...}: let
   inherit (config.flake.lib) makeModel makeModelOption;
+
   out = {
     config,
     lib,
@@ -16,6 +17,7 @@
               --ctx-size 131072 --temp 0.1 --top-k 50 --repeat-penalty 1.1 \
               --jinja --parallel 1 --n-gpu-layers 0 --threads 8 --timeout 900
           '';
+
           capabilities = {
             "in" = ["text"];
             out = ["text"];
@@ -23,6 +25,7 @@
             context = lib.mkDefault 131072;
           };
         };
+
         "lfm2.5-8b-a1b" = makeModel cfg "lfm2.5-8b-a1b" {
           cmd = lib.mkDefault ''
             ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
@@ -30,6 +33,7 @@
               --ctx-size 128000 --temp 0.1 --top-k 50 --repeat-penalty 1.1 \
               --jinja --parallel 1 --n-gpu-layers 0 --threads 8 --timeout 900
           '';
+
           capabilities = {
             "in" = ["text"];
             out = ["text"];

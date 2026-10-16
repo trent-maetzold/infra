@@ -55,6 +55,7 @@
           inherit system;
           overlays = lib.attrValues config.flake.overlays;
         };
+
         modules = [homeModule];
       };
   };
