@@ -38,6 +38,11 @@ in {
             group = "headscale";
           };
 
+          forgejo-runner-token = {
+            secret = "${secrets}/forgejo-runner-token.age";
+            destDir = "/var/lib/secrets";
+          };
+
           ts-authkey.secret = "${secrets}/ts-authkey.age";
         };
       };
