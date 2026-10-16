@@ -13,7 +13,11 @@
 }: let
   inherit (config) features;
 
-  omh = pkgs: pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out";
+  # services.hermes-agent shared by server and home
+  agent = pkgs: {
+    enable = true;
+    extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
+  };
 
   nixos = {
     config,
@@ -27,12 +31,12 @@
     environment.systemPackages = [pkgs.llm-agents.hermes-hud];
 
     services = {
-      hermes-agent = {
-        enable = true;
-        addToSystemPackages = true;
-        backend.mode = "dashboard";
-        extraPlugins = [(omh pkgs)];
-      };
+      hermes-agent =
+        agent pkgs
+        // {
+          addToSystemPackages = true;
+          backend.mode = "dashboard";
+        };
 
       hermes-webui = {
         enable = true;
@@ -63,11 +67,7 @@
       (lib.mkIf (remote == null) {
         home.packages = [pkgs.llm-agents.hermes-hud];
         programs.hermes-agent.enable = true;
-
-        services.hermes-agent = {
-          enable = true;
-          extraPlugins = [(omh pkgs)];
-        };
+        services.hermes-agent = agent pkgs;
       })
       (lib.mkIf (remote != null) {
         home.packages = [(pkgs.writeShellScriptBin "hermes" ''exec ssh -t ${remote} hermes "$@"'')];
