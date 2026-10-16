@@ -1,38 +1,26 @@
 # Asgard
 
-Opinionated NixOS + home-manager defaults (flake-parts, dendritic: every file
-under `apps/`, `lib/`, `modules/`, `options/`, `packages/`, `vars/` is
-auto-imported by import-tree), plus this flake's own hosts and users.
+NixOS + home-manager defaults as importable profiles, plus this flake's own
+hosts and users. Rules for editing it are in AGENTS.md.
 
-- `modules/`: reusable features, joined into profiles
-  (`nixosModules.*`, `homeModules.*`).
-- `lib/`: the contract functions (`flake.lib.*`, below); feature helpers
-  (`makeAgentRules`, `makeAgentSkill`) live with their feature.
-- `vars/`: this flake's inventory, calling `makeHost`/`makeUser` with literal
-  arguments; the only place routing results into `flake.*`.
-- `hosts/<h>/`, `home/<u>/`: plain (non-dendritic) modules for one host or
-  user, passed to the functions through `imports`. Deployment keys are age
-  files on the deploying machine, decrypted with rage at apply time.
+## Use it
 
-## Consuming (the contract)
-
-Profiles are the modules; the functions only wire them to a host or user.
+1. Add the input: `inputs.asgard.url = "git+https://codeberg.org/trkm/asgard";`
+2. Build users and hosts with `asgard.lib`:
 
 ```nix
-inputs.asgard.url = "git+https://codeberg.org/trkm/asgard";
-
 let
   inherit (asgard.lib) makeAgentRules makeHost makeStateVersion makeUser;
-  # One stateVersion and one set of values features read, shared by all.
+  # One stateVersion and the values features read, shared by everything.
   global = {
     imports = [(makeStateVersion "26.11")];
     vars.tailnet.loginServer = "https://hs.work.com";
   };
   trent = makeUser {
     name = "trent";
-    groups = ["wheel"];               # all optional below `name`
-    shell = "zsh";                    # set where a feature enabled it
-    publicKey = "ssh-ed25519 ...";    # authorized key
+    groups = ["wheel"];               # everything below `name` is optional
+    shell = "zsh";
+    publicKey = "ssh-ed25519 ...";
     git = {name = "Trent"; email = "trent@work.com";};
     flake = "/home/trent/code/infra"; # nh
     hosts = {inherit box;};           # ssh client entries
@@ -43,7 +31,7 @@ let
     system = "x86_64-linux";
     imports = [global asgard.nixosModules.default asgard.nixosModules.tailnet ./hosts/box];
     users = [trent];
-    specialArgs = inputs;             # optional below `name`/`system`
+    specialArgs = inputs;             # everything below here is optional
     address = "box.example.com";      # ssh HostName
     hostId = "deadbeef";
     lan = {address = "10.0.0.2"; prefixLength = 24; gateway = "10.0.0.1"; nameservers = []; interfaces = ["eno1"];};
@@ -55,41 +43,48 @@ in {
 }
 ```
 
-- `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`.
-- `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`
-  (`colmenaNode` with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`).
-- `makeStateVersion v` → a module setting `system`/`home` stateVersion; once per flake.
-- `makeAgentRules {context boundaries workflow style commands tools}` → a home
-  module appending to those `~/.agents/AGENTS.md` sections.
-- `makeAgentSkill {name, description, text, scripts?, references?}` → a home
-  module writing `~/.agents/skills/<name>/` (scripts and references map file
-  names to text or paths; scripts are executable).
-- `makeDeploymentKey {secret, destDir?, user?, group?}` → a colmena key.
+3. Override any value with `lib.mkForce`; drop a profile to drop its features.
 
-Profiles: `nixosModules.{default,nvidia,qemu-guest,tailnet,wsl}`,
-`homeModules.{default,data,infra}`. Features read `config.vars` (e.g.
-`tailnet` needs `vars.tailnet.loginServer`). Override with `lib.mkForce`.
-This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+## Profiles
+
+- `nixosModules`: `default`, `nvidia`, `qemu-guest`, `tailnet`, `wsl`
+- `homeModules`: `default`, `data`, `infra`
+
+Features read your values from `config.vars` (`tailnet` needs
+`vars.tailnet.loginServer`).
+
+## Functions
+
+- `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`
+- `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
+  `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
+- `makeStateVersion v` → module setting `system`/`home` stateVersion; once per flake.
+- `makeDeploymentKey {secret, destDir?, user?, group?}` → colmena key, decrypted
+  with rage from an age file on the deploying machine at apply time.
+- `makeAgentRules {context boundaries workflow style commands tools}` → home
+  module adding lines to those `~/.agents/AGENTS.md` sections (`agents.md.<section>`).
+- `makeAgentSkill {name, description, text, scripts?, references?}` → home
+  module writing `~/.agents/skills/<name>/`; scripts and references map file
+  names to text or paths, scripts are executable.
+
+## Layout
+
+- `modules/`: features, joined into profiles; feature-owned options and
+  functions sit beside them.
+- `lib/`: `makeUser`, `makeHost`, `makeStateVersion`, `makeDeploymentKey`.
+- `options/`: global flake-parts options and the profile registry.
+- `vars/`: this flake's inventory; the only place writing hosts/users into `flake.*`.
+- `hosts/<h>/`, `home/<u>/`: plain modules for one host or user.
+
+Every `.nix` under `apps lib modules options packages vars` is loaded by
+import-tree. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 
 ```sh
 nix fmt                          # format (alejandra)
-nix flake show                   # outputs
-nix flake check                  # evaluate and run checks
-colmena apply --on heimdall  # deploy (never from CI)
-nix build .#options-commonmark   # every option, rendered with defaults
-nix build .#options-json         # machine-readable options
+nix flake check --no-build       # evaluate everything
+colmena apply --on heimdall      # deploy (never from CI)
+nh os build -d always            # rebuild diff; nh home build needs nvd on PATH
+nix store diff-closures /run/current-system ./result
 ```
-
-Reviewing a rebuild diff, from a host config:
-
-```sh
-nh home build -d always   # package diff; needs nvd on PATH
-nh os build -d always
-nix store diff-closures /run/current-system ./result  # zero extra tools
-```
-
-## Docs
-
-Desired policy and conventions live in AGENTS.md.
