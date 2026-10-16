@@ -1,19 +1,11 @@
 {lib, ...}: let
-  features = lib.types.lazyAttrsOf (lib.types.lazyAttrsOf lib.types.deferredModule);
+  inherit (lib.types) deferredModule lazyAttrsOf;
 in {
   options = {
-    features = {
-      home = lib.mkOption {
-        type = features;
-        default = {};
-        description = "home-manager features, `<domain>.<feature>`.";
-      };
-
-      nixos = lib.mkOption {
-        type = features;
-        default = {};
-        description = "NixOS features, `<domain>.<feature>`.";
-      };
+    my.modules = lib.mkOption {
+      type = lazyAttrsOf (lazyAttrsOf (lazyAttrsOf deferredModule));
+      default = {};
+      description = "Modules by domain, `<domain>.<module>.{home,nixos}`.";
     };
 
     vars = lib.mkOption {

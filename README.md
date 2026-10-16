@@ -73,7 +73,8 @@ Features read your values from `config.vars` (`tailnet` needs
 
 ## Layout
 
-- `modules/`: features, joined into profiles; feature-owned options and
+- `modules/<domain>/`: features as `my.modules.<domain>.<feature>.{home,nixos}`,
+  joined into profiles; feature-owned options and
   functions sit beside them.
 - `lib/`: `makeUser`, `makeHost`, `makeStateVersion`, `makeDeploymentKey`.
 - `options/`: global flake-parts options and the profile registry.

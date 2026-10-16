@@ -14,8 +14,8 @@ secrets. Commands are in README.md.
 
 ## Where things go
 
-- `modules/<side>/<domain>/<feature>.nix`: one feature; never names a host or
-  user. `modules/shared/` registers on both sides.
+- `modules/<domain>/<feature>.nix`: one feature as `my.modules.<domain>.<feature>`,
+  with a `home` module, a `nixos` module or both; never names a host or user.
 - `lib/`: the consumer contract only (`makeUser`, `makeHost`,
   `makeStateVersion`, `makeDeploymentKey`).
 - A feature's own options and functions live with it: `ai/agents/rules.nix`
@@ -39,11 +39,11 @@ relative imports except data paths: reach other files through `config.flake.*`.
     home.packages = [pkgs.forgejo-cli];
   };
 in {
-  # Features
-  features.home.vcs.git = out;
+  # Modules
+  my.modules.vcs.git.home = out;
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.vcs.git];
+  flake.homeModules.default.imports = [config.my.modules.vcs.git.home];
 }
 ```
 
@@ -54,13 +54,13 @@ in {
   `mkDefault` only on values consumers tune (images, packages, models).
 - Features never import other features; profiles wire them. Upstream modules
   (`home-manager`, `nix-index-database`) are imported by the feature using them.
-- Shared package lists: `shared/packages/<name>.nix`, joined to a profile.
+- Shared package lists: `modules/packages/<name>.nix`, joined to a profile.
 - Read consumer values from module-level `config.vars`. Never take a `user`
   specialArg, host identity or secrets.
 - stateVersion is set once, via `makeStateVersion` in `vars/global.nix`.
 
-Domains: home `base editor lang vcs ai containers`; NixOS `base hardware network
-platform ai`. `base` is imported everywhere; `core` is a domain's leftovers.
+Domains: `ai base containers editor hardware lang network packages platform
+vcs`. `base` is imported everywhere; `core` is a domain's leftovers.
 
 ## Style
 
