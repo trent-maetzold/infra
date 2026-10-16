@@ -4,6 +4,5 @@ let
     services.redis.package = pkgs.valkey;
   };
 in {
-  # Features
-  features.nixos.services.redis = redis;
+  my.services.redis.nixos = redis;
 }

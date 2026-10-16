@@ -10,9 +10,6 @@
       # yggdrasil's traefik, behind heimdall's caddy.
       ingress = "100.64.0.3";
 
-      # Hermes' memory provider, services.honcho on yggdrasil.
-      honcho = "http://yggdrasil.ts.trkm.io:8000";
-
       tailnet = {
         loginServer = "https://hs.trkm.io";
         domain = "ts.trkm.io";

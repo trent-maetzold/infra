@@ -1,10 +1,10 @@
-# Hermes Agent with the oh-my-hermes plugin, hermes-hud and Honcho memory at
-# `config.vars.honcho`.
+# Hermes Agent with the oh-my-hermes plugin, hermes-hud and Honcho memory.
 # NixOS: the server. Gateway, dashboard backend and hermes-webui share one
 #   HERMES_HOME; both bind to localhost, so reach them over SSH or a proxy.
-# Home: the TUI on local state. Set `services.hermes-agent.gateway.enable` to
-#   run the gateway too, or `programs.hermes-agent.remote = "<host>"` to run
-#   `hermes` on that server over SSH instead (the TUI can't attach remotely).
+# Home, import one: `hermes` runs the TUI on local state (set
+#   `services.hermes-agent.gateway.enable` for the gateway too); `hermes-remote`
+#   runs `hermes` over SSH on `config.vars.hermes`, since the TUI can't attach
+#   remotely.
 {
   config,
   hermes-agent,
@@ -12,16 +12,12 @@
   oh-my-hermes,
   ...
 }: let
-  inherit (config) features;
+  inherit (config.my.services) honcho;
 
   # services.hermes-agent shared by server and home
-  agent = {
-    config,
-    pkgs,
-    ...
-  }: {
+  agent = {pkgs, ...}: {
     enable = true;
-    environment.HONCHO_BASE_URL = config.vars.honcho;
+    environment.HONCHO_BASE_URL = honcho.vars.url;
     extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
 
     # Non-default config.yaml keys; the rest keeps Hermes defaults
@@ -71,40 +67,28 @@
     };
   };
 
-  home = args @ {
+  home = args @ {pkgs, ...}: {
+    imports = [hermes-agent.homeManagerModules.default];
+    home.packages = [pkgs.llm-agents.hermes-hud];
+    programs.hermes-agent.enable = true;
+    services.hermes-agent = agent args;
+  };
+
+  home-remote = {
     config,
-    lib,
     pkgs,
     ...
-  }: let
-    inherit (config.programs.hermes-agent) remote;
-  in {
-    imports = [hermes-agent.homeManagerModules.default];
-
-    options.programs.hermes-agent.remote = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "SSH host running the Hermes server; `hermes` runs there instead of locally.";
-    };
-
-    config = lib.mkMerge [
-      (lib.mkIf (remote == null) {
-        home.packages = [pkgs.llm-agents.hermes-hud];
-        programs.hermes-agent.enable = true;
-        services.hermes-agent = agent args;
-      })
-      (lib.mkIf (remote != null) {
-        home.packages = [(pkgs.writeShellScriptBin "hermes" ''exec ssh -t ${remote} hermes "$@"'')];
-      })
-    ];
+  }: {
+    home.packages = [(pkgs.writeShellScriptBin "hermes" ''exec ssh -t ${config.vars.hermes} hermes "$@"'')];
   };
 in {
   # Features
   features = {
-    home.ai.hermes = home;
+    home.ai = {
+      hermes = home;
+      hermes-remote = home-remote;
+    };
+
     nixos.ai.hermes = nixos;
   };
-
-  # Home Manager Modules
-  flake.homeModules.default.imports = [features.home.ai.hermes];
 }

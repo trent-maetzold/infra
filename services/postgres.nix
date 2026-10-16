@@ -26,6 +26,5 @@ let
     };
   };
 in {
-  # Features
-  features.nixos.services.postgres = postgres;
+  my.services.postgres.nixos = postgres;
 }

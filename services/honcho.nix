@@ -6,7 +6,7 @@
   quadlet-nix,
   ...
 }: let
-  inherit (config.features.nixos) services;
+  inherit (config.my) services;
 
   honcho = {
     password = "/var/lib/secrets/honcho-db-password";
@@ -31,8 +31,8 @@
 
   nixos = {config, ...}: {
     imports = [
-      services.postgres
-      services.redis
+      services.postgres.nixos
+      services.redis.nixos
       quadlet-nix.nixosModules.quadlet
     ];
 
@@ -82,6 +82,8 @@
     };
   };
 in {
-  # Features
-  features.nixos.services.honcho = nixos;
+  my.services.honcho = {
+    inherit nixos;
+    vars.url = "http://yggdrasil.ts.trkm.io:8000";
+  };
 }

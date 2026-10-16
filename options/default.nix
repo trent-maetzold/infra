@@ -16,6 +16,24 @@ in {
       };
     };
 
+    my.services = lib.mkOption {
+      type = lib.types.lazyAttrsOf (lib.types.submodule {
+        options = {
+          nixos = lib.mkOption {
+            type = lib.types.deferredModule;
+            default = {};
+          };
+
+          vars = lib.mkOption {
+            type = lib.types.lazyAttrsOf lib.types.raw;
+            default = {};
+          };
+        };
+      });
+      default = {};
+      description = "Services hosts import, `<service>.nixos`, and what clients need from them, `<service>.vars`.";
+    };
+
     vars = lib.mkOption {
       type = lib.types.lazyAttrsOf lib.types.raw;
       default = {};
