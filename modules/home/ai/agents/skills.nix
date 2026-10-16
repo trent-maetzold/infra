@@ -6,6 +6,7 @@
 {
   agent-skills,
   config,
+  i-have-adhd,
   lib,
   ...
 }: let
@@ -32,7 +33,18 @@
   };
 in {
   # Features
-  features.home.ai.agent-skills = skills;
+  features.home.ai.agent-skills = {
+    imports = [skills];
+
+    programs.agent-skills = {
+      sources.i-have-adhd = {
+        path = i-have-adhd;
+        subdir = "skills";
+      };
+
+      skills.enable = ["i-have-adhd"];
+    };
+  };
 
   # Home Manager Modules
   flake.homeModules.default.imports = [config.features.home.ai.agent-skills];
