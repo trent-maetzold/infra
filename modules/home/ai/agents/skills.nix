@@ -33,8 +33,10 @@
   };
 in {
   # Features
-  features.home.ai.agent-skills = {
+  features.home.ai.agent-skills = {pkgs, ...}: {
     imports = [skills];
+    home.packages = [pkgs.my-clis];
+    agents.md.tools = ["- `skills`: `skills list`, `skills search <text>`, `skills show <name>` for the skills in ~/.agents/skills."];
 
     programs.agent-skills = {
       sources.i-have-adhd = {

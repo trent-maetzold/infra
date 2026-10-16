@@ -1,0 +1,12 @@
+[project]
+name = "my-clis"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = ["pydantic", "pydantic-settings", "python-frontmatter", "typer"]
+
+[project.scripts]
+skills = "my_clis.skills:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
