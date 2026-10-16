@@ -1,12 +1,9 @@
-# Valkey for every `services.redis.servers.<name>` a feature enables.
-{config, ...}: let
+# Valkey for `services.redis.servers.<name>`; features running one import it.
+let
   redis = {pkgs, ...}: {
     services.redis.package = pkgs.valkey;
   };
 in {
   # Features
   features.nixos.services.redis = redis;
-
-  # NixOS Modules
-  flake.nixosModules.default.imports = [config.features.nixos.services.redis];
 }

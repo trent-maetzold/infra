@@ -2,7 +2,11 @@
 # networking, using this host's PostgreSQL and Valkey. The secret
 # /var/lib/secrets/honcho-env holds PGPASSWORD for the honcho role and Honcho's
 # LLM_* keys.
-{quadlet-nix, ...}: let
+{
+  config,
+  quadlet-nix,
+  ...
+}: let
   honcho = {
     env = "/var/lib/secrets/honcho-env";
 
@@ -25,7 +29,11 @@
   };
 
   nixos = {
-    imports = [quadlet-nix.nixosModules.quadlet];
+    imports = [
+      config.features.nixos.services.postgres
+      config.features.nixos.services.redis
+      quadlet-nix.nixosModules.quadlet
+    ];
 
     networking.firewall.extraInputRules = ''
       ip saddr 100.64.0.0/10 tcp dport 8000 accept
@@ -33,7 +41,6 @@
 
     services = {
       postgresql = {
-        enable = true;
         ensureDatabases = ["honcho"];
 
         ensureUsers = [
