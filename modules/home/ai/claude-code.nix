@@ -10,7 +10,6 @@
       # llm-agents' build is not marked unfree, unlike nixpkgs' claude-code.
       package = lib.mkDefault pkgs.llm-agents.claude-code;
       context = config.agents.md.text;
-      enableMcpIntegration = true;
       # Claude Code rewrites settings.json at runtime; merge instead of a read-only store link.
       mutableSettings = true;
       # No "Co-Authored-By: Claude" trailer on commits, no attribution in PR text.
