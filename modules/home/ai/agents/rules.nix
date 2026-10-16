@@ -45,6 +45,7 @@ in {
         ''
           - Read the docs even when you think you know. Verify your own memory too.
           - Suggest tools that would help but are out of scope; don't add them, or any scope, without my approval.
+          - One feature or issue per branch and PR, small enough to review in one sitting.
         ''
       ];
 
