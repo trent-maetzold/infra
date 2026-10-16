@@ -18,7 +18,7 @@ secrets. Commands are in README.md.
   user. `modules/shared/` registers on both sides.
 - `lib/`: the consumer contract only (`makeUser`, `makeHost`,
   `makeStateVersion`, `makeDeploymentKey`).
-- A feature's own options and functions live with it: `ai/agents/md.nix`
+- A feature's own options and functions live with it: `ai/agents/rules.nix`
   declares `agents.md` and `makeAgentRules`.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
