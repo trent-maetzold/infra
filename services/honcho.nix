@@ -44,6 +44,9 @@
             ensureDBOwnership = true;
           }
         ];
+
+        ensurePasswords.honcho = honcho.password;
+        ensureExtensions.honcho = ["vector"];
       };
 
       redis.servers.honcho = {
@@ -51,12 +54,6 @@
         port = 6379;
       };
     };
-
-    # ensureClauses.password only takes a literal hash; pgvector needs a superuser to create
-    systemd.services.postgresql-setup.postStart = ''
-      psql -v pw="$(< ${honcho.password})" <<< "ALTER ROLE honcho PASSWORD :'pw'"
-      psql -d honcho -c "CREATE EXTENSION IF NOT EXISTS vector"
-    '';
 
     virtualisation.quadlet = let
       inherit (config.virtualisation.quadlet) pods;
