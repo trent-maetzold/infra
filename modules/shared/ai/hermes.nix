@@ -17,6 +17,19 @@
   agent = pkgs: {
     enable = true;
     extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
+
+    # Non-default config.yaml keys; the rest keeps Hermes defaults
+    settings = {
+      approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
+      checkpoints.enabled = true;
+      memory.write_approval = true;
+      privacy.redact_pii = true;
+
+      skills = {
+        guard_agent_created = true;
+        write_approval = true;
+      };
+    };
   };
 
   nixos = {
