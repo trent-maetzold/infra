@@ -11,7 +11,6 @@
       package = lib.mkDefault pkgs.llm-agents.claude-code;
       context = config.agents.md.text;
       enableMcpIntegration = true;
-      inherit (config.agents) skills;
     };
   };
 in {
