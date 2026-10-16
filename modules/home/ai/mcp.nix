@@ -10,13 +10,7 @@
     ...
   }: let
     servers =
-      lib.mapAttrs (_: server:
-        lib.hm.mcp.transformMcpServer {
-          inherit server;
-          extraTransforms = [lib.hm.mcp.addType];
-          exclude = ["serverUrl"];
-        })
-      config.programs.mcp.servers
+      lib.mapAttrs (_: server: lib.hm.mcp.transformMcpServer {inherit server;}) config.programs.mcp.servers
       // {
         skillz = {
           command = lib.getExe pkgs.skillz;
