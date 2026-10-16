@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = ["pydantic", "pydantic-settings", "python-frontmatter", "pyyaml", "typer"]
+# ///
 """List, describe, show and search agent skills."""
 
 from pathlib import Path
@@ -60,3 +64,7 @@ def search(pattern: str) -> None:
     for s in skills():
         if pattern.lower() in f"{s.name}\n{s.description}\n{s.body}".lower():
             print(f"{s.name}: {s.description}")
+
+
+if __name__ == "__main__":
+    app()

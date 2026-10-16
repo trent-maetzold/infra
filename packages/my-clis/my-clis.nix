@@ -1,21 +1,14 @@
-{
+# Our own Typer CLIs for agents: one PEP 723 script per CLI, `<name>.py`.
+{config, ...}: {
   flake.overlays.my-clis = final: _prev: {
-    my-clis = final.python3Packages.buildPythonApplication {
-      pname = "my-clis";
-      version = "0.1.0";
-      pyproject = true;
-      src = ./.;
-      build-system = [final.python3Packages.hatchling];
-
-      dependencies = with final.python3Packages; [
-        pydantic
-        pydantic-settings
-        python-frontmatter
-        pyyaml
-        typer
-      ];
-
-      meta.description = "Our own Typer CLIs for agents";
+    my-clis = final.symlinkJoin {
+      name = "my-clis";
+      paths = map (name:
+        config.flake.lib.makeCli {
+          pkgs = final;
+          inherit name;
+          script = builtins.readFile ./${name}.py;
+        }) ["skills"];
     };
   };
 
