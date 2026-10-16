@@ -1,35 +1,38 @@
-# `agents.skills`, linked to ~/.agents/skills/<name> and handed to claude-code
-# and codex, and makeAgentSkill to add one. `scripts` and `references` map file
-# names to text or paths; scripts are executable.
+# Agent skills via agent-skills-nix, linked to ~/.agents/skills (codex, pi) and
+# ~/.claude/skills. Add registry skills with
+# `programs.agent-skills.{sources.<name>.path, skills.enable}`, or write one with
+# makeAgentSkill. `scripts` and `references` map file names to text or paths;
+# scripts are executable.
 {
+  agent-skills,
   config,
   lib,
   ...
 }: let
-  out = {
-    config,
-    lib,
-    ...
-  }: {
-    options.agents.skills = lib.mkOption {
-      type = lib.types.attrsOf lib.types.path;
-      default = {};
-    };
-
-    config.home.file = lib.mapAttrs' (name: source: lib.nameValuePair ".agents/skills/${name}" {inherit source;}) config.agents.skills;
-  };
-
   # Keyed so makeAgentSkill can import it again without duplicate options.
   skills = {
     key = "asgard#features.home.ai.agent-skills";
-    imports = [out];
+    imports = [agent-skills.homeManagerModules.default];
+
+    programs.agent-skills = {
+      enable = true;
+
+      targets = {
+        agents = {
+          dest = ".agents/skills";
+          structure = "link";
+        };
+
+        claude = {
+          dest = ".claude/skills";
+          structure = "link";
+        };
+      };
+    };
   };
 in {
   # Features
-  features.home.ai.agent-skills = {
-    imports = [skills];
-    agents.skills = builtins.mapAttrs (name: _: ./skills + "/${name}") (builtins.readDir ./skills);
-  };
+  features.home.ai.agent-skills = skills;
 
   # Home Manager Modules
   flake.homeModules.default.imports = [config.features.home.ai.agent-skills];
@@ -43,7 +46,7 @@ in {
     references ? {},
   }: {pkgs, ...}: let
     file = dir: executable: n: content: {
-      name = "${dir}/${n}";
+      name = "${name}/${dir}/${n}";
 
       path =
         if builtins.isPath content
@@ -58,10 +61,14 @@ in {
   in {
     imports = [skills];
 
-    agents.skills.${name} = pkgs.linkFarm "skill-${name}" (
-      [(file "." false "SKILL.md" "---\nname: ${name}\ndescription: ${builtins.toJSON description}\n---\n\n${text}")]
-      ++ lib.mapAttrsToList (file "scripts" true) scripts
-      ++ lib.mapAttrsToList (file "references" false) references
-    );
+    programs.agent-skills = {
+      sources.${name}.path = pkgs.runCommand "skill-${name}" {} "cp -rL ${pkgs.linkFarm name (
+        [(file "." false "SKILL.md" "---\nname: ${name}\ndescription: ${builtins.toJSON description}\n---\n\n${text}")]
+        ++ lib.mapAttrsToList (file "scripts" true) scripts
+        ++ lib.mapAttrsToList (file "references" false) references
+      )} $out";
+
+      skills.explicit.${name}.from = name;
+    };
   };
 }

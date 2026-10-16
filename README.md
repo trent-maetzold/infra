@@ -64,8 +64,10 @@ Features read your values from `config.vars` (`tailnet` needs
 - `makeAgentRules {context boundaries workflow style commands tools}` → home
   module adding lines to those `~/.agents/AGENTS.md` sections (`agents.md.<section>`).
 - `makeAgentSkill {name, description, text, scripts?, references?}` → home
-  module writing `~/.agents/skills/<name>/`; scripts and references map file
-  names to text or paths, scripts are executable.
+  module adding `<name>` to `~/.agents/skills` and `~/.claude/skills`; scripts and
+  references map file names to text or paths, scripts are executable. Registry
+  skills: set `programs.agent-skills.sources.<name>.path = <flake input>` and list
+  ids in `programs.agent-skills.skills.enable` ([agent-skills-nix](https://github.com/Kyure-A/agent-skills-nix)).
 
 ## Layout
 
