@@ -9,6 +9,7 @@
       enable = true;
       package = lib.mkDefault pkgs.llm-agents.codex;
       context = config.agents.md.text;
+      enableMcpIntegration = true;
     };
   };
 in {
