@@ -89,8 +89,8 @@ in {
             group = "podman";
           };
 
-          honcho-env = {
-            secret = "${secrets}/honcho.env.age";
+          honcho-db-password = {
+            secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
           };
 
