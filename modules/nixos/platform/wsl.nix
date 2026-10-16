@@ -23,6 +23,8 @@
 
     wsl = {
       enable = true;
+      # Keeps .exe launching when any binfmt (e.g. aarch64 emulation) is registered.
+      interop.register = true;
       startMenuLaunchers = true;
       useWindowsDriver = true;
     };
