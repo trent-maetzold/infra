@@ -1,6 +1,20 @@
 {NixVirt, ...}: {
   imports = [NixVirt.nixosModules.default];
 
+  disko = {
+    zfs.settings.ignoredDatasets = ["tank/unraid-cache"];
+
+    devices.zpool.tank.datasets.unraid-cache = {
+      type = "zfs_volume";
+      size = "7T";
+
+      options = {
+        volblocksize = "64K";
+        compression = "zstd";
+      };
+    };
+  };
+
   boot = {
     kernelParams = [
       "intel_iommu=on"
