@@ -25,45 +25,39 @@
 
   nixos = {config, ...}: {
     imports = [
-      services.data.nixos
+      services.postgres.nixos
+      services.redis.nixos
       features.nixos.containers.quadlet
     ];
 
     networking.firewall.extraInputRules = ''
-      ip saddr ${config.vars.tailnet.subnet} tcp dport { 5432, 8000 } accept
+      ip saddr ${config.vars.tailnet.subnet} tcp dport 8000 accept
     '';
 
     containers.data = {
-      bindMounts = {
-        "/var/lib/postgresql".isReadOnly = false;
-        ${honcho.password} = {};
-      };
+      bindMounts.${honcho.password} = {};
 
-      config = {
-        imports = [services.postgres.nixos services.redis.nixos];
+      config.services = {
+        postgresql = {
+          extensions = ps: [ps.pgvector];
+          ensureDatabases = ["honcho"];
 
-        services = {
-          postgresql = {
-            extensions = ps: [ps.pgvector];
-            ensureDatabases = ["honcho"];
+          ensureUsers = [
+            {
+              name = "honcho";
+              ensureDBOwnership = true;
+            }
+          ];
 
-            ensureUsers = [
-              {
-                name = "honcho";
-                ensureDBOwnership = true;
-              }
-            ];
+          ensurePasswords.honcho = honcho.password;
+          ensureExtensions.honcho = ["vector"];
+        };
 
-            ensurePasswords.honcho = honcho.password;
-            ensureExtensions.honcho = ["vector"];
-          };
-
-          # A cache: no snapshots.
-          redis.servers.honcho = {
-            enable = true;
-            port = 6379;
-            save = [];
-          };
+        # A cache: no snapshots.
+        redis.servers.honcho = {
+          enable = true;
+          port = 6379;
+          save = [];
         };
       };
     };

@@ -1,7 +1,10 @@
-# PostgreSQL 18, reachable over the tailnet with passwords;
-# features needing a database import it. Adds `ensurePasswords` and
-# `ensureExtensions`, applied by postgresql-setup on every start.
-let
+# PostgreSQL 18 in the `data` container, reachable over the tailnet with
+# passwords, on its own `tank` dataset; features needing a database import it.
+# Adds `ensurePasswords` and `ensureExtensions`, applied by postgresql-setup on
+# every start.
+{config, ...}: let
+  inherit (config.my) services;
+
   postgres = {
     config,
     lib,
@@ -25,14 +28,12 @@ let
     };
 
     config = {
-      networking.firewall.extraInputRules = ''
-        ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
-      '';
-
       services.postgresql = {
         enable = true;
         package = pkgs.postgresql_18;
         enableTCPIP = true;
+        # ZFS never tears a record, so full-page images only bloat the WAL.
+        settings.full_page_writes = false;
 
         authentication = ''
           local all postgres peer
@@ -49,6 +50,34 @@ let
       );
     };
   };
+
+  nixos = {config, ...}: {
+    imports = [services.data.nixos];
+
+    # Records near PostgreSQL's 8K page; ZFS covers torn pages and the WAL.
+    disko.devices.zpool.tank.datasets.postgresql = {
+      type = "zfs_fs";
+      mountpoint = "/var/lib/postgresql";
+
+      options = {
+        atime = "off";
+        logbias = "throughput";
+        mountpoint = "legacy";
+        recordsize = "16K";
+      };
+    };
+
+    networking.firewall.extraInputRules = ''
+      ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
+    '';
+
+    containers.data = {
+      bindMounts."/var/lib/postgresql".isReadOnly = false;
+      config.imports = [postgres];
+    };
+
+    systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/postgresql"];
+  };
 in {
-  my.services.postgres.nixos = postgres;
+  my.services.postgres.nixos = nixos;
 }

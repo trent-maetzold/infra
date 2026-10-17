@@ -14,6 +14,9 @@
     lib,
     ...
   }: {
+    # Postgres, Valkey and ClickHouse each import this; the key dedups it.
+    key = "asgard#services.data";
+
     containers.data = {
       autoStart = true;
       nixpkgs = nixpkgs-stable;
