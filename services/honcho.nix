@@ -1,7 +1,7 @@
 # Honcho memory server: API (port 8000, tailnet) and deriver containers in one
-# pod, using PostgreSQL and Valkey in the `data` container. The pod runs on
-# pasta, which forwards its localhost 5432/6379 to the host's and publishes 8000 as a host
-# socket, so the host firewall decides who reaches it. The secret
+# rootless pod, using PostgreSQL and Valkey in the `data` container. Pasta
+# forwards the pod's localhost 5432/6379 to the host's and publishes 8000 as a
+# host socket, so the host firewall decides who reaches it. The secret
 # /var/lib/secrets/honcho-db-password holds only the honcho role's password.
 {config, ...}: let
   inherit (config) features;
@@ -44,7 +44,6 @@
       hermes
       services.postgres.nixos
       services.redis.nixos
-      features.nixos.containers.quadlet
     ];
 
     home-manager.sharedModules = [hermes];
@@ -81,29 +80,47 @@
       };
     };
 
-    virtualisation.quadlet = let
-      inherit (config.virtualisation.quadlet) pods;
-    in {
-      pods.honcho = {
-        unitConfig = rec {
-          After = ["container@data.service"];
-          Requires = After;
-        };
+    # Rootless as `honcho`, so the pod gets pasta and only the ports below.
+    home-manager.users.honcho = {
+      imports = [features.home.containers.quadlet];
 
-        # Podman hands the secret to the containers as PGPASSWORD.
-        serviceConfig.ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password ${honcho.password}";
-
-        podConfig = {
-          networks = ["pasta:-T,5432,-T,6379"];
-          publishPorts = ["8000:8000"];
-        };
+      home = {
+        username = "honcho";
+        homeDirectory = "/var/lib/honcho";
       };
 
-      containers = {
-        honcho-api.containerConfig = honcho.container // {exec = "sh docker/entrypoint.sh";};
-        honcho-deriver.containerConfig = honcho.container // {exec = "/app/.venv/bin/python -m src.deriver";};
+      virtualisation.quadlet = {
+        pods.honcho = {
+          # Podman hands the secret to the containers as PGPASSWORD.
+          serviceConfig.ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password ${honcho.password}";
+
+          podConfig = {
+            networks = ["pasta:-T,5432,-T,6379"];
+            publishPorts = ["8000:8000"];
+          };
+        };
+
+        containers = {
+          honcho-api.containerConfig = honcho.container // {exec = "sh docker/entrypoint.sh";};
+          honcho-deriver.containerConfig = honcho.container // {exec = "/app/.venv/bin/python -m src.deriver";};
+        };
       };
     };
+
+    users = {
+      groups.honcho = {};
+
+      users.honcho = {
+        isSystemUser = true;
+        group = "honcho";
+        home = "/var/lib/honcho";
+        createHome = true;
+        linger = true;
+        autoSubUidGidRange = true;
+      };
+    };
+
+    virtualisation.podman.enable = true;
   };
 in {
   my.services.honcho.nixos = nixos;

@@ -41,6 +41,6 @@
 
   virtualisation = {
     podman.enable = true;
-    containers.storage.settings.storage.rootless_storage_path = "/var/lib/podman/storage";
+    containers.storage.settings.storage.rootless_storage_path = "$HOME/storage";
   };
 }

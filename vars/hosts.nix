@@ -92,6 +92,8 @@ in {
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
+            user = "honcho";
+            group = "honcho";
           };
 
           ts-authkey.secret = "${secrets}/ts-authkey.age";
