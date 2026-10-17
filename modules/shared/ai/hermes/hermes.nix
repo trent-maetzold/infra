@@ -31,6 +31,9 @@
       approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
       checkpoints.enabled = true;
 
+      # Built-in memory always runs; an imported Honcho adds itself as provider.
+      memory.write_approval = true;
+
       privacy.redact_pii = true;
 
       skills = {

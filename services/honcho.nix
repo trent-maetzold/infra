@@ -7,28 +7,6 @@
   inherit (config) features;
   inherit (config.my) services;
 
-  # Points Hermes at this Honcho wherever it is imported: the host and its
-  # home-manager users. Without Honcho, Hermes keeps its built-in memory.
-  hermes = {
-    lib,
-    options,
-    ...
-  }: {
-    config = lib.mkMerge [
-      (lib.optionalAttrs (options ? services.hermes-agent) {
-        services.hermes-agent = {
-          environment.HONCHO_BASE_URL = "http://127.0.0.1:8000";
-
-          settings.memory = {
-            provider = "honcho";
-            write_approval = true;
-          };
-        };
-      })
-      (lib.optionalAttrs (options ? home-manager) {home-manager.sharedModules = [hermes];})
-    ];
-  };
-
   honcho = {
     password = "/var/lib/secrets/honcho-db-password";
 
@@ -45,6 +23,22 @@
     };
   };
 
+  # Points a Hermes on the same host (or its home-manager users) at this Honcho;
+  # without Honcho, Hermes keeps its built-in memory. A host-level check until
+  # features can merge on import (#39).
+  hermes = {
+    lib,
+    options,
+    ...
+  }: {
+    config = lib.optionalAttrs (options ? services.hermes-agent) {
+      services.hermes-agent = {
+        environment.HONCHO_BASE_URL = "http://127.0.0.1:8000";
+        settings.memory.provider = "honcho";
+      };
+    };
+  };
+
   nixos = {config, ...}: {
     imports = [
       hermes
@@ -52,6 +46,8 @@
       services.redis.nixos
       features.nixos.containers.quadlet
     ];
+
+    home-manager.sharedModules = [hermes];
 
     networking.firewall.extraInputRules = ''
       ip saddr ${config.vars.tailnet.subnet} tcp dport 8000 accept
