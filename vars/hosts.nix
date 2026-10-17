@@ -75,6 +75,20 @@ in {
         targetUser = "tm";
 
         keys = {
+          cf-dns-api-token = {
+            secret = "${secrets}/cf-dns-api-token.age";
+            destDir = "/var/lib/secrets";
+            user = "podman";
+            group = "podman";
+          };
+
+          dockhand-env = {
+            secret = "${secrets}/dockhand.env.age";
+            destDir = "/var/lib/secrets";
+            user = "podman";
+            group = "podman";
+          };
+
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";

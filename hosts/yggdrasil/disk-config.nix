@@ -116,6 +116,12 @@ in {
               mountpoint = "/boot";
               options.mountpoint = "legacy";
             };
+
+            podman = {
+              type = "zfs_fs";
+              mountpoint = "/var/lib/podman";
+              options.mountpoint = "legacy";
+            };
           };
         };
       };
