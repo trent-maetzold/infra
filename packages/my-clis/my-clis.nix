@@ -1,14 +1,18 @@
-# Our own Typer CLIs for agents: one PEP 723 script per CLI, `<name>.py`.
+# Our own Typer CLIs for agents: one PEP 723 script per CLI, `<name>.py`, also
+# in `passthru.scripts` for features that wrap one with makeCli's `env`.
 {config, ...}: {
-  flake.overlays.my-clis = final: _prev: {
+  flake.overlays.my-clis = final: _prev: let
+    scripts = final.lib.genAttrs ["skills"] (name: builtins.readFile ./${name}.py);
+  in {
     my-clis = final.symlinkJoin {
       name = "my-clis";
-      paths = map (name:
+      paths = final.lib.mapAttrsToList (name: script:
         config.flake.lib.makeCli {
+          inherit name script;
           pkgs = final;
-          inherit name;
-          script = builtins.readFile ./${name}.py;
-        }) ["skills"];
+        })
+      scripts;
+      passthru = {inherit scripts;};
     };
   };
 

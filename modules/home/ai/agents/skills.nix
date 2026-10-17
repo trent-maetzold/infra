@@ -1,5 +1,6 @@
-# Agent skills via agent-skills-nix, linked to ~/.local/share/skills, outside the
-# dirs harnesses scan, so agents reach them only through the `skills` CLI. Add registry skills with
+# Agent skills via agent-skills-nix, bundled in the store and baked into the
+# `skills` CLI, so no skill file lands in home and agents reach them only
+# through the CLI. Add registry skills with
 # `programs.agent-skills.{sources.<name>.path, skills.enable}`, or write one with
 # makeAgentSkill. `scripts` and `references` map file names to text or paths;
 # scripts are executable.
@@ -11,27 +12,34 @@
   ...
 }: let
   # Keyed so makeAgentSkill can import it again without duplicate options.
+  # Upstream's options without its home-manager install targets.
   skills = {
-    key = "asgard#features.home.ai.agent-skills";
-    imports = [agent-skills.homeManagerModules.default];
-
-    programs.agent-skills = {
-      enable = true;
-
-      targets.local = {
-        dest = ".local/share/skills";
-        structure = "link";
-      };
-    };
+    key = "asgard#features.home.ai.skills";
+    imports = [
+      (import "${agent-skills}/modules/common.nix" {
+        inherit (agent-skills) inputs;
+        inherit lib;
+      })
+    ];
+    programs.agent-skills.enable = true;
   };
 in {
   # Features
-  features.home.ai.agent-skills = {pkgs, ...}: {
+  features.home.ai.skills = hm @ {pkgs, ...}: {
     imports = [skills];
-    home.packages = [pkgs.my-clis];
+
+    home.packages = [
+      (config.flake.lib.makeCli {
+        inherit pkgs;
+        name = "skills";
+        script = pkgs.my-clis.scripts.skills;
+        env.SKILLS_DIR = hm.config.programs.agent-skills.bundlePath;
+      })
+    ];
+
     agents.md.tools = [
       "- `skills`: `skills list`, `skills search <text>`, `skills describe <name>`, `skills show <name>`."
-      "- Skills are not in ~/.agents/skills or ~/.claude/skills; find and load them only through `skills`."
+      "- Skills live only inside the `skills` CLI, not in ~/.agents/skills or ~/.claude/skills; find and load them through it."
     ];
 
     programs.agent-skills = {
@@ -45,7 +53,7 @@ in {
   };
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.ai.agent-skills];
+  flake.homeModules.default.imports = [config.features.home.ai.skills];
 
   # Functions
   flake.lib.makeAgentSkill = {
