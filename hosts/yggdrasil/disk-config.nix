@@ -126,31 +126,6 @@ in {
               options.mountpoint = "legacy";
             };
 
-            # ClickHouse compresses its own parts: lz4 skips them cheaply.
-            clickhouse = {
-              type = "zfs_fs";
-              mountpoint = "/var/lib/clickhouse";
-
-              options = {
-                atime = "off";
-                compression = "lz4";
-                mountpoint = "legacy";
-              };
-            };
-
-            # Records near PostgreSQL's 8K page; ZFS covers torn pages and the WAL.
-            postgresql = {
-              type = "zfs_fs";
-              mountpoint = "/var/lib/postgresql";
-
-              options = {
-                atime = "off";
-                logbias = "throughput";
-                mountpoint = "legacy";
-                recordsize = "16K";
-              };
-            };
-
             "unraid-cache" = {
               type = "zfs_volume";
               size = "7T";
