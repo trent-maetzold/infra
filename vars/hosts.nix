@@ -6,7 +6,7 @@
   inherit (config.flake) nixosModules;
   inherit (config.flake.lib) makeHost;
   inherit (config.vars) global users;
-  secrets = "/home/tm/code/nix-secrets";
+  secrets = "/home/tm/code/nix-secrets/secrets";
   specialArgs = inputs;
 in {
   vars.hosts = {
