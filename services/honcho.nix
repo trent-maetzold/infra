@@ -36,6 +36,7 @@
 
     services = {
       postgresql = {
+        extensions = ps: [ps.pgvector];
         ensureDatabases = ["honcho"];
 
         ensureUsers = [

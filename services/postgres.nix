@@ -1,4 +1,4 @@
-# PostgreSQL 18 with pgvector, reachable over the tailnet with passwords;
+# PostgreSQL 18, reachable over the tailnet with passwords;
 # features needing a database import it. Adds `ensurePasswords` and
 # `ensureExtensions`, applied by postgresql-setup on every start.
 let
@@ -32,7 +32,6 @@ let
       services.postgresql = {
         enable = true;
         package = pkgs.postgresql_18;
-        extensions = ps: [ps.pgvector];
         enableTCPIP = true;
 
         authentication = ''
