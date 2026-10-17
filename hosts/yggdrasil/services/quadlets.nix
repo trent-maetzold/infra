@@ -1,6 +1,12 @@
 {quadlet-nix, ...}: {
   boot.kernel.sysctl."net.ipv4.ip_unprivileged_port_start" = 443;
 
+  disko.devices.zpool.tank.datasets.podman = {
+    type = "zfs_fs";
+    mountpoint = "/var/lib/podman";
+    options.mountpoint = "legacy";
+  };
+
   home-manager.users.podman = {
     imports = [
       quadlet-nix.homeManagerModules.quadlet
