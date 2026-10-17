@@ -9,7 +9,7 @@ import secrets
 import string
 from getpass import getpass
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import sh
 import typer
@@ -24,7 +24,7 @@ app = typer.Typer()
 def main(
     name: Annotated[str, typer.Argument(help="Secret name, kebab-cased into <name>.age.")],
     length: Annotated[
-        Optional[int],
+        int | None,
         typer.Argument(help="Generate an alphanumeric password this long instead of prompting."),
     ] = None,
     repo: Annotated[Path, typer.Option(envvar="NIX_SECRETS")] = Path.home() / "code/nix-secrets",
@@ -38,7 +38,7 @@ def main(
         if not secret or secret != getpass("Confirm: "):
             raise typer.Exit("empty or mismatched secret")
     out = repo / f"{name}.age"
-    sh.Command("@rage@")("-e", "-R", key, "-o", out, _in=secret)
+    sh.rage("-e", "-R", key, "-o", out, _in=secret)
     typer.echo(f"wrote {out}")
 
 
