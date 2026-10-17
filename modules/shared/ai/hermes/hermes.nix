@@ -1,7 +1,6 @@
 # Hermes Agent with the oh-my-hermes plugin: the base, import one side. Each
 # runs the agent and a dashboard backend on 127.0.0.1:9119 with a session token
-# in HERMES_HOME, for hermes-desktop and hermes-ssh. Honcho, when imported,
-# adds itself as memory.
+# in HERMES_HOME, which `hermes-session-token` prints for hermes-desktop.
 # NixOS: the server; hermes-webui shares its HERMES_HOME.
 # Home: the same agent as user services on ~/.hermes.
 {
@@ -15,6 +14,8 @@
     pkgs.writeShellScript "hermes-token" ''
       [ -s ${file} ] || (umask 027 && ${pkgs.openssl}/bin/openssl rand -hex 32 > ${file})
     '';
+
+  session = pkgs: file: pkgs.writeShellScriptBin "hermes-session-token" "cat ${file}";
 
   # services.hermes-agent shared by server and home
   agent = {pkgs, ...}: hermesHome: {
@@ -31,7 +32,6 @@
       approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
       checkpoints.enabled = true;
 
-      # Built-in memory always runs; an imported Honcho adds itself as provider.
       memory.write_approval = true;
 
       privacy.redact_pii = true;
@@ -52,6 +52,7 @@
     hermesHome = "${cfg.stateDir}/.hermes";
   in {
     imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default];
+    environment.systemPackages = [(session pkgs cfg.backend.sessionTokenFile)];
     systemd.services.hermes-backend.serviceConfig.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
 
     services = {
@@ -80,6 +81,7 @@
         imports = [hermes-agent.homeManagerModules.default];
       }
     ];
+    home.packages = [(session pkgs cfg.backend.sessionTokenFile)];
     services.hermes-agent = agent args cfg.hermesHome;
     systemd.user.services.hermes-backend.Service.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
   };

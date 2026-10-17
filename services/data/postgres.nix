@@ -52,46 +52,26 @@
     };
   };
 
-  nixos = {
-    config,
-    lib,
-    options,
-    ...
-  }: {
+  nixos = {config, ...}: {
     imports = [services.data.nixos];
 
-    config = lib.mkMerge [
-      {
-        networking.firewall.extraInputRules = ''
-          ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
-        '';
+    networking.firewall.extraInputRules = ''
+      ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
+    '';
 
-        containers.data = {
-          bindMounts."/var/lib/postgresql".isReadOnly = false;
-          config.imports = [postgres];
-        };
+    containers.data = {
+      bindMounts."/var/lib/postgresql".isReadOnly = false;
+      config.imports = [postgres];
+    };
 
-        systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/postgresql"];
-      }
+    # Records near PostgreSQL's 8K page.
+    persist.dirs."/var/lib/postgresql" = {
+      atime = "off";
+      logbias = "throughput";
+      recordsize = "16K";
+    };
 
-      # Disko hosts get a `tank` dataset with records near PostgreSQL's 8K
-      # page; ZFS never tears a record, so full-page images only bloat the WAL.
-      (lib.optionalAttrs (options ? disko) {
-        containers.data.config.services.postgresql.settings.full_page_writes = false;
-
-        disko.devices.zpool.tank.datasets.postgresql = {
-          type = "zfs_fs";
-          mountpoint = "/var/lib/postgresql";
-
-          options = {
-            atime = "off";
-            logbias = "throughput";
-            mountpoint = "legacy";
-            recordsize = "16K";
-          };
-        };
-      })
-    ];
+    systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/postgresql"];
   };
 in {
   my.services.postgres.nixos = nixos;

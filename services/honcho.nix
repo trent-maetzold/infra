@@ -23,30 +23,8 @@
     };
   };
 
-  # Points a Hermes on the same host (or its home-manager users) at this Honcho;
-  # without Honcho, Hermes keeps its built-in memory. A host-level check until
-  # features can merge on import (#39).
-  hermes = {
-    lib,
-    options,
-    ...
-  }: {
-    config = lib.optionalAttrs (options ? services.hermes-agent) {
-      services.hermes-agent = {
-        environment.HONCHO_BASE_URL = "http://127.0.0.1:8000";
-        settings.memory.provider = "honcho";
-      };
-    };
-  };
-
   nixos = {config, ...}: {
-    imports = [
-      hermes
-      services.postgres.nixos
-      services.redis.nixos
-    ];
-
-    home-manager.sharedModules = [hermes];
+    imports = [services.postgres.nixos services.redis.nixos];
 
     networking.firewall.extraInputRules = ''
       ip saddr ${config.vars.tailnet.subnet} tcp dport 8000 accept

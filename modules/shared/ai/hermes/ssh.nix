@@ -1,6 +1,7 @@
 # Hermes on `config.vars.hermes` over SSH: `hermes` runs the remote TUI, since
 # the TUI can't attach remotely, and a user service tunnels the remote backend
-# to localhost:9119 for hermes-desktop and the dashboard. Excludes hermes-tui.
+# to localhost:9119 for hermes-desktop and the dashboard. Excludes hermes-tui
+# and hermes.
 let
   home = {
     config,
@@ -10,7 +11,10 @@ let
     ssh = "${pkgs.openssh}/bin/ssh";
     host = config.vars.hermes;
   in {
-    home.packages = [(pkgs.writeShellScriptBin "hermes" ''exec ${ssh} -t ${host} hermes "$@"'')];
+    home.packages = [
+      (pkgs.writeShellScriptBin "hermes" ''exec ${ssh} -t ${host} hermes "$@"'')
+      (pkgs.writeShellScriptBin "hermes-session-token" "exec ${ssh} ${host} cat /var/lib/hermes/.hermes/session-token")
+    ];
 
     systemd.user.services.hermes-tunnel = {
       Unit.Description = "Hermes backend tunnel to ${host}";
