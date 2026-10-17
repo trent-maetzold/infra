@@ -12,6 +12,8 @@
     ...
   }: let
     inherit (config.services.postgresql) ensureExtensions ensurePasswords;
+    setPasswords = lib.mapAttrsToList (role: file: ''psql -v pw="$(< ${file})" <<< "ALTER ROLE \"${role}\" PASSWORD :'pw'"'') ensurePasswords;
+    createExtensions = lib.concatLists (lib.mapAttrsToList (db: map (ext: ''psql -d "${db}" -c 'CREATE EXTENSION IF NOT EXISTS "${ext}"' '')) ensureExtensions);
   in {
     options.services.postgresql = {
       ensurePasswords = lib.mkOption {
@@ -44,10 +46,7 @@
         '';
       };
 
-      systemd.services.postgresql-setup.postStart = lib.concatLines (
-        lib.mapAttrsToList (role: file: ''psql -v pw="$(< ${file})" <<< "ALTER ROLE \"${role}\" PASSWORD :'pw'"'') ensurePasswords
-        ++ lib.concatLists (lib.mapAttrsToList (db: map (ext: ''psql -d "${db}" -c 'CREATE EXTENSION IF NOT EXISTS "${ext}"' '')) ensureExtensions)
-      );
+      systemd.services.postgresql-setup.postStart = lib.concatLines (setPasswords ++ createExtensions);
     };
   };
 

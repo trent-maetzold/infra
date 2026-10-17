@@ -4,10 +4,11 @@
   flake.lib.makeStateVersion = stateVersion: {options, ...}: {
     config =
       if options ? system
-      then {
-        system = {inherit stateVersion;};
-        home-manager.sharedModules = [{home = {inherit stateVersion;};}];
-      }
+      then
+        {system = {inherit stateVersion;};}
+        // lib.optionalAttrs (options ? home-manager) {
+          home-manager.sharedModules = [{home = {inherit stateVersion;};}];
+        }
       else {home = {inherit stateVersion;};};
   };
 }

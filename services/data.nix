@@ -7,7 +7,7 @@
   nixpkgs-stable,
   ...
 }: let
-  inherit (config) features;
+  inherit (config) features vars;
 
   nixos = {
     config,
@@ -22,13 +22,12 @@
       nixpkgs = nixpkgs-stable;
 
       config = {
-        imports = [features.nixos.base.vars];
-        inherit (config) vars;
+        # 26.11 stateVersion from global on 26.05 nixpkgs is fine: it only pins defaults.
+        imports = [features.nixos.base.vars vars.global];
         # The host's unstable platform attrset recurses in stable's nixpkgs module.
         nixpkgs.hostPlatform = lib.mkForce config.nixpkgs.hostPlatform.system;
         # Shared netns: its firewall would replace the host's ruleset.
         networking.firewall.enable = false;
-        system.stateVersion = "26.05";
       };
     };
   };
