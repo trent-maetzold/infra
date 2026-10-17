@@ -12,7 +12,7 @@
     ...
   }: let
     inherit (config.services.postgresql) ensureExtensions ensurePasswords;
-    setPasswords = lib.mapAttrsToList (role: file: ''psql -v pw="$(< ${file})" <<< "ALTER ROLE \"${role}\" PASSWORD :'pw'"'') ensurePasswords;
+    setPasswords = lib.mapAttrsToList (role: _: ''psql -v pw="$(< "$CREDENTIALS_DIRECTORY/${role}")" <<< "ALTER ROLE \"${role}\" PASSWORD :'pw'"'') ensurePasswords;
     createExtensions = lib.concatLists (lib.mapAttrsToList (db: map (ext: ''psql -d "${db}" -c 'CREATE EXTENSION IF NOT EXISTS "${ext}"' '')) ensureExtensions);
   in {
     options.services.postgresql = {
@@ -44,7 +44,11 @@
         '';
       };
 
-      systemd.services.postgresql-setup.postStart = lib.concatLines (setPasswords ++ createExtensions);
+      # Credentials, since the files are rarely readable by postgres.
+      systemd.services.postgresql-setup = {
+        postStart = lib.concatLines (setPasswords ++ createExtensions);
+        serviceConfig.LoadCredential = lib.mapAttrsToList (role: file: "${role}:${file}") ensurePasswords;
+      };
     };
   };
 
