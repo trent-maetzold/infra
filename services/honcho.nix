@@ -24,6 +24,9 @@
   };
 
   nixos = {config, ...}: {
+    # Hosts import it directly and through hermes; the key dedups it.
+    key = "asgard#services.honcho";
+
     imports = [
       services.postgres.nixos
       services.redis.nixos
@@ -89,6 +92,6 @@
 in {
   my.services.honcho = {
     inherit nixos;
-    vars.url = "http://yggdrasil.ts.trkm.io:8000";
+    vars.url = "http://127.0.0.1:8000";
   };
 }

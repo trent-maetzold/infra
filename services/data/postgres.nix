@@ -1,5 +1,5 @@
 # PostgreSQL 18 in the `data` container, reachable over the tailnet with
-# passwords, on its own `tank` dataset; features needing a database import it.
+# passwords; features needing a database import it.
 # Adds `ensurePasswords` and `ensureExtensions`, applied by postgresql-setup on
 # every start.
 {config, ...}: let
@@ -34,8 +34,6 @@
         enable = true;
         package = pkgs.postgresql_18;
         enableTCPIP = true;
-        # ZFS never tears a record, so full-page images only bloat the WAL.
-        settings.full_page_writes = false;
 
         authentication = ''
           local all postgres peer
@@ -50,32 +48,46 @@
     };
   };
 
-  nixos = {config, ...}: {
+  nixos = {
+    config,
+    lib,
+    options,
+    ...
+  }: {
     imports = [services.data.nixos];
 
-    # Records near PostgreSQL's 8K page; ZFS covers torn pages and the WAL.
-    disko.devices.zpool.tank.datasets.postgresql = {
-      type = "zfs_fs";
-      mountpoint = "/var/lib/postgresql";
+    config = lib.mkMerge [
+      {
+        networking.firewall.extraInputRules = ''
+          ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
+        '';
 
-      options = {
-        atime = "off";
-        logbias = "throughput";
-        mountpoint = "legacy";
-        recordsize = "16K";
-      };
-    };
+        containers.data = {
+          bindMounts."/var/lib/postgresql".isReadOnly = false;
+          config.imports = [postgres];
+        };
 
-    networking.firewall.extraInputRules = ''
-      ip saddr ${config.vars.tailnet.subnet} tcp dport 5432 accept
-    '';
+        systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/postgresql"];
+      }
 
-    containers.data = {
-      bindMounts."/var/lib/postgresql".isReadOnly = false;
-      config.imports = [postgres];
-    };
+      # Disko hosts get a `tank` dataset with records near PostgreSQL's 8K
+      # page; ZFS never tears a record, so full-page images only bloat the WAL.
+      (lib.optionalAttrs (options ? disko) {
+        containers.data.config.services.postgresql.settings.full_page_writes = false;
 
-    systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/postgresql"];
+        disko.devices.zpool.tank.datasets.postgresql = {
+          type = "zfs_fs";
+          mountpoint = "/var/lib/postgresql";
+
+          options = {
+            atime = "off";
+            logbias = "throughput";
+            mountpoint = "legacy";
+            recordsize = "16K";
+          };
+        };
+      })
+    ];
   };
 in {
   my.services.postgres.nixos = nixos;

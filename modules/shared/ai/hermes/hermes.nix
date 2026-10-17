@@ -1,5 +1,5 @@
-# Hermes Agent with the oh-my-hermes plugin and Honcho memory: the base, import
-# one side. Each runs the agent and a dashboard backend on 127.0.0.1:9119 with
+# Hermes Agent with the oh-my-hermes plugin and Honcho memory on the same host:
+# the base, import one side; the NixOS side runs Honcho too. Each runs the agent and a dashboard backend on 127.0.0.1:9119 with
 # a session token in HERMES_HOME, for hermes-desktop and hermes-ssh.
 # NixOS: the server; hermes-webui shares its HERMES_HOME.
 # Home: the same agent as user services on ~/.hermes.
@@ -10,7 +10,8 @@
   oh-my-hermes,
   ...
 }: let
-  inherit (config.my.services) honcho;
+  inherit (config.my) services;
+  inherit (services) honcho;
 
   # Makes the session token once, readable by the hermes group
   token = pkgs: file:
@@ -56,7 +57,7 @@
     cfg = config.services.hermes-agent;
     hermesHome = "${cfg.stateDir}/.hermes";
   in {
-    imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default];
+    imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default honcho.nixos];
     systemd.services.hermes-backend.serviceConfig.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
 
     services = {
