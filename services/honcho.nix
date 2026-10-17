@@ -7,6 +7,28 @@
   inherit (config) features;
   inherit (config.my) services;
 
+  # Points Hermes at this Honcho wherever it is imported: the host and its
+  # home-manager users. Without Honcho, Hermes keeps its built-in memory.
+  hermes = {
+    lib,
+    options,
+    ...
+  }: {
+    config = lib.mkMerge [
+      (lib.optionalAttrs (options ? services.hermes-agent) {
+        services.hermes-agent = {
+          environment.HONCHO_BASE_URL = "http://127.0.0.1:8000";
+
+          settings.memory = {
+            provider = "honcho";
+            write_approval = true;
+          };
+        };
+      })
+      (lib.optionalAttrs (options ? home-manager) {home-manager.sharedModules = [hermes];})
+    ];
+  };
+
   honcho = {
     password = "/var/lib/secrets/honcho-db-password";
 
@@ -24,10 +46,8 @@
   };
 
   nixos = {config, ...}: {
-    # Hosts import it directly and through hermes; the key dedups it.
-    key = "asgard#services.honcho";
-
     imports = [
+      hermes
       services.postgres.nixos
       services.redis.nixos
       features.nixos.containers.quadlet
@@ -90,8 +110,5 @@
     };
   };
 in {
-  my.services.honcho = {
-    inherit nixos;
-    vars.url = "http://127.0.0.1:8000";
-  };
+  my.services.honcho.nixos = nixos;
 }

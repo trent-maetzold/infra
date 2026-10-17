@@ -1,18 +1,15 @@
-# Hermes Agent with the oh-my-hermes plugin and Honcho memory on the same host:
-# the base, import one side; the NixOS side runs Honcho too. Each runs the agent and a dashboard backend on 127.0.0.1:9119 with
-# a session token in HERMES_HOME, for hermes-desktop and hermes-ssh.
+# Hermes Agent with the oh-my-hermes plugin: the base, import one side. Each
+# runs the agent and a dashboard backend on 127.0.0.1:9119 with a session token
+# in HERMES_HOME, for hermes-desktop and hermes-ssh. Honcho, when imported,
+# adds itself as memory.
 # NixOS: the server; hermes-webui shares its HERMES_HOME.
 # Home: the same agent as user services on ~/.hermes.
 {
-  config,
   hermes-agent,
   hermes-webui,
   oh-my-hermes,
   ...
 }: let
-  inherit (config.my) services;
-  inherit (services) honcho;
-
   # Makes the session token once, readable by the hermes group
   token = pkgs: file:
     pkgs.writeShellScript "hermes-token" ''
@@ -22,7 +19,6 @@
   # services.hermes-agent shared by server and home
   agent = {pkgs, ...}: hermesHome: {
     enable = true;
-    environment.HONCHO_BASE_URL = honcho.vars.url;
     extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
 
     backend = {
@@ -34,11 +30,6 @@
     settings = {
       approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
       checkpoints.enabled = true;
-
-      memory = {
-        provider = "honcho";
-        write_approval = true;
-      };
 
       privacy.redact_pii = true;
 
@@ -57,7 +48,7 @@
     cfg = config.services.hermes-agent;
     hermesHome = "${cfg.stateDir}/.hermes";
   in {
-    imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default honcho.nixos];
+    imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default];
     systemd.services.hermes-backend.serviceConfig.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
 
     services = {
