@@ -14,6 +14,7 @@
         openspec
         openspecui
         qmd
+        tuicr
       ]);
   };
 in {
