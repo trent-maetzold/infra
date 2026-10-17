@@ -1,6 +1,6 @@
 # Honcho memory server: API (port 8000, tailnet) and deriver containers in one
-# pod, using this host's PostgreSQL and Valkey. The pod runs on pasta, which
-# forwards its localhost 5432/6379 to the host's and publishes 8000 as a host
+# pod, using PostgreSQL and Valkey in the `data` container. The pod runs on
+# pasta, which forwards its localhost 5432/6379 to the host's and publishes 8000 as a host
 # socket, so the host firewall decides who reaches it. The secret
 # /var/lib/secrets/honcho-db-password holds only the honcho role's password.
 {config, ...}: let
@@ -25,34 +25,45 @@
 
   nixos = {config, ...}: {
     imports = [
-      services.postgres.nixos
-      services.redis.nixos
+      services.data.nixos
       features.nixos.containers.quadlet
     ];
 
     networking.firewall.extraInputRules = ''
-      ip saddr ${config.vars.tailnet.subnet} tcp dport 8000 accept
+      ip saddr ${config.vars.tailnet.subnet} tcp dport { 5432, 8000 } accept
     '';
 
-    services = {
-      postgresql = {
-        extensions = ps: [ps.pgvector];
-        ensureDatabases = ["honcho"];
-
-        ensureUsers = [
-          {
-            name = "honcho";
-            ensureDBOwnership = true;
-          }
-        ];
-
-        ensurePasswords.honcho = honcho.password;
-        ensureExtensions.honcho = ["vector"];
+    containers.data = {
+      bindMounts = {
+        "/var/lib/postgresql".isReadOnly = false;
+        "/var/lib/redis-honcho".isReadOnly = false;
+        ${honcho.password} = {};
       };
 
-      redis.servers.honcho = {
-        enable = true;
-        port = 6379;
+      config = {
+        imports = [services.postgres.nixos services.redis.nixos];
+
+        services = {
+          postgresql = {
+            extensions = ps: [ps.pgvector];
+            ensureDatabases = ["honcho"];
+
+            ensureUsers = [
+              {
+                name = "honcho";
+                ensureDBOwnership = true;
+              }
+            ];
+
+            ensurePasswords.honcho = honcho.password;
+            ensureExtensions.honcho = ["vector"];
+          };
+
+          redis.servers.honcho = {
+            enable = true;
+            port = 6379;
+          };
+        };
       };
     };
 
@@ -61,7 +72,7 @@
     in {
       pods.honcho = {
         unitConfig = rec {
-          After = ["postgresql-setup.service" "redis-honcho.service"];
+          After = ["container@data.service"];
           Requires = After;
         };
 

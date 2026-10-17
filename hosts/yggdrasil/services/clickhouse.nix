@@ -3,10 +3,14 @@
     ip saddr ${config.vars.tailnet.subnet} tcp dport { 8123, 9000 } accept
   '';
 
-  services.clickhouse = {
-    enable = true;
-    serverConfig.listen_host = "::";
+  containers.data = {
+    bindMounts."/var/lib/clickhouse".isReadOnly = false;
+
+    config.services.clickhouse = {
+      enable = true;
+      serverConfig.listen_host = "::";
+    };
   };
 
-  systemd.services.clickhouse.unitConfig.RequiresMountsFor = "/var/lib/clickhouse";
+  systemd.services."container@data".unitConfig.RequiresMountsFor = "/var/lib/clickhouse";
 }
