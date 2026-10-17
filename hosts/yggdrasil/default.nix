@@ -2,7 +2,7 @@
   imports = [
     ./boot.nix
     ./disk-config.nix
-    ./services/clickhouse.nix
+    ./services/data.nix
     ./services/quadlets.nix
     ./vms/mimir.nix
   ];

@@ -36,7 +36,6 @@
     containers.data = {
       bindMounts = {
         "/var/lib/postgresql".isReadOnly = false;
-        "/var/lib/redis-honcho".isReadOnly = false;
         ${honcho.password} = {};
       };
 
@@ -59,9 +58,11 @@
             ensureExtensions.honcho = ["vector"];
           };
 
+          # A cache: no snapshots.
           redis.servers.honcho = {
             enable = true;
             port = 6379;
+            save = [];
           };
         };
       };
