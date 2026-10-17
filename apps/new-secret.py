@@ -16,7 +16,7 @@ import typer
 from caseconverter import kebabcase
 
 ALPHABET = string.ascii_letters + string.digits
-REPO = Path.home() / "code/nix-secrets"
+REPO = Path.home() / "code/nix-secrets/secrets"
 KEY = Path.home() / ".ssh/id_ed25519.pub"
 
 Name = Annotated[str, typer.Argument(help="Kebab-cased into <name>.age.")]
