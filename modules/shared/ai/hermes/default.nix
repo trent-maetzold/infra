@@ -69,7 +69,7 @@
         enable = true;
         inherit (cfg) user group;
         inherit hermesHome;
-        stateDir = "${cfg.stateDir}/webui";
+        stateDir = "${cfg.stateDir}/.hermes-webui";
         agent.package = cfg.package;
       };
     };
