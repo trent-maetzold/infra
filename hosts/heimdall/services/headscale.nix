@@ -17,6 +17,15 @@ in {
           magic_dns = true;
           base_domain = vars.tailnet.domain;
           nameservers.global = ["1.1.1.1" "9.9.9.9"];
+
+          # yggdrasil's traefik
+          extra_records = [
+            {
+              name = "hermes.${vars.tailnet.domain}";
+              type = "A";
+              value = "100.64.0.2";
+            }
+          ];
         };
       };
     };
