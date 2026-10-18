@@ -1,9 +1,6 @@
-# Shared by every host and user: the flake's stateVersion and the values
-# features read from `config.vars`.
+# Shared by every host and user: the values features read from `config.vars`.
 {config, ...}: {
   vars.global = {
-    imports = [(config.flake.lib.makeStateVersion "26.11")];
-
     vars = {
       domain = "trkm.io";
       acmeEmail = "tkm89@proton.me";
