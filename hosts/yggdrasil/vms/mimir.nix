@@ -32,6 +32,8 @@
   virtualisation = {
     libvirtd = {
       allowedBridges = ["br0"];
+      # VFIO passthrough cannot be suspended.
+      onShutdown = "shutdown";
 
       qemu.verbatimConfig = ''
         user = "root"
