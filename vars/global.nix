@@ -8,8 +8,6 @@
       ingress = "100.64.0.3";
       # hermes-ssh's server
       hermes = "yggdrasil.ts.trkm.io";
-      # yggdrasil's tailnet address, where Honcho listens.
-      honcho = "100.64.0.2";
 
       tailnet = {
         loginServer = "https://hs.trkm.io";
