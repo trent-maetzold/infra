@@ -2,7 +2,7 @@
 # runs the agent and a dashboard backend on 127.0.0.1:9119 with a session token
 # in HERMES_HOME, which `hermes-session-token` prints for hermes-desktop.
 # NixOS: the server; hermes-webui shares its HERMES_HOME.
-# Home: the same agent as user services on ~/.hermes.
+# Home: the same agent as user services on $XDG_CONFIG_HOME/hermes.
 {
   hermes-agent,
   hermes-webui,
@@ -74,15 +74,9 @@
   }: let
     cfg = config.services.hermes-agent;
   in {
-    # Keyed: hermes and hermes-tui both import it
-    imports = [
-      {
-        key = "hermes-agent#home";
-        imports = [hermes-agent.homeManagerModules.default];
-      }
-    ];
+    imports = [hermes-agent.homeManagerModules.default];
     home.packages = [(session pkgs cfg.backend.sessionTokenFile)];
-    services.hermes-agent = agent args cfg.hermesHome;
+    services.hermes-agent = agent args cfg.hermesHome // {hermesHome = "${config.xdg.configHome}/hermes";};
     systemd.user.services.hermes-backend.Service.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
   };
 in {
