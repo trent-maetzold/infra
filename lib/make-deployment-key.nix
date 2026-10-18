@@ -7,15 +7,18 @@
 #
 # `user`/`group` name the owner of the decrypted file on the target. A service
 # that does not run as root must be named here — root-owned 0600 is unreadable to
-# the podman user, and the failure only shows up as an empty secret at runtime.
+# a service user, and the failure only shows up as an empty secret at runtime.
+#
+# `env` names a variable to deliver the secret as an env file (`VAR=value`).
 {lib, ...}: {
   flake.lib.makeDeploymentKey = {
     secret,
     destDir ? "/run/keys",
     user ? "root",
     group ? "root",
+    env ? null,
   }: {
-    keyCommand = ["sh" "-c" ''rage -d -i "$HOME/.ssh/id_ed25519" ${lib.escapeShellArg secret}''];
+    keyCommand = ["sh" "-c" ''${lib.optionalString (env != null) "printf ${env}=; "}rage -d -i "$HOME/.ssh/id_ed25519" ${lib.escapeShellArg secret}''];
     inherit destDir user group;
   };
 }

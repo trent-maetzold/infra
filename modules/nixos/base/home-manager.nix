@@ -8,6 +8,7 @@
 
     home-manager = {
       backupFileExtension = "backup";
+      sharedModules = [config.features.home.base.state-version];
       useGlobalPkgs = true;
       useUserPackages = true;
     };

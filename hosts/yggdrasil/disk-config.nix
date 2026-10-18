@@ -46,10 +46,7 @@ in {
   imports = [disko.nixosModules.disko disko-zfs.nixosModules.default];
 
   disko = {
-    zfs = {
-      enable = true;
-      settings.ignoredDatasets = ["tank/unraid-cache"];
-    };
+    zfs.enable = true;
 
     devices = {
       disk = {
@@ -118,40 +115,6 @@ in {
               type = "zfs_fs";
               mountpoint = "/boot";
               options.mountpoint = "legacy";
-            };
-
-            podman = {
-              type = "zfs_fs";
-              mountpoint = "/var/lib/podman";
-              options.mountpoint = "legacy";
-            };
-
-            clickhouse = {
-              type = "zfs_fs";
-              mountpoint = "/var/lib/clickhouse";
-              options.mountpoint = "legacy";
-            };
-
-            postgresql = {
-              type = "zfs_fs";
-              mountpoint = "/var/lib/postgresql";
-              options.mountpoint = "legacy";
-            };
-
-            redis = {
-              type = "zfs_fs";
-              mountpoint = "/var/lib/redis";
-              options.mountpoint = "legacy";
-            };
-
-            "unraid-cache" = {
-              type = "zfs_volume";
-              size = "7T";
-
-              options = {
-                volblocksize = "64K";
-                compression = "zstd";
-              };
             };
           };
         };

@@ -1,13 +1,18 @@
 {
   config,
-  osConfig,
+  quadlet-nix,
   ...
 }: let
-  inherit (osConfig) vars;
+  inherit (config) vars;
+  inherit (config.virtualisation.quadlet) networks volumes;
 in {
-  virtualisation.quadlet = let
-    inherit (config.virtualisation.quadlet) networks volumes;
-  in {
+  imports = [quadlet-nix.nixosModules.quadlet];
+
+  virtualisation.podman.enable = true;
+
+  virtualisation.quadlet = {
+    autoEscape = true;
+
     networks.proxy.networkConfig.driver = "bridge";
 
     volumes.traefik_letsencrypt.volumeConfig = {};
@@ -16,7 +21,6 @@ in {
       unitConfig = {
         After = "podman.socket";
         Requires = "podman.socket";
-        RequiresMountsFor = "/var/lib/podman";
       };
 
       containerConfig = {
@@ -29,7 +33,7 @@ in {
         volumes = [
           "${volumes.traefik_letsencrypt.ref}:/var/lib/traefik/letsencrypt"
           "/var/lib/secrets/cf-dns-api-token:/var/lib/secrets/cf-dns-api-token:ro"
-          "%t/podman:/run/podman"
+          "/run/podman:/run/podman"
         ];
 
         environments = {

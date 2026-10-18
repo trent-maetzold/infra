@@ -2,11 +2,13 @@
   imports = [
     ./boot.nix
     ./disk-config.nix
-    ./services/clickhouse.nix
-    ./services/postgresql.nix
-    ./services/quadlets.nix
+    ./persist.nix
+    ./services/dockhand.nix
+    ./services/traefik.nix
     ./vms/mimir.nix
   ];
 
   hardware.facter.reportPath = ./facter.json;
+
+  services.hermes-agent.environmentFiles = ["/var/lib/secrets/opencode-env"];
 }

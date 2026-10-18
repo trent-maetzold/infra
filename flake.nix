@@ -14,7 +14,7 @@
     } ({config, ...}: {
       imports = [
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./lib ./modules ./options ./packages ./vars])
+        (import-tree [./apps ./lib ./modules ./options ./packages ./services ./vars])
       ];
 
       flake.colmenaHive = let
@@ -117,6 +117,14 @@
     agent-skills = {
       url = "github:Kyure-A/agent-skills-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-webui.url = "github:nesquena/hermes-webui";
+
+    oh-my-hermes = {
+      url = "github:rlaope/oh-my-hermes";
+      flake = false;
     };
 
     i-have-adhd = {

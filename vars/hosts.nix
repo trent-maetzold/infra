@@ -6,7 +6,7 @@
   inherit (config.flake) nixosModules;
   inherit (config.flake.lib) makeHost;
   inherit (config.vars) global users;
-  secrets = "/home/tm/code/nix-secrets";
+  secrets = "/home/tm/code/nix-secrets/secrets";
   specialArgs = inputs;
 in {
   vars.hosts = {
@@ -57,7 +57,7 @@ in {
       name = "yggdrasil";
       system = "x86_64-linux";
       address = "yggdrasil.ts.trkm.io";
-      imports = [global nixosModules.default nixosModules.tailnet ../hosts/yggdrasil];
+      imports = [global nixosModules.default nixosModules.tailnet config.my.services.honcho.nixos config.features.nixos.ai.hermes config.features.nixos.ai.hermes-honcho ../hosts/yggdrasil];
       users = [users.tm];
       hostId = "6d8a7c3f";
       inherit specialArgs;
@@ -78,15 +78,22 @@ in {
           cf-dns-api-token = {
             secret = "${secrets}/cf-dns-api-token.age";
             destDir = "/var/lib/secrets";
-            user = "podman";
-            group = "podman";
           };
 
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
-            user = "podman";
-            group = "podman";
+          };
+
+          honcho-db-password = {
+            secret = "${secrets}/honcho-db-password.age";
+            destDir = "/var/lib/secrets";
+          };
+
+          opencode-env = {
+            secret = "${secrets}/opencode-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "OPENCODE_GO_API_KEY";
           };
 
           ts-authkey.secret = "${secrets}/ts-authkey.age";
