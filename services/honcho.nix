@@ -20,7 +20,7 @@
     honcho =
       container "honcho-api"
       // {
-        image = "ghcr.io/plastic-labs/honcho:v3.3.0";
+        image = "ghcr.io/plastic-labs/honcho:latest";
         secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
 
         environments = {
@@ -48,7 +48,7 @@
           containerConfig =
             container "honcho-db"
             // {
-              image = "docker.io/pgvector/pgvector:0.8.1-pg18";
+              image = "docker.io/pgvector/pgvector:pg18";
               secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
               volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
 
@@ -63,7 +63,7 @@
         honcho-cache.containerConfig =
           container "honcho-cache"
           // {
-            image = "docker.io/valkey/valkey:8";
+            image = "docker.io/valkey/valkey:9";
             exec = "valkey-server --save ''";
           };
 
