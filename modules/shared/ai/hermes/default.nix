@@ -52,6 +52,7 @@
 
   nixos = args @ {
     config,
+    lib,
     pkgs,
     ...
   }: let
@@ -61,9 +62,16 @@
     imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default];
     environment.systemPackages = [(session pkgs cfg.backend.sessionTokenFile)];
     systemd.services.hermes-backend.serviceConfig.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
+    networking.firewall.interfaces.${config.services.tailscale.interfaceName}.allowedTCPPorts = [cfg.backend.port];
 
     services = {
-      hermes-agent = agent args hermesHome;
+      # Tailnet only, for hermes-desktop's remote gateway.
+      hermes-agent = lib.recursiveUpdate (agent args hermesHome) {
+        backend = {
+          host = config.vars.hermes;
+          waitFor = "hostname";
+        };
+      };
 
       hermes-webui = {
         enable = true;

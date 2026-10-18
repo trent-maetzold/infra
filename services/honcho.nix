@@ -1,6 +1,6 @@
 # Honcho memory server: API, deriver, PostgreSQL (pgvector) and Valkey on the
 # `honcho` network, reaching each other by container name; only the API is
-# published, on the host's loopback. The secret
+# published, on the host's loopback and `config.vars.honcho`. The secret
 # /var/lib/secrets/honcho-db-password holds the database password.
 {quadlet-nix, ...}: let
   nixos = {config, ...}: let
@@ -36,6 +36,8 @@
     persist.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 
     virtualisation.podman.enable = true;
+    # Publish on the tailnet address before tailscaled brings it up.
+    boot.kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
 
     virtualisation.quadlet = {
       networks.honcho = {};
@@ -68,7 +70,7 @@
           };
 
         # Restarts until the database accepts connections. Podman's DNAT
-        # skips the host firewall, so publish on loopback only.
+        # skips the host firewall, so publish on loopback and the tailnet only.
         honcho-api = {
           serviceConfig = secret;
 
@@ -76,7 +78,7 @@
             honcho
             // {
               exec = "sh docker/entrypoint.sh";
-              publishPorts = ["127.0.0.1:8000:8000"];
+              publishPorts = ["127.0.0.1:8000:8000" "${config.vars.honcho}:8000:8000"];
             };
         };
 

@@ -6,8 +6,10 @@
       acmeEmail = "tkm89@proton.me";
       # yggdrasil's traefik, behind heimdall's caddy.
       ingress = "100.64.0.3";
-      # hermes-ssh's server
+      # Hermes' server on the tailnet
       hermes = "yggdrasil.ts.trkm.io";
+      # yggdrasil's tailnet address, where Honcho listens.
+      honcho = "100.64.0.2";
 
       tailnet = {
         loginServer = "https://hs.trkm.io";
