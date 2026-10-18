@@ -57,7 +57,7 @@ in {
       name = "yggdrasil";
       system = "x86_64-linux";
       address = "yggdrasil.ts.trkm.io";
-      imports = [global nixosModules.default nixosModules.tailnet config.my.services.clickhouse.nixos config.my.services.honcho.nixos ../hosts/yggdrasil];
+      imports = [global nixosModules.default nixosModules.tailnet config.my.services.honcho.nixos ../hosts/yggdrasil];
       users = [users.tm];
       hostId = "6d8a7c3f";
       inherit specialArgs;
@@ -78,22 +78,16 @@ in {
           cf-dns-api-token = {
             secret = "${secrets}/cf-dns-api-token.age";
             destDir = "/var/lib/secrets";
-            user = "podman";
-            group = "podman";
           };
 
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
-            user = "podman";
-            group = "podman";
           };
 
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
-            user = "honcho";
-            group = "honcho";
           };
 
           ts-authkey.secret = "${secrets}/ts-authkey.age";

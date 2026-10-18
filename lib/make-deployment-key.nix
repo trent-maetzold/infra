@@ -7,7 +7,7 @@
 #
 # `user`/`group` name the owner of the decrypted file on the target. A service
 # that does not run as root must be named here — root-owned 0600 is unreadable to
-# the podman user, and the failure only shows up as an empty secret at runtime.
+# a service user, and the failure only shows up as an empty secret at runtime.
 {lib, ...}: {
   flake.lib.makeDeploymentKey = {
     secret,

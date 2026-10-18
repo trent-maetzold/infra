@@ -53,8 +53,6 @@
   inputs = {
     # Base
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # nixos-26.05, for the `data` container; bump by hand.
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/26f4107e47e3ad0ffd0db220469ba83b6f6d96e8";
 
     home-manager = {
       url = "github:nix-community/home-manager";

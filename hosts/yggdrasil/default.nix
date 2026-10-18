@@ -3,7 +3,8 @@
     ./boot.nix
     ./disk-config.nix
     ./persist.nix
-    ./services/quadlets.nix
+    ./services/dockhand.nix
+    ./services/traefik.nix
     ./vms/mimir.nix
   ];
 

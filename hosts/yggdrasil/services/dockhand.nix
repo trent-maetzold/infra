@@ -1,13 +1,18 @@
 {
   config,
-  osConfig,
+  quadlet-nix,
   ...
 }: let
-  inherit (osConfig) vars;
+  inherit (config) vars;
+  inherit (config.virtualisation.quadlet) networks pods volumes;
 in {
-  virtualisation.quadlet = let
-    inherit (config.virtualisation.quadlet) networks pods volumes;
-  in {
+  imports = [quadlet-nix.nixosModules.quadlet];
+
+  virtualisation.podman.enable = true;
+
+  virtualisation.quadlet = {
+    autoEscape = true;
+
     volumes = {
       dockhand_data.volumeConfig = {};
       dockhand_pgdata.volumeConfig = {};
@@ -17,7 +22,6 @@ in {
       unitConfig = {
         After = "podman.socket";
         Requires = "podman.socket";
-        RequiresMountsFor = "/var/lib/podman";
       };
 
       podConfig = {
@@ -35,7 +39,7 @@ in {
 
         volumes = [
           "${volumes.dockhand_data.ref}:/var/lib/dockhand"
-          "%t/podman/podman.sock:/var/run/docker.sock"
+          "/run/podman/podman.sock:/var/run/docker.sock"
         ];
 
         environments = {
