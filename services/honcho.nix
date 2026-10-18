@@ -1,74 +1,88 @@
-# Honcho memory server: rootful pod of API, deriver, PostgreSQL (pgvector) and
-# Valkey sharing the pod's localhost; only the API is published. The secret
+# Honcho memory server: API, deriver, PostgreSQL (pgvector) and Valkey on the
+# `honcho` network, reaching each other by container name; only the API is
+# published, on the host's loopback. The secret
 # /var/lib/secrets/honcho-db-password holds the database password.
 {quadlet-nix, ...}: let
-  honcho = {
-    image = "ghcr.io/plastic-labs/honcho:v3.3.0";
-    pod = "honcho.pod";
-    secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
+  nixos = {config, ...}: let
+    inherit (config.virtualisation.quadlet) networks volumes;
 
-    environments = {
-      DB_CONNECTION_URI = "postgresql+psycopg://honcho@127.0.0.1:5432/honcho";
-      CACHE_URL = "redis://127.0.0.1:6379/0?suppress=true";
-      CACHE_ENABLED = "true";
+    # Podman hands the secret to the containers as env.
+    secret = {
+      ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password /var/lib/secrets/honcho-db-password";
+      Restart = "always";
     };
-  };
 
-  nixos = {config, ...}: {
+    container = name: {
+      inherit name;
+      networks = [networks.honcho.ref];
+    };
+
+    honcho =
+      container "honcho-api"
+      // {
+        image = "ghcr.io/plastic-labs/honcho:v3.3.0";
+        secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
+
+        environments = {
+          DB_CONNECTION_URI = "postgresql+psycopg://honcho@honcho-db:5432/honcho";
+          CACHE_URL = "redis://honcho-cache:6379/0?suppress=true";
+          CACHE_ENABLED = "true";
+        };
+      };
+  in {
     imports = [quadlet-nix.nixosModules.quadlet];
 
-    persist.dirs."/var/lib/honcho/postgres" = {
-      mode = "0700";
-      snapshots = true;
-
-      zfs = {
-        recordsize = "16K";
-        logbias = "throughput";
-        atime = "off";
-      };
-    };
-
-    systemd.tmpfiles.rules = ["d /var/lib/honcho/postgres 0700 root root -"];
+    # Volumes, not the image store.
+    persist.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 
     virtualisation.podman.enable = true;
 
     virtualisation.quadlet = {
-      pods.honcho = {
-        # Podman hands the secret to the containers as env.
-        serviceConfig.ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password /var/lib/secrets/honcho-db-password";
-        # Netavark's DNAT skips the host firewall, so bind where it may be reached.
-        podConfig.publishPorts = ["127.0.0.1:8000:8000"];
-      };
+      networks.honcho = {};
+      volumes.honcho_pgdata = {};
 
       containers = {
-        honcho-db.containerConfig = {
-          image = "docker.io/pgvector/pgvector:0.8.1-pg18";
-          inherit (honcho) pod;
-          secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
-          volumes = ["/var/lib/honcho/postgres:/var/lib/postgresql"];
+        honcho-db = {
+          serviceConfig = secret;
 
-          environments = {
-            POSTGRES_USER = "honcho";
-            POSTGRES_DB = "honcho";
-          };
+          containerConfig =
+            container "honcho-db"
+            // {
+              image = "docker.io/pgvector/pgvector:0.8.1-pg18";
+              secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
+              volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
+
+              environments = {
+                POSTGRES_USER = "honcho";
+                POSTGRES_DB = "honcho";
+              };
+            };
         };
 
         # A cache: no snapshots.
-        honcho-cache.containerConfig = {
-          image = "docker.io/valkey/valkey:8";
-          inherit (honcho) pod;
-          exec = "valkey-server --save ''";
-        };
+        honcho-cache.containerConfig =
+          container "honcho-cache"
+          // {
+            image = "docker.io/valkey/valkey:8";
+            exec = "valkey-server --save ''";
+          };
 
-        # Restarts until the database accepts connections.
+        # Restarts until the database accepts connections. Podman's DNAT
+        # skips the host firewall, so publish on loopback only.
         honcho-api = {
-          containerConfig = honcho // {exec = "sh docker/entrypoint.sh";};
-          serviceConfig.Restart = "always";
+          serviceConfig = secret;
+
+          containerConfig =
+            honcho
+            // {
+              exec = "sh docker/entrypoint.sh";
+              publishPorts = ["127.0.0.1:8000:8000"];
+            };
         };
 
         honcho-deriver = {
-          containerConfig = honcho // {exec = "/app/.venv/bin/python -m src.deriver";};
-          serviceConfig.Restart = "always";
+          serviceConfig = secret;
+          containerConfig = honcho // container "honcho-deriver" // {exec = "/app/.venv/bin/python -m src.deriver";};
         };
       };
     };
