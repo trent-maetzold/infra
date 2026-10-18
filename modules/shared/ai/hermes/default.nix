@@ -65,13 +65,8 @@
     networking.firewall.interfaces.${config.services.tailscale.interfaceName}.allowedTCPPorts = [cfg.backend.port];
 
     services = {
-      # Tailnet only, for hermes-desktop's remote gateway.
-      hermes-agent = lib.recursiveUpdate (agent args hermesHome) {
-        backend = {
-          host = config.vars.hermes;
-          waitFor = "hostname";
-        };
-      };
+      # Loopback and, past the firewall, the tailnet for hermes-desktop.
+      hermes-agent = lib.recursiveUpdate (agent args hermesHome) {backend.host = "0.0.0.0";};
 
       hermes-webui = {
         enable = true;
