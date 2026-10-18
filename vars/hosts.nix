@@ -38,6 +38,12 @@ in {
             group = "headscale";
           };
 
+          opencode-env = {
+            secret = "${secrets}/opencode-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "OPENCODE_GO_API_KEY";
+          };
+
           ts-authkey.secret = "${secrets}/ts-authkey.age";
         };
       };
@@ -88,6 +94,12 @@ in {
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
+          };
+
+          opencode-env = {
+            secret = "${secrets}/opencode-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "OPENCODE_GO_API_KEY";
           };
 
           ts-authkey.secret = "${secrets}/ts-authkey.age";

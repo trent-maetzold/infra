@@ -29,6 +29,13 @@
 
     # Non-default config.yaml keys; the rest keeps Hermes defaults
     settings = {
+      agent.reasoning_effort = "max";
+
+      model = {
+        provider = "opencode-go";
+        default = "deepseek-v4.1-flash";
+      };
+
       approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
       checkpoints.enabled = true;
 
