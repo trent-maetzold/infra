@@ -19,8 +19,15 @@
     };
 
     persist.dirs."/var/lib/clickhouse" = {
-      atime = "off";
-      compression = "lz4";
+      snapshots = true;
+      user = "clickhouse";
+      group = "clickhouse";
+      mode = "0750";
+
+      zfs = {
+        atime = "off";
+        compression = "lz4";
+      };
     };
 
     systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/clickhouse"];

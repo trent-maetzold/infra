@@ -1,19 +1,75 @@
-# Paths whose state outlives a rebuild. Features declare them; the host maps
-# them onto its persistence method (yggdrasil: ZFS datasets).
+# State that outlives a reboot. Features declare what they need; the host
+# picks how: `volumes` for dirs wanting snapshots, `plain` for the rest. On a
+# persistent root (`none`) there is nothing to do.
 {config, ...}: let
-  persist = {lib, ...}: {
-    options.persist = {
-      dirs = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
-        default = {};
-        description = "Directory → backend hints, e.g. ZFS properties.";
+  persist = {
+    config,
+    lib,
+    ...
+  }: let
+    inherit (lib) mkOption types;
+
+    owner = {
+      user = mkOption {
+        type = types.str;
+        default = "root";
       };
 
-      files = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [];
+      group = mkOption {
+        type = types.str;
+        default = "root";
+      };
+
+      mode = mkOption {
+        type = types.str;
+        default = "0755";
       };
     };
+
+    hints = mkOption {
+      type = types.attrsOf types.str;
+      default = {};
+    };
+
+    snapshotted = lib.attrNames (lib.filterAttrs (_: d: d.snapshots) config.persist.dirs);
+  in {
+    options.persist = {
+      volumes = mkOption {
+        type = types.enum ["none" "zfs" "btrfs"];
+        default = "none";
+      };
+
+      plain = mkOption {
+        type = types.enum ["none" "impermanence" "preservation"];
+        default = "none";
+      };
+
+      dirs = mkOption {
+        default = {};
+
+        type = types.attrsOf (types.submodule {
+          options =
+            owner
+            // {
+              # Its own dataset/subvolume, snapshotted independently.
+              snapshots = mkOption {
+                type = types.bool;
+                default = false;
+              };
+
+              zfs = hints;
+              btrfs = hints;
+            };
+        });
+      };
+
+      files = mkOption {
+        type = types.attrsOf (types.submodule {options = owner;});
+        default = {};
+      };
+    };
+
+    config.warnings = lib.optional (config.persist.volumes == "none" && snapshotted != []) "persist: ${lib.concatStringsSep ", " snapshotted} want snapshots, but persist.volumes is none.";
   };
 in {
   features.nixos.base.persist = persist;

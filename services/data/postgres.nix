@@ -66,9 +66,16 @@
 
     # Records near PostgreSQL's 8K page.
     persist.dirs."/var/lib/postgresql" = {
-      atime = "off";
-      logbias = "throughput";
-      recordsize = "16K";
+      snapshots = true;
+      user = "postgres";
+      group = "postgres";
+      mode = "0750";
+
+      zfs = {
+        atime = "off";
+        logbias = "throughput";
+        recordsize = "16K";
+      };
     };
 
     systemd.services."container@data".unitConfig.RequiresMountsFor = ["/var/lib/postgresql"];

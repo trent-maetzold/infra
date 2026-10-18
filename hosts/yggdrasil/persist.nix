@@ -1,17 +1,19 @@
-# Each persisted directory gets its own `tank` dataset; files already live on
-# the persistent root.
+# Snapshotted dirs get their own `tank` dataset; the rest live on the
+# persistent root.
 {
   config,
   lib,
   ...
 }: {
-  disko.devices.zpool.tank.datasets = lib.mapAttrs' (dir: options:
+  persist.volumes = "zfs";
+
+  disko.devices.zpool.tank.datasets = lib.mapAttrs' (dir: d:
     lib.nameValuePair (baseNameOf dir) {
       type = "zfs_fs";
       mountpoint = dir;
-      options = {mountpoint = "legacy";} // options;
+      options = {mountpoint = "legacy";} // d.zfs;
     })
-  config.persist.dirs;
+  (lib.filterAttrs (_: d: d.snapshots) config.persist.dirs);
 
   # ZFS never tears a record, so full-page images only bloat the WAL.
   containers.data.config.services.postgresql.settings.full_page_writes = false;
