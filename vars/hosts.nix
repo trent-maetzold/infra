@@ -85,6 +85,12 @@ in {
             destDir = "/var/lib/secrets";
           };
 
+          hermes-webui-env = {
+            secret = "${secrets}/hermes-webui-password.age";
+            destDir = "/var/lib/secrets";
+            env = "HERMES_WEBUI_PASSWORD";
+          };
+
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
