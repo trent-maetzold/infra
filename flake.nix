@@ -127,6 +127,11 @@
       flake = false;
     };
 
+    honcho = {
+      url = "github:plastic-labs/honcho/e2d2aba182862deeb846e5cd4a30a41bce0ed82a";
+      flake = false;
+    };
+
     i-have-adhd = {
       url = "github:ayghri/i-have-adhd";
       flake = false;
