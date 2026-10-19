@@ -6,6 +6,7 @@
       data = {};
       default = {};
       infra = {};
+      server = {};
     };
 
     nixosModules = {

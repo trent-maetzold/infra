@@ -77,5 +77,8 @@ in {
   flake.nixosModules.default.imports = [features.nixos.base.nix];
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [features.home.base.nix];
+  flake.homeModules = {
+    default.imports = [features.home.base.nix];
+    server.imports = [features.home.base.nix];
+  };
 }

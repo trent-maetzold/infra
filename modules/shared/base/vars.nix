@@ -16,7 +16,11 @@ in {
 
   # Modules
   flake = {
-    homeModules.default.imports = [config.features.home.base.vars];
+    homeModules = {
+      default.imports = [config.features.home.base.vars];
+      server.imports = [config.features.home.base.vars];
+    };
+
     nixosModules.default.imports = [config.features.nixos.base.vars];
   };
 }

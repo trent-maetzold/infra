@@ -33,5 +33,8 @@ in {
   features.home.base.shell = out;
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.base.shell];
+  flake.homeModules = {
+    default.imports = [config.features.home.base.shell];
+    server.imports = [config.features.home.base.shell];
+  };
 }

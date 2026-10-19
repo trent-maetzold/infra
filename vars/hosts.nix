@@ -15,7 +15,7 @@ in {
       system = "aarch64-linux";
       address = "heimdall.ts.trkm.io";
       imports = [global nixosModules.default nixosModules.qemu-guest nixosModules.tailnet ../hosts/heimdall];
-      users = [users.tm];
+      users = [users.tm-server];
       inherit specialArgs;
 
       deployment = {
