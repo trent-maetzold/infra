@@ -81,7 +81,7 @@ Features read your values from `config.vars` (`tailnet` needs
 - `services/`: services with their host and routes; a host runs the ones naming it.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user.
 
-Every `.nix` under `apps lib modules options packages vars` is loaded by
+Every `.nix` under `apps lib modules options packages services vars` is loaded by
 import-tree. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
