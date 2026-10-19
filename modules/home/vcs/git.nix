@@ -27,5 +27,8 @@ in {
   features.home.vcs.git = out;
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.vcs.git];
+  flake.homeModules = {
+    default.imports = [config.features.home.vcs.git];
+    server.imports = [config.features.home.vcs.git];
+  };
 }

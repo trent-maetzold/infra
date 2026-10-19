@@ -20,5 +20,8 @@ in {
   features.home.base.ssh = out;
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.base.ssh];
+  flake.homeModules = {
+    default.imports = [config.features.home.base.ssh];
+    server.imports = [config.features.home.base.ssh];
+  };
 }

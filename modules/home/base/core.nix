@@ -10,5 +10,8 @@ in {
   features.home.base.core = out;
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.base.core];
+  flake.homeModules = {
+    default.imports = [config.features.home.base.core];
+    server.imports = [config.features.home.base.core];
+  };
 }

@@ -7,5 +7,8 @@ in {
   features.home.base.tmux = out;
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.base.tmux];
+  flake.homeModules = {
+    default.imports = [config.features.home.base.tmux];
+    server.imports = [config.features.home.base.tmux];
+  };
 }

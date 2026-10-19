@@ -18,5 +18,8 @@ in {
   flake.nixosModules.default.imports = [config.features.nixos.base.btop];
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.base.btop];
+  flake.homeModules = {
+    default.imports = [config.features.home.base.btop];
+    server.imports = [config.features.home.base.btop];
+  };
 }

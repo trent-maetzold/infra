@@ -68,7 +68,10 @@ in {
   };
 
   # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.ai.agents-md];
+  flake.homeModules = {
+    default.imports = [config.features.home.ai.agents-md];
+    server.imports = [config.features.home.ai.agents-md];
+  };
 
   # Functions
   flake.lib.makeAgentRules = sections: {

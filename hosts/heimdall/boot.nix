@@ -1,12 +1,11 @@
 {
   boot = {
-    loader = {
-      systemd-boot = {
-        enable = true;
-        configurationLimit = 3;
-      };
-
-      efi.canTouchEfiVariables = false;
+    # The OCI image's layout: GRUB as the removable EFI loader on /boot.
+    loader.grub = {
+      device = "nodev";
+      efiSupport = true;
+      efiInstallAsRemovable = true;
+      configurationLimit = 3;
     };
 
     growPartition = true;
