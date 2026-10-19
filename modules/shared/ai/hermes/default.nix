@@ -62,6 +62,12 @@
     environment.systemPackages = [(session pkgs cfg.backend.sessionTokenFile)];
     systemd.services.hermes-backend.serviceConfig.ExecStartPre = ["${token pkgs cfg.backend.sessionTokenFile}"];
 
+    persist.dirs.${cfg.stateDir} = {
+      inherit (cfg) user group;
+      mode = "2770";
+      snapshots = true;
+    };
+
     services = {
       hermes-agent = agent args hermesHome;
 
