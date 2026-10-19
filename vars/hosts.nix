@@ -80,6 +80,18 @@ in {
             destDir = "/var/lib/secrets";
           };
 
+          claude-code-oauth-token = {
+            secret = "${secrets}/claude-code-oauth-token.age";
+            destDir = "/var/lib/secrets";
+            user = "tm";
+          };
+
+          deepseek-env = {
+            secret = "${secrets}/deepseek-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "DEEPSEEK_API_KEY";
+          };
+
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
