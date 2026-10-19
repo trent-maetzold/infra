@@ -1,8 +1,10 @@
 # Hermes on `config.vars.hermes` over SSH: `hermes` runs the remote TUI, since
 # the TUI can't attach remotely, and a user service tunnels the remote backend
-# to localhost:9119 for hermes-desktop and the dashboard. Excludes hermes-tui
+# to the local backend endpoint for hermes-desktop and the dashboard. Excludes hermes-tui
 # and hermes.
-let
+{config, ...}: let
+  backend = config.my.endpoints.hermes-backend;
+
   home = {
     config,
     pkgs,
@@ -21,7 +23,7 @@ let
       Install.WantedBy = ["default.target"];
 
       Service = {
-        ExecStart = "${ssh} -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -L 9119:127.0.0.1:9119 ${host}";
+        ExecStart = "${ssh} -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -L ${toString backend.port}:${backend.host}:${toString backend.port} ${host}";
         Restart = "always";
         RestartSec = 10;
       };

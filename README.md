@@ -78,6 +78,7 @@ Features read your values from `config.vars` (`tailnet` needs
 - `lib/`: `makeUser`, `makeHost`, `makeStateVersion`, `makeDeploymentKey`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars/`: this flake's inventory; the only place writing hosts/users into `flake.*`.
+- `services/`: services with their host and routes; a host runs the ones naming it.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user.
 
 Every `.nix` under `apps lib modules options packages vars` is loaded by

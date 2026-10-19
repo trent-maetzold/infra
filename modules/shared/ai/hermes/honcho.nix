@@ -1,7 +1,7 @@
-# Hermes memory in a Honcho on the same host, like `my.services.honcho`.
-let
+# Hermes memory in a Honcho at `my.endpoints.honcho`.
+{config, ...}: let
   honcho.services.hermes-agent = {
-    environment.HONCHO_BASE_URL = "http://127.0.0.1:8000";
+    environment.HONCHO_BASE_URL = config.my.endpoints.honcho.url;
     settings.memory.provider = "honcho";
   };
 in {

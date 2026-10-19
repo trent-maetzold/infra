@@ -1,6 +1,7 @@
 # A NixOS host. `imports` carries the profiles (`asgard.nixosModules.*`) and
-# plain host modules; `users` takes makeUser results. Returns the module, the
-# nixosConfiguration and, when `deployment` is set, a colmena node.
+# plain host modules; the modules of the `my.services` it runs are added.
+# `users` takes makeUser results. Returns the module, the nixosConfiguration and,
+# when `deployment` is set, a colmena node.
 {
   config,
   lib,
@@ -15,6 +16,7 @@
     specialArgs ? {},
     address ? name,
     hostId ? null,
+    tailnetIp ? null,
     lan ? {},
     deployment ? null,
   }: let
@@ -24,7 +26,7 @@
       then "eth0"
       else "br0";
     nixosModule = {options, ...}: {
-      imports = imports ++ map (u: u.nixosModule) users;
+      imports = imports ++ map (u: u.nixosModule) users ++ lib.concatMap (service: lib.optionals (service.host == name) service.modules) (lib.attrValues config.my.services);
 
       config = lib.mkMerge [
         {
@@ -49,7 +51,7 @@
     };
   in
     {
-      inherit name system specialArgs nixosModule;
+      inherit name system specialArgs nixosModule tailnetIp;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
         inherit specialArgs;

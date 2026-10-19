@@ -23,11 +23,15 @@ secrets. Commands are in README.md.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
   infra identity (names, emails, addresses, hostIds) lives here.
+- `services/<s>.nix`: opinionated; picks the host, imports the modules and
+  declares the routes (`makePrivateRoute`/`makeTailnetRoute`/`makePublicRoute`)
+  of one service. `modules/` features only listen on loopback and export
+  `my.endpoints.<name>`.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user. They import
   profiles, never a single feature, so deleting a feature can't break them
   silently. Push back on requests that break this.
 
-`flake.nix` loads `apps lib modules options packages vars` with import-tree. No
+`flake.nix` loads `apps lib modules options packages services vars` with import-tree. No
 relative imports except data paths: reach other files through `config.flake.*`.
 
 ## Writing a feature
