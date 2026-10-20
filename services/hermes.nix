@@ -50,7 +50,8 @@
           settings = {
             approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
             checkpoints.enabled = true;
-            memory.provider = "honcho";
+            # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
+            memory.provider = "nix-managed-honcho";
             memory.write_approval = true;
             plugins.enabled = ["omh"];
             privacy.redact_pii = true;
