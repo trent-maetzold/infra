@@ -335,6 +335,22 @@
         "type": "github"
       }
     },
+    "honcho": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792454117,
+        "narHash": "sha256-RKGrl6inZYy96fDupBEmnlI4oeXJ9RfvQlwoi0aWM6Y=",
+        "owner": "plastic-labs",
+        "repo": "honcho",
+        "rev": "ce56c3e8e07f33ffcade58809282de102b36ce56",
+        "type": "github"
+      },
+      "original": {
+        "owner": "plastic-labs",
+        "repo": "honcho",
+        "type": "github"
+      }
+    },
     "i-have-adhd": {
       "flake": false,
       "locked": {
@@ -586,6 +602,22 @@
         "type": "github"
       }
     },
+    "oh-my-hermes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792489412,
+        "narHash": "sha256-gRuwXn4pwkxGqJRau7mR/Hft+B3C/qLLzVSsw6ib6cA=",
+        "owner": "rlaope",
+        "repo": "oh-my-hermes",
+        "rev": "decff5555e8054d6b170c5397c64c20839c788f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rlaope",
+        "repo": "oh-my-hermes",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -682,6 +714,7 @@
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
         "home-manager": "home-manager_2",
+        "honcho": "honcho",
         "i-have-adhd": "i-have-adhd",
         "import-tree": "import-tree",
         "lazyvim": "lazyvim",
@@ -689,6 +722,7 @@
         "nix-index-database": "nix-index-database",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_4",
+        "oh-my-hermes": "oh-my-hermes",
         "pyproject-nix": "pyproject-nix_2",
         "quadlet-nix": "quadlet-nix"
       }

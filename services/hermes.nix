@@ -1,12 +1,37 @@
 # Hermes on yggdrasil with Honcho memory; its web UI is reached over the tailnet.
-{config, ...}: {
+{
+  config,
+  honcho,
+  oh-my-hermes,
+  ...
+}: {
   my.services.hermes = {
     host = "yggdrasil";
 
     modules = [
       config.features.nixos.ai.hermes
-      {
+      ({pkgs, ...} @ nixos: let
+        # Directory plugins need plugin.yaml at the package root
+        plugin = name: src: pkgs.runCommand name {} "cp -r ${src} $out";
+
+        # Its httpx/pydantic come from Hermes' sealed venv
+        honcho-ai = nixos.config.services.hermes-agent.package.python.pkgs.buildPythonPackage rec {
+          pname = "honcho_ai";
+          version = "2.6.0";
+          format = "wheel";
+          src = pkgs.fetchPypi {
+            inherit pname version format;
+            dist = "py3";
+            python = "py3";
+            hash = "sha256-gZzdV3Xsrmn2F7FNYMPqPGrJQEs4IfpQy/C2gaoig88=";
+          };
+          dontCheckRuntimeDeps = true;
+        };
+      in {
         services.hermes-agent = {
+          extraPlugins = [(plugin "honcho" "${honcho}/hermes-plugin-honcho") (plugin "omh" "${oh-my-hermes}/src/plugin_bundle/omh")];
+          extraPythonPackages = [honcho-ai];
+
           container.hostUsers = ["tm"];
           environmentFiles = ["/var/lib/secrets/codeberg-env" "/var/lib/secrets/deepseek-env" "/var/lib/secrets/opencode-env"];
 
@@ -21,7 +46,7 @@
             };
           };
 
-          # Non-default config.yaml keys; omh and honcho come from the plugin catalog
+          # Non-default config.yaml keys
           settings = {
             approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
             checkpoints.enabled = true;
@@ -36,7 +61,7 @@
             };
           };
         };
-      }
+      })
     ];
 
     routes.hermes = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-webui;
