@@ -50,9 +50,14 @@
           settings = {
             approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
             checkpoints.enabled = true;
-            dashboard.public_url = let
-              route = config.my.services.hermes.routes.hermes-dashboard;
-            in "https://${config.flake.lib.routeHostname nixos.config.vars route}${route.path}";
+
+            dashboard = {
+              basic_auth.username = config.vars.users.tm.name;
+              public_url = let
+                route = config.my.services.hermes.routes.hermes-dashboard;
+              in "https://${config.flake.lib.routeHostname nixos.config.vars route}${route.path}";
+            };
+
             # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
             memory.provider = "nix-managed-honcho";
             memory.write_approval = true;

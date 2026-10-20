@@ -105,8 +105,9 @@ in {
           };
 
           hermes-dashboard-env = {
-            secret = "${secrets}/hermes-dashboard.env.age";
+            secret = "${secrets}/hermes-webui-password.age";
             destDir = "/var/lib/secrets";
+            env = "HERMES_DASHBOARD_BASIC_AUTH_PASSWORD";
           };
 
           honcho-db-password = {
