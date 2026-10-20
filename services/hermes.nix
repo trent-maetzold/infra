@@ -12,7 +12,7 @@
     };
 
     services.hermes-agent = {
-      environmentFiles = ["/var/lib/secrets/codeberg-env"];
+      environmentFiles = ["/var/lib/secrets/codeberg-env" "/var/lib/secrets/deepseek-env"];
 
       extraPackages = [
         (pkgs.writeShellScriptBin "fj" ''

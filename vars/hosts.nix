@@ -87,6 +87,12 @@ in {
             env = "CODEBERG_TOKEN";
           };
 
+          deepseek-env = {
+            secret = "${secrets}/deepseek-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "DEEPSEEK_API_KEY";
+          };
+
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";

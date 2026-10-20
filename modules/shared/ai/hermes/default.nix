@@ -45,8 +45,8 @@
       agent.reasoning_effort = "max";
 
       model = {
-        provider = "opencode-go";
-        default = "deepseek-v4.1-flash";
+        provider = "deepseek";
+        default = "deepseek-flash";
       };
 
       approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
