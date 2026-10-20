@@ -23,8 +23,6 @@
 
           # Non-default config.yaml keys; omh and honcho come from the plugin catalog
           settings = {
-            agent.reasoning_effort = "max";
-
             approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
             checkpoints.enabled = true;
             memory.provider = "honcho";
