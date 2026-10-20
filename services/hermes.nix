@@ -25,11 +25,6 @@
           settings = {
             agent.reasoning_effort = "max";
 
-            model = {
-              provider = "deepseek";
-              default = "deepseek-flash";
-            };
-
             approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
             checkpoints.enabled = true;
             memory.provider = "honcho";
