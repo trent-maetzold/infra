@@ -55,6 +55,8 @@
 
       memory.write_approval = true;
 
+      plugins.enabled = ["omh"];
+
       privacy.redact_pii = true;
 
       skills = {
