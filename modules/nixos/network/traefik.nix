@@ -3,6 +3,7 @@
 # domain.
 {config, ...}: let
   inherit (config) my;
+  inherit (config.flake.lib) routeHostname;
 
   nixos = {
     config,
@@ -15,11 +16,6 @@
     inherit (config.virtualisation.quadlet) volumes;
 
     routes = lib.filterAttrs (_: route: route.host == config.networking.hostName && route.kind != "private") my.routes;
-    hostname = name: route: "${name}.${
-      if route.kind == "tailnet"
-      then vars.tailnet.domain
-      else vars.domain
-    }";
 
     dynamic = (pkgs.formats.yaml {}).generate "traefik-dynamic.yml" {
       http = {
@@ -27,7 +23,7 @@
 
         routers =
           lib.mapAttrs (name: route: {
-            rule = "Host(`${hostname name route}`)";
+            rule = "Host(`${routeHostname vars name route}`)";
             service = name;
             middlewares = lib.optional (route.kind == "tailnet") "tailnet";
           })

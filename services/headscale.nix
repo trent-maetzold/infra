@@ -1,6 +1,7 @@
 # Heimdall's tailnet control plane; names every tailnet route after the host serving it.
 {config, ...}: let
   inherit (config) my;
+  inherit (config.flake.lib) routeHostname;
   inherit (config.vars) hosts;
 
   nixos = {
@@ -26,7 +27,7 @@
 
             extra_records =
               lib.mapAttrsToList (name: route: {
-                name = "${name}.${vars.tailnet.domain}";
+                name = routeHostname vars name route;
                 type = "A";
                 value = hosts.${route.host}.tailnetIp;
               })
