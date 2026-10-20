@@ -1,5 +1,5 @@
-# Hermes on yggdrasil with Honcho memory; its web UI, dashboard (at /dashboard)
-# and gateway API are reached over the tailnet.
+# Hermes on yggdrasil with Honcho memory; its web UI, dashboard and gateway API
+# are reached over the tailnet.
 {
   config,
   honcho,
@@ -53,9 +53,7 @@
 
             dashboard = {
               basic_auth.username = config.vars.users.tm.name;
-              public_url = let
-                route = config.my.services.hermes.routes.hermes-dashboard;
-              in "https://${config.flake.lib.routeHostname nixos.config.vars route}${route.path}";
+              public_url = "https://${config.flake.lib.routeHostname nixos.config.vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
             };
 
             # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
@@ -76,12 +74,7 @@
     routes = {
       hermes = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-webui;
 
-      hermes-dashboard =
-        config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-dashboard
-        // {
-          subdomain = "hermes";
-          path = "/dashboard";
-        };
+      "dash.hermes" = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-dashboard;
       "gw.hermes" = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-gateway;
     };
   };

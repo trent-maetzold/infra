@@ -3,8 +3,8 @@
 # a public route a router and, on the edge, the ingress.
 {
   flake.lib = {
-    # `routes.ha` is served at ha.<domain> unless it sets `subdomain`.
-    routeHostname = vars: route: "${route.subdomain}.${
+    # The route key is the subdomain: `routes.ha` is served at ha.<domain>.
+    routeHostname = vars: name: route: "${name}.${
       if route.kind == "tailnet"
       then vars.tailnet.domain
       else vars.domain

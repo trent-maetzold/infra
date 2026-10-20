@@ -25,14 +25,13 @@
             base_domain = vars.tailnet.domain;
             nameservers.global = ["1.1.1.1" "9.9.9.9"];
 
-            extra_records = lib.unique (
-              lib.mapAttrsToList (_: route: {
-                name = routeHostname vars route;
+            extra_records =
+              lib.mapAttrsToList (name: route: {
+                name = routeHostname vars name route;
                 type = "A";
                 value = hosts.${route.host}.tailnetIp;
               })
-              tailnetRoutes
-            );
+              tailnetRoutes;
           };
         };
       };
