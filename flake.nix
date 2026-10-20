@@ -128,7 +128,7 @@
     };
 
     honcho = {
-      url = "github:plastic-labs/honcho/e2d2aba182862deeb846e5cd4a30a41bce0ed82a";
+      url = "github:plastic-labs/honcho";
       flake = false;
     };
 
