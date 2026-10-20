@@ -21,8 +21,12 @@
       hermes-agent = {
         enable = true;
         addToSystemPackages = true;
-        container.enable = true;
-        container.backend = "podman";
+
+        container = {
+          enable = true;
+          backend = "podman";
+          image = "docker.io/library/ubuntu:24.04";
+        };
       };
 
       hermes-webui = {
