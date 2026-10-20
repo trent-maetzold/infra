@@ -16,10 +16,20 @@
     };
   };
 
-  route = {
+  route = {name, ...}: {
     options = {
       kind = lib.mkOption {type = lib.types.enum ["private" "tailnet" "public"];};
       endpoint = lib.mkOption {type = lib.types.submodule endpoint;};
+      subdomain = lib.mkOption {
+        type = lib.types.str;
+        default = name;
+      };
+
+      # Stripped before the endpoint, which gets it as X-Forwarded-Prefix.
+      path = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+      };
     };
   };
 

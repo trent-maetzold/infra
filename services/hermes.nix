@@ -1,5 +1,5 @@
-# Hermes on yggdrasil with Honcho memory; its web UI and gateway API are reached
-# over the tailnet.
+# Hermes on yggdrasil with Honcho memory; its web UI, dashboard (at /dashboard)
+# and gateway API are reached over the tailnet.
 {
   config,
   honcho,
@@ -33,11 +33,9 @@
           extraPlugins = [(plugin "honcho" "${honcho}/hermes-plugin-honcho") (plugin "omh" "${oh-my-hermes}/src/plugin_bundle/omh")];
           extraPythonPackages = [honcho-ai];
 
-          container.hostUsers = ["tm"];
           environment.API_SERVER_ENABLED = "true";
-          environmentFiles = map (f: "/var/lib/secrets/${f}") ["codeberg-env" "deepseek-env" "hermes-api-server-env" "opencode-env"];
+          environmentFiles = map (f: "/var/lib/secrets/${f}") ["codeberg-env" "deepseek-env" "hermes-api-server-env" "hermes-dashboard-env" "opencode-env"];
 
-          # Self-hosted Honcho; the container shares the host network
           hermesHomeFiles."honcho.json" = builtins.toJSON {
             baseUrl = config.my.endpoints.honcho.url;
             hosts.hermes = {
@@ -52,6 +50,9 @@
           settings = {
             approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
             checkpoints.enabled = true;
+            dashboard.public_url = let
+              route = config.my.services.hermes.routes.hermes-dashboard;
+            in "https://${config.flake.lib.routeHostname nixos.config.vars route}${route.path}";
             # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
             memory.provider = "nix-managed-honcho";
             memory.write_approval = true;
@@ -69,6 +70,13 @@
 
     routes = {
       hermes = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-webui;
+
+      hermes-dashboard =
+        config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-dashboard
+        // {
+          subdomain = "hermes";
+          path = "/dashboard";
+        };
       "gw.hermes" = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-gateway;
     };
   };

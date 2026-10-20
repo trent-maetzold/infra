@@ -104,6 +104,11 @@ in {
             env = "API_SERVER_KEY";
           };
 
+          hermes-dashboard-env = {
+            secret = "${secrets}/hermes-dashboard.env.age";
+            destDir = "/var/lib/secrets";
+          };
+
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";

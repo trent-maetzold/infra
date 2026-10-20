@@ -16,16 +16,19 @@
     inherit (config.virtualisation.quadlet) volumes;
 
     routes = lib.filterAttrs (_: route: route.host == config.networking.hostName && route.kind != "private") my.routes;
+    paths = lib.filterAttrs (_: route: route.path != null) routes;
 
     dynamic = (pkgs.formats.yaml {}).generate "traefik-dynamic.yml" {
       http = {
-        middlewares.tailnet.ipAllowList.sourceRange = [vars.tailnet.subnet];
+        middlewares =
+          {tailnet.ipAllowList.sourceRange = [vars.tailnet.subnet];}
+          // lib.mapAttrs' (name: route: lib.nameValuePair "${name}-path" {stripPrefix.prefixes = [route.path];}) paths;
 
         routers =
           lib.mapAttrs (name: route: {
-            rule = "Host(`${routeHostname vars name route}`)";
+            rule = "Host(`${routeHostname vars route}`)" + lib.optionalString (route.path != null) " && (Path(`${route.path}`) || PathPrefix(`${route.path}/`))";
             service = name;
-            middlewares = lib.optional (route.kind == "tailnet") "tailnet";
+            middlewares = lib.optional (route.kind == "tailnet") "tailnet" ++ lib.optional (route.path != null) "${name}-path";
           })
           routes
           // {
