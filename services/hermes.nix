@@ -33,6 +33,11 @@ in {
       config.features.nixos.ai.hermes
       config.features.nixos.ai.hermes-honcho
       forgejo
+      ({pkgs, ...}: {
+        services.hermes-agent.addToSystemPackages = true;
+        environment.systemPackages = [pkgs.oh-my-hermes];
+        users.users.${config.vars.users.tm.name}.extraGroups = ["hermes"];
+      })
       {services.hermes-agent.environmentFiles = ["/var/lib/secrets/opencode-env"];}
     ];
 
