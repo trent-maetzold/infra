@@ -602,22 +602,6 @@
         "type": "github"
       }
     },
-    "oh-my-hermes": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1792074033,
-        "narHash": "sha256-9dxYhJZrngLtRZb2/QK4kyFYLSCE9+AiZj0iBUBEVtA=",
-        "owner": "rlaope",
-        "repo": "oh-my-hermes",
-        "rev": "9016989dbb1f0a89e014485baac3d0d141d3e774",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rlaope",
-        "repo": "oh-my-hermes",
-        "type": "github"
-      }
-    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -722,7 +706,6 @@
         "nix-index-database": "nix-index-database",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_4",
-        "oh-my-hermes": "oh-my-hermes",
         "pyproject-nix": "pyproject-nix_2",
         "quadlet-nix": "quadlet-nix"
       }

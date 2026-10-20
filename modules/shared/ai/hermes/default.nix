@@ -8,7 +8,6 @@
 {
   hermes-agent,
   hermes-webui,
-  oh-my-hermes,
   ...
 }: let
   backend = {
@@ -32,18 +31,9 @@
   # services.hermes-agent shared by server and home
   agent = {pkgs, ...}: hermesHome: {
     enable = true;
-    extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
+    extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${pkgs.oh-my-hermes.src}/src/plugin_bundle/omh $out")];
 
-    extraPackages = [
-      (pkgs.python3Packages.buildPythonApplication {
-        pname = "oh-my-hermes";
-        version = "3.0.2";
-        pyproject = true;
-        src = oh-my-hermes;
-        build-system = [pkgs.python3Packages.setuptools];
-        doCheck = false;
-      })
-    ];
+    extraPackages = [pkgs.oh-my-hermes];
 
     backend = {
       inherit (backend) host port;
