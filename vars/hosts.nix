@@ -81,6 +81,12 @@ in {
             destDir = "/var/lib/secrets";
           };
 
+          codeberg-env = {
+            secret = "${secrets}/hermes-codeberg-token.age";
+            destDir = "/var/lib/secrets";
+            env = "CODEBERG_TOKEN";
+          };
+
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
