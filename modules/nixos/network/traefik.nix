@@ -82,6 +82,8 @@
             "--certificatesResolvers.cloudflare.acme.storage=/var/lib/traefik/letsencrypt/acme.json"
             "--certificatesResolvers.cloudflare.acme.dnsChallenge=true"
             "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare"
+            # MagicDNS answers SOA for tailnet names with NOTIMP, hiding the Cloudflare zone
+            "--certificatesResolvers.cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53"
             "--serverstransport.insecureSkipVerify=true"
           ];
         };
