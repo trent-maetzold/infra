@@ -2,6 +2,7 @@
 # are reached over the tailnet.
 {
   config,
+  hermex-push,
   honcho,
   oh-my-hermes,
   ...
@@ -32,10 +33,14 @@
         dashboard = "https://${config.flake.lib.routeHostname nixos.config.vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
       in {
         services.hermes-agent = {
-          extraPlugins = [(plugin "honcho" "${honcho}/hermes-plugin-honcho") (plugin "omh" "${oh-my-hermes}/src/plugin_bundle/omh")];
+          extraPlugins = [(plugin "honcho" "${honcho}/hermes-plugin-honcho") (plugin "omh" "${oh-my-hermes}/src/plugin_bundle/omh") (plugin "hermex-push" "${hermex-push}/plugin")];
           extraPythonPackages = [honcho-ai];
 
-          environment.API_SERVER_ENABLED = "true";
+          environment = {
+            API_SERVER_ENABLED = "true";
+            # Hermex's relay; only its developer holds the APNs key, so it can't be self-hosted
+            HERMEX_PUSH_RELAY_URL = "https://hermex-relay.hermex-relay.workers.dev";
+          };
           environmentFiles = map (f: "/var/lib/secrets/${f}") ["codeberg-env" "deepseek-env" "hermes-api-server-env" "hermes-dashboard-env" "opencode-env"];
 
           hermesHomeFiles."honcho.json" = builtins.toJSON {
@@ -64,7 +69,7 @@
             # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
             memory.provider = "nix-managed-honcho";
             memory.write_approval = true;
-            plugins.enabled = ["omh"];
+            plugins.enabled = ["omh" "hermex-push"];
             privacy.redact_pii = true;
 
             skills = {

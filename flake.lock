@@ -294,6 +294,22 @@
         "type": "github"
       }
     },
+    "hermex-push": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791945391,
+        "narHash": "sha256-5ReRPEEEwvmDGW54jy+jA9f5YQHXfSxqd0BLOjL7cjk=",
+        "owner": "uzairansaruzi",
+        "repo": "hermex-push",
+        "rev": "2da6f660bb86e9470ea56c85dc554aba45ce7fdf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "uzairansaruzi",
+        "repo": "hermex-push",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -713,6 +729,7 @@
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
+        "hermex-push": "hermex-push",
         "home-manager": "home-manager_2",
         "honcho": "honcho",
         "i-have-adhd": "i-have-adhd",

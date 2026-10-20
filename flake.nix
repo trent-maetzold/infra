@@ -122,6 +122,11 @@
     hermes-agent.url = "github:NousResearch/hermes-agent";
     hermes-webui.url = "github:nesquena/hermes-webui";
 
+    hermex-push = {
+      url = "github:uzairansaruzi/hermex-push";
+      flake = false;
+    };
+
     honcho = {
       url = "github:plastic-labs/honcho";
       flake = false;
