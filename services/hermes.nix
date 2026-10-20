@@ -1,11 +1,16 @@
 # Hermes on yggdrasil; its web UI is reached over the tailnet.
 {config, ...}: let
-  # fj only reads its token from keys.json; build one from $CODEBERG_TOKEN per call
+  # Codeberg access from $CODEBERG_TOKEN. fj only reads keys.json, so build one per call
   forgejo = {
     lib,
     pkgs,
     ...
   }: {
+    programs.git = {
+      enable = true;
+      config.credential."https://codeberg.org".helper = ''!f() { echo username=hermes; echo "password=$CODEBERG_TOKEN"; }; f'';
+    };
+
     services.hermes-agent = {
       environmentFiles = ["/var/lib/secrets/codeberg-env"];
 
