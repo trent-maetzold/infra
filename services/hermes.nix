@@ -1,44 +1,49 @@
-# Hermes on yggdrasil; its web UI is reached over the tailnet.
-{config, ...}: let
-  # Codeberg access from $CODEBERG_TOKEN. fj only reads keys.json, so build one per call
-  forgejo = {
-    lib,
-    pkgs,
-    ...
-  }: {
-    programs.git = {
-      enable = true;
-      config.credential."https://codeberg.org".helper = ''!f() { echo username=hermes; echo "password=$CODEBERG_TOKEN"; }; f'';
-    };
-
-    services.hermes-agent = {
-      environmentFiles = ["/var/lib/secrets/codeberg-env" "/var/lib/secrets/deepseek-env"];
-
-      extraPackages = [
-        (pkgs.writeShellScriptBin "fj" ''
-          data=$(mktemp -d)
-          trap 'rm -rf "$data"' EXIT
-          mkdir "$data/forgejo-cli"
-          printf '{"hosts":{"codeberg.org":{"type":"Application","token":"%s"}}}' "$CODEBERG_TOKEN" > "$data/forgejo-cli/keys.json"
-          XDG_DATA_HOME=$data ${lib.getExe pkgs.forgejo-cli} "$@"
-        '')
-      ];
-    };
-  };
-in {
+# Hermes on yggdrasil with Honcho memory; its web UI is reached over the tailnet.
+{config, ...}: {
   my.services.hermes = {
     host = "yggdrasil";
 
     modules = [
       config.features.nixos.ai.hermes
-      config.features.nixos.ai.hermes-honcho
-      forgejo
-      ({pkgs, ...}: {
-        services.hermes-agent.addToSystemPackages = true;
-        environment.systemPackages = [pkgs.oh-my-hermes];
-        users.users.${config.vars.users.tm.name}.extraGroups = ["hermes"];
-      })
-      {services.hermes-agent.environmentFiles = ["/var/lib/secrets/opencode-env"];}
+      {
+        services.hermes-agent = {
+          container.hostUsers = ["tm"];
+          environmentFiles = ["/var/lib/secrets/codeberg-env" "/var/lib/secrets/deepseek-env" "/var/lib/secrets/opencode-env"];
+
+          # Self-hosted Honcho; the container shares the host network
+          hermesHomeFiles."honcho.json" = builtins.toJSON {
+            baseUrl = config.my.endpoints.honcho.url;
+            hosts.hermes = {
+              enabled = true;
+              aiPeer = "hermes";
+              peerName = config.vars.users.tm.name;
+              workspace = "hermes";
+            };
+          };
+
+          # Non-default config.yaml keys; omh and honcho come from the plugin catalog
+          settings = {
+            agent.reasoning_effort = "max";
+
+            model = {
+              provider = "deepseek";
+              default = "deepseek-flash";
+            };
+
+            approvals.deny = ["git push --force*" "*curl*|*sh*" "*wget*|*sh*"];
+            checkpoints.enabled = true;
+            memory.provider = "honcho";
+            memory.write_approval = true;
+            plugins.enabled = ["omh"];
+            privacy.redact_pii = true;
+
+            skills = {
+              guard_agent_created = true;
+              write_approval = true;
+            };
+          };
+        };
+      }
     ];
 
     routes.hermes = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-webui;

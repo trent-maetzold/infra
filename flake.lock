@@ -335,22 +335,6 @@
         "type": "github"
       }
     },
-    "honcho": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1792454117,
-        "narHash": "sha256-RKGrl6inZYy96fDupBEmnlI4oeXJ9RfvQlwoi0aWM6Y=",
-        "owner": "plastic-labs",
-        "repo": "honcho",
-        "rev": "ce56c3e8e07f33ffcade58809282de102b36ce56",
-        "type": "github"
-      },
-      "original": {
-        "owner": "plastic-labs",
-        "repo": "honcho",
-        "type": "github"
-      }
-    },
     "i-have-adhd": {
       "flake": false,
       "locked": {
@@ -698,7 +682,6 @@
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
         "home-manager": "home-manager_2",
-        "honcho": "honcho",
         "i-have-adhd": "i-have-adhd",
         "import-tree": "import-tree",
         "lazyvim": "lazyvim",
