@@ -34,6 +34,17 @@
     enable = true;
     extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
 
+    extraPackages = [
+      (pkgs.python3Packages.buildPythonApplication {
+        pname = "oh-my-hermes";
+        version = "3.0.2";
+        pyproject = true;
+        src = oh-my-hermes;
+        build-system = [pkgs.python3Packages.setuptools];
+        doCheck = false;
+      })
+    ];
+
     backend = {
       inherit (backend) host port;
       mode = "dashboard";
