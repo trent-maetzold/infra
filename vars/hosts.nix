@@ -98,9 +98,21 @@ in {
             destDir = "/var/lib/secrets";
           };
 
+          hermes-api-server-env = {
+            secret = "${secrets}/hermes-api-server-key.age";
+            destDir = "/var/lib/secrets";
+            env = "API_SERVER_KEY";
+          };
+
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
+          };
+
+          openrouter-env = {
+            secret = "${secrets}/openrouter-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "LLM_OPENAI_API_KEY";
           };
 
           opencode-env = {

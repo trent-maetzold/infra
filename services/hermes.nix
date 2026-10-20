@@ -1,4 +1,5 @@
-# Hermes on yggdrasil with Honcho memory; its web UI is reached over the tailnet.
+# Hermes on yggdrasil with Honcho memory; its web UI and gateway API are reached
+# over the tailnet.
 {
   config,
   honcho,
@@ -33,7 +34,8 @@
           extraPythonPackages = [honcho-ai];
 
           container.hostUsers = ["tm"];
-          environmentFiles = ["/var/lib/secrets/codeberg-env" "/var/lib/secrets/deepseek-env" "/var/lib/secrets/opencode-env"];
+          environment.API_SERVER_ENABLED = "true";
+          environmentFiles = map (f: "/var/lib/secrets/${f}") ["codeberg-env" "deepseek-env" "hermes-api-server-env" "opencode-env"];
 
           # Self-hosted Honcho; the container shares the host network
           hermesHomeFiles."honcho.json" = builtins.toJSON {
@@ -65,6 +67,9 @@
       })
     ];
 
-    routes.hermes = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-webui;
+    routes = {
+      hermes = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-webui;
+      "gw.hermes" = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-gateway;
+    };
   };
 }
