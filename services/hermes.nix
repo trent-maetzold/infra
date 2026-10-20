@@ -28,6 +28,8 @@
           };
           dontCheckRuntimeDeps = true;
         };
+
+        dashboard = "https://${config.flake.lib.routeHostname nixos.config.vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
       in {
         services.hermes-agent = {
           extraPlugins = [(plugin "honcho" "${honcho}/hermes-plugin-honcho") (plugin "omh" "${oh-my-hermes}/src/plugin_bundle/omh")];
@@ -53,8 +55,11 @@
 
             dashboard = {
               basic_auth.username = config.vars.users.tm.name;
-              public_url = "https://${config.flake.lib.routeHostname nixos.config.vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
+              public_url = dashboard;
             };
+
+            # hermes-webui's dashboard link
+            webui.dashboard.url = dashboard;
 
             # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
             memory.provider = "nix-managed-honcho";
