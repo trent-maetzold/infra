@@ -64,7 +64,7 @@ Features read your values from `config.vars` (`tailnet` needs
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
   script as `bin/<name>`, run on a Nix Python with its dependencies (pyproject-nix).
 - `nix run .#set-secret -- <name>` → prompts twice, encrypts to `~/.ssh/id_ed25519.pub`
-  as `<name>.age` on branch `secret/<name>` of `$NIX_SECRETS` (`~/code/nix-secrets`),
+  as `secrets/<name>.age` on branch `secret/<name>` of `$NIX_SECRETS` (`~/code/nix-secrets`),
   pushes and opens a PR.
 - `makeAgentRules {context boundaries workflow style commands tools}` → home
   module adding lines to those `~/.agents/AGENTS.md` sections (`agents.md.<section>`).

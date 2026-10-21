@@ -16,8 +16,9 @@ trap 'git -C "$repo" worktree remove --force "$tree"' EXIT
 git -C "$repo" fetch -q origin
 git -C "$repo" worktree add -q -B "$branch" "$tree" origin/main
 
-printf %s "$secret" | rage -e -R "$key" -o "$tree/$name.age"
-git -C "$tree" add "$name.age"
+mkdir -p "$tree/secrets"
+printf %s "$secret" | rage -e -R "$key" -o "$tree/secrets/$name.age"
+git -C "$tree" add "secrets/$name.age"
 git -C "$tree" commit -qm "secret: set $name"
 git -C "$tree" push -q -u origin "$branch"
 cd "$tree" && fj pr create --base main --head "$branch" --body="Sets $name.age." "secret: set $name"
