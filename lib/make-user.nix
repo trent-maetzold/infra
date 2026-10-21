@@ -30,7 +30,7 @@
       };
     };
   in {
-    inherit name homeModule;
+    inherit name homeModule publicKey;
 
     nixosModule = {pkgs, ...}: {
       imports = [home-manager.nixosModules.home-manager];
