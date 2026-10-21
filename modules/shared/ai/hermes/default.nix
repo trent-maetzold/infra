@@ -1,7 +1,9 @@
 # Hermes Agent with the oh-my-hermes plugin: the base, import one side. Each
-# runs the agent and a dashboard backend on 127.0.0.1:9119 with a session token
-# in HERMES_HOME, which `hermes-session-token` prints for hermes-desktop.
-# NixOS: the server; hermes-webui shares its HERMES_HOME.
+# runs the agent and a dashboard backend (`my.endpoints.hermes-backend`) with a
+# session token in HERMES_HOME, which `hermes-session-token` prints for
+# hermes-desktop.
+# NixOS: the server; hermes-webui (`my.endpoints.hermes-webui`) shares its
+# HERMES_HOME.
 # Home: the same agent as user services on $XDG_CONFIG_HOME/hermes.
 {
   hermes-agent,
@@ -9,6 +11,16 @@
   oh-my-hermes,
   ...
 }: let
+  backend = {
+    host = "127.0.0.1";
+    port = 9119;
+  };
+
+  webui = {
+    host = "127.0.0.1";
+    port = 8787;
+  };
+
   # Makes the session token once, readable by the hermes group
   token = pkgs: file:
     pkgs.writeShellScript "hermes-token" ''
@@ -23,6 +35,7 @@
     extraPlugins = [(pkgs.runCommand "omh" {} "cp -r ${oh-my-hermes}/src/plugin_bundle/omh $out")];
 
     backend = {
+      inherit (backend) host port;
       mode = "dashboard";
       sessionTokenFile = "${hermesHome}/session-token";
     };
@@ -67,6 +80,7 @@
 
       hermes-webui = {
         enable = true;
+        inherit (webui) host port;
         inherit (cfg) user group;
         inherit hermesHome;
         stateDir = "${cfg.stateDir}/.hermes-webui";
@@ -92,5 +106,10 @@ in {
   features = {
     home.ai.hermes = home;
     nixos.ai.hermes = nixos;
+  };
+
+  my.endpoints = {
+    hermes-backend = backend;
+    hermes-webui = webui;
   };
 }

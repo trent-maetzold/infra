@@ -57,7 +57,8 @@ in {
       name = "yggdrasil";
       system = "x86_64-linux";
       address = "yggdrasil.ts.trkm.io";
-      imports = [global nixosModules.default nixosModules.tailnet config.my.services.honcho.nixos config.features.nixos.ai.hermes config.features.nixos.ai.hermes-honcho ../hosts/yggdrasil];
+      tailnetIp = "100.64.0.2";
+      imports = [global nixosModules.default nixosModules.tailnet ../hosts/yggdrasil];
       users = [users.tm];
       hostId = "6d8a7c3f";
       inherit specialArgs;
