@@ -81,14 +81,44 @@ in {
             destDir = "/var/lib/secrets";
           };
 
+          codeberg-env = {
+            secret = "${secrets}/hermes-codeberg-token.age";
+            destDir = "/var/lib/secrets";
+            env = "CODEBERG_TOKEN";
+          };
+
+          deepseek-env = {
+            secret = "${secrets}/deepseek-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "DEEPSEEK_API_KEY";
+          };
+
           dockhand-env = {
             secret = "${secrets}/dockhand.env.age";
             destDir = "/var/lib/secrets";
           };
 
+          hermes-api-server-env = {
+            secret = "${secrets}/hermes-api-server-key.age";
+            destDir = "/var/lib/secrets";
+            env = "API_SERVER_KEY";
+          };
+
+          hermes-dashboard-env = {
+            secret = "${secrets}/hermes-webui-password.age";
+            destDir = "/var/lib/secrets";
+            env = "HERMES_DASHBOARD_BASIC_AUTH_PASSWORD";
+          };
+
           honcho-db-password = {
             secret = "${secrets}/honcho-db-password.age";
             destDir = "/var/lib/secrets";
+          };
+
+          openrouter-env = {
+            secret = "${secrets}/openrouter-api-key.age";
+            destDir = "/var/lib/secrets";
+            env = "LLM_OPENAI_API_KEY";
           };
 
           opencode-env = {

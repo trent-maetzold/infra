@@ -294,6 +294,22 @@
         "type": "github"
       }
     },
+    "hermex-push": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791945391,
+        "narHash": "sha256-5ReRPEEEwvmDGW54jy+jA9f5YQHXfSxqd0BLOjL7cjk=",
+        "owner": "uzairansaruzi",
+        "repo": "hermex-push",
+        "rev": "2da6f660bb86e9470ea56c85dc554aba45ce7fdf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "uzairansaruzi",
+        "repo": "hermex-push",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -332,6 +348,22 @@
       "original": {
         "owner": "nix-community",
         "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "honcho": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792454117,
+        "narHash": "sha256-RKGrl6inZYy96fDupBEmnlI4oeXJ9RfvQlwoi0aWM6Y=",
+        "owner": "plastic-labs",
+        "repo": "honcho",
+        "rev": "ce56c3e8e07f33ffcade58809282de102b36ce56",
+        "type": "github"
+      },
+      "original": {
+        "owner": "plastic-labs",
+        "repo": "honcho",
         "type": "github"
       }
     },
@@ -589,11 +621,11 @@
     "oh-my-hermes": {
       "flake": false,
       "locked": {
-        "lastModified": 1792074033,
-        "narHash": "sha256-9dxYhJZrngLtRZb2/QK4kyFYLSCE9+AiZj0iBUBEVtA=",
+        "lastModified": 1792489412,
+        "narHash": "sha256-gRuwXn4pwkxGqJRau7mR/Hft+B3C/qLLzVSsw6ib6cA=",
         "owner": "rlaope",
         "repo": "oh-my-hermes",
-        "rev": "9016989dbb1f0a89e014485baac3d0d141d3e774",
+        "rev": "decff5555e8054d6b170c5397c64c20839c788f9",
         "type": "github"
       },
       "original": {
@@ -697,7 +729,9 @@
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
+        "hermex-push": "hermex-push",
         "home-manager": "home-manager_2",
+        "honcho": "honcho",
         "i-have-adhd": "i-have-adhd",
         "import-tree": "import-tree",
         "lazyvim": "lazyvim",
