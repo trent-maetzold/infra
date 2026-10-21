@@ -6,8 +6,13 @@
     lib,
     ...
   }: let
-    sections = ["context" "boundaries" "workflow" "style" "commands" "tools"];
-    render = name: rules: lib.optionalString (rules != []) "## ${lib.toSentenceCase name}\n\n${lib.concatLines rules}";
+    sections = ["context" "boundaries" "workflow" "style" "commands" "tools" "coding-agents"];
+    # Agent modules append their own line; sort so the section order is stable.
+    ordered = name: rules:
+      if name == "coding-agents"
+      then lib.sort builtins.lessThan rules
+      else rules;
+    render = name: rules: lib.optionalString (rules != []) "## ${lib.toSentenceCase (lib.replaceStrings ["-"] [" "] name)}\n\n${lib.concatLines (ordered name rules)}";
   in {
     options.agents.md =
       lib.genAttrs sections (_:

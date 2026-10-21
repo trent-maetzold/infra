@@ -2,23 +2,15 @@
   out = {pkgs, ...}: {
     agents.md.tools = [
       "- `agent-browser`: drive a headless browser: `agent-browser open <url>`, then `snapshot`, `click`, `fill`."
-      "- `claude`: Claude Code, Anthropic's agent: `claude`."
-      "- `codex`: OpenAI Codex CLI: `codex`."
-      "- `opencode`: OpenCode, model-agnostic agent: `opencode`."
-      "- `pi`: Pi ACP agent: `pi`."
-      "- `antigravity`: Antigravity CLI, Google's Go agent: `antigravity`."
-      "- `amp`: Sourcegraph Amp: `amp`."
-      "- `goose`: Goose, MCP-native local agent: `goose`."
-      "- `crush`: Charm Crush: `crush`."
-      "- `droid`: Factory Droid: `droid`."
-      "- `qwen`: Qwen Code: `qwen`."
-      "- `kimi`: Kimi Code: `kimi`."
-      "- `cursor-agent`: Cursor CLI: `cursor-agent`."
-      "- `copilot`: GitHub Copilot CLI: `copilot`."
+      "- `bernstein`: govern agent runs, deterministic scheduling, isolated worktrees, signed audit trail: `bernstein`."
+      "- `but`: GitButler CLI, virtual branches and stacked commits: `but`."
       "- `codegraph`: semantic code graph for the repo; `codegraph init` once, auto-syncs. Use `codegraph_explore` over MCP."
+      "- `gnhf`: keep coding agents running unattended: `gnhf`."
       "- `jscpd`: copy/paste detector: `jscpd --threshold 5 .`."
       "- `qmd`: local search over docs and notes: `qmd search <query>`."
       "- `rtk`: prefix noisy commands to compact their output: `rtk git status`, `rtk cargo test`."
+      "- `tuicr`: review an AI-generated diff like a pull request: `tuicr`."
+      "- `ffmpeg`, `jq`, `ungoogled-chromium`: base utilities; `agent-browser` drives the Chromium."
     ];
 
     home.packages = with pkgs;
@@ -28,9 +20,6 @@
         bernstein
         but
         codegraph
-        cursor-agent
-        dsh
-        freebuff
         gnhf
         jscpd
         qmd
