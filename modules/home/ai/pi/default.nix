@@ -77,6 +77,10 @@
         nodejs
       ];
     };
+
+    agents.md.coding-agents = [
+      "- `pi`: Pi, minimal coding agent. Headless: `pi -p \"<prompt>\" --model <model> --thinking <off|minimal|low|medium|high|xhigh|max>`."
+    ];
   };
 in {
   # Features
