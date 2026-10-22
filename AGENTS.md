@@ -23,10 +23,13 @@ secrets. Commands are in README.md.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
   infra identity (names, emails, addresses, hostIds) lives here.
-- `services/<s>.nix`: opinionated; picks the host, imports the modules and
-  declares the routes (`makePrivateRoute`/`makeTailnetRoute`/`makePublicRoute`)
-  of one service. `modules/` features only listen on loopback and export
-  `my.endpoints.<name>`.
+- `services/<s>.nix`: the older shape of a service — host, modules and routes
+  through `my.services`; `caddy`, `dockhand`, `headscale`, `hermes`, `honcho` and
+  `traefik` still use it. Write new ones as in "Exporting a module".
+- A service that reaches the network declares its route at flake scope,
+  `my.routes.<name> = makeTailnetRoute endpoint // {host = "<h>";}`, because
+  traefik and headscale read every host's routes from there. `modules/` features
+  only listen on loopback and export `my.endpoints.<name>`.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user. They import
   profiles, never a single feature, so deleting a feature can't break them
   silently. Push back on requests that break this.
@@ -69,21 +72,29 @@ in {
   # Reusable: the attrs and settings that travel with the module everywhere.
   nixosOut = _: {services.paseo.enable = true;};
 
-  # Concrete: this flake's instance, imported as is by the host that runs it.
-  hosts.paseo.imports = [nixosOut];
+  # Concrete: one instance, imported as is by the host that runs it. Only the
+  # data that differs per instance goes here.
+  hosts.yggdrasil = {
+    imports = [nixosOut];
+    services.paseo.hostnames = ["paseo.example.net"];
+  };
 in {
   # Downstream: `asgard.modules.nixos.paseo`.
   flake.modules.nixos.paseo = nixosOut;
 
-  # Downstream: `asgard.nixosModules.paseo`.
-  flake.nixosModules.paseo.imports = [hosts.paseo];
+  # Downstream: `asgard.nixosModules.yggdrasil`.
+  flake.nixosModules.yggdrasil.imports = [hosts.yggdrasil];
 }
 ```
 
+- The let is the whole organisation system: reusable attrs on top, one concrete
+  attr per user or host below, and the same module exported both ways.
 - `flake.modules.<class>.<name>` is the reusable module, `<class>` being `home`,
   `nixos` or `generic` (loadable in both). `flake.homeModules.<name>` and
-  `flake.nixosModules.<name>` are the concrete ones; profiles, hosts and services
-  import those, so they never name a reusable module.
+  `flake.nixosModules.<name>` are the concrete ones.
+- `nixosConfigurations.<host>` is built from `flake.nixosModules.<host>`
+  (`vars/hosts.nix`), so `flake.nixosModules.<host>.imports = [hosts.<host>]` is
+  the line that makes a service run on a host. Nothing else registers it.
 - `flake.modules` needs `flake-parts.flakeModules.modules` in `flake.nix`'s
   `imports` (already there). It is not loaded into this flake's own eval — the
   let binding is how we use it here, and it is why the two share one definition.

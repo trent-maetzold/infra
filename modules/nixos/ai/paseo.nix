@@ -1,8 +1,24 @@
-# Paseo daemon on loopback (`my.endpoints.paseo`), reached remotely through its
-# relay. Every option the upstream module offers, spelled out at its default,
-# so what can be set is visible here instead of in the flake.
-{paseo, ...}: let
-  # Reusable: the daemon and its settings, for any host.
+# Paseo daemon on loopback, on the tailnet at paseo.<tailnet domain>, and
+# through its hosted relay. Reusable as `asgard.modules.nixos.paseo`, activated
+# as `asgard.nixosModules.yggdrasil`.
+{
+  config,
+  paseo,
+  ...
+}: let
+  inherit (config.flake.lib) makeTailnetRoute routeHostname;
+
+  host = "yggdrasil";
+  name = "paseo";
+
+  endpoint = {
+    host = "127.0.0.1";
+    port = 6767;
+  };
+
+  route = makeTailnetRoute endpoint;
+
+  # Reusable: the daemon and every option at its default.
   nixosOut = _: {
     imports = [paseo.nixosModules.default];
 
@@ -33,21 +49,22 @@
     };
   };
 
-  # Concrete: this flake's paseo, imported as is by the host that runs it.
-  hosts.paseo = {
+  # Concrete: the instance yggdrasil runs.
+  hosts.${host} = {config, ...}: {
     imports = [nixosOut];
-  };
 
-  endpoint = {
-    host = "127.0.0.1";
-    port = 6767;
+    # The daemon's DNS-rebinding guard only answers the hostname traefik serves;
+    # localhost and addresses stay allowed.
+    services.paseo.hostnames = [(routeHostname config.vars name route)];
   };
 in {
   # Downstream: `asgard.modules.nixos.paseo`.
   flake.modules.nixos.paseo = nixosOut;
 
-  # Downstream: `asgard.nixosModules.paseo`.
-  flake.nixosModules.paseo.imports = [hosts.paseo];
+  # Downstream: `asgard.nixosModules.yggdrasil`, the module yggdrasil imports.
+  flake.nixosModules.${host}.imports = [hosts.${host}];
 
-  my.endpoints.paseo = endpoint;
+  # Where the daemon listens, and the route traefik and headscale serve.
+  my.endpoints.${name} = endpoint;
+  my.routes.${name} = route // {inherit host;};
 }

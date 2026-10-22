@@ -20,6 +20,12 @@
     options = {
       kind = lib.mkOption {type = lib.types.enum ["private" "tailnet" "public"];};
       endpoint = lib.mkOption {type = lib.types.submodule endpoint;};
+
+      host = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Host serving the route: added for `my.services`, declared by hand otherwise.";
+      };
     };
   };
 
@@ -73,9 +79,9 @@ in {
       };
 
       routes = lib.mkOption {
-        type = lib.types.lazyAttrsOf lib.types.raw;
-        readOnly = true;
-        description = "Every service's routes by name, with the `host` serving each.";
+        type = lib.types.lazyAttrsOf (lib.types.submodule route);
+        default = {};
+        description = "How each service is reached, `<name>`, made with `makePrivateRoute`, `makeTailnetRoute` and `makePublicRoute`; `my.services` adds theirs.";
       };
     };
 
@@ -92,5 +98,13 @@ in {
     };
   };
 
-  config.my.routes = lib.concatMapAttrs (_: service: lib.mapAttrs (_: route: route // {inherit (service) host;}) service.routes) config.my.services;
+  config.my.routes = lib.concatMapAttrs (_: service:
+    lib.mapAttrs (_: route:
+      route
+      // {
+        inherit (service) host;
+        endpoint = lib.removeAttrs route.endpoint ["url"];
+      })
+    service.routes)
+  config.my.services;
 }
