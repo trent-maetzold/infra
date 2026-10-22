@@ -44,14 +44,13 @@ in {
             aiPeer = "hermes";
             peerName = peer;
             workspace = "hermes";
+            # Everything the user says lands on one peer, whatever surface it came through.
+            pinUserPeer = true;
           };
         };
 
         # extraPlugins link as nix-managed-<name>, and providers are found by directory.
-        settings.memory = {
-          provider = "nix-managed-honcho";
-          write_approval = true;
-        };
+        settings.memory.provider = "nix-managed-honcho";
       };
     })
   ];

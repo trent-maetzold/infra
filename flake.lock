@@ -96,22 +96,6 @@
         "type": "github"
       }
     },
-    "conduit-push": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1792622479,
-        "narHash": "sha256-FNhaxNoKHK29snhXAGsjhIGGiJt1VHDn801Qm8YF114=",
-        "owner": "kaishi00",
-        "repo": "hermes-conduit-notifier",
-        "rev": "dae093b87632d7783670d1a16f7f1d913e52848c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kaishi00",
-        "repo": "hermes-conduit-notifier",
-        "type": "github"
-      }
-    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -289,6 +273,23 @@
       "original": {
         "owner": "NousResearch",
         "repo": "hermes-agent",
+        "type": "github"
+      }
+    },
+    "hermes-official-plugins": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791692792,
+        "narHash": "sha256-XgZgzhjT6TpnZy7zNExNbX4GNugXh4Z+NEEQ7/BqjoY=",
+        "owner": "NousResearch",
+        "repo": "hermes-official-plugins",
+        "rev": "abec9e822a23089943dd1d476a104bf746f19f86",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NousResearch",
+        "repo": "hermes-official-plugins",
+        "rev": "abec9e822a23089943dd1d476a104bf746f19f86",
         "type": "github"
       }
     },
@@ -740,11 +741,11 @@
         "NixVirt": "NixVirt",
         "agent-skills": "agent-skills",
         "colmena": "colmena",
-        "conduit-push": "conduit-push",
         "disko": "disko",
         "disko-zfs": "disko-zfs",
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
+        "hermes-official-plugins": "hermes-official-plugins",
         "hermes-webui": "hermes-webui",
         "hermex-push": "hermex-push",
         "home-manager": "home-manager_2",

@@ -122,8 +122,8 @@
     hermes-agent.url = "github:NousResearch/hermes-agent";
     hermes-webui.url = "github:nesquena/hermes-webui";
 
-    conduit-push = {
-      url = "github:kaishi00/hermes-conduit-notifier";
+    hermes-official-plugins = {
+      url = "github:NousResearch/hermes-official-plugins/abec9e822a23089943dd1d476a104bf746f19f86";
       flake = false;
     };
 
