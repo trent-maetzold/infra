@@ -29,6 +29,10 @@
       imports = imports ++ map (u: u.nixosModule) users ++ lib.concatMap (service: lib.optionals (service.host == name) service.modules) (lib.attrValues config.my.services);
 
       config = lib.mkMerge [
+        # `my` is this flake's handoff to the host: a host module takes it as an
+        # argument instead of closing over the flake's config.
+        {_module.args.my = config.my;}
+
         {
           nixpkgs.hostPlatform = system;
           networking.hostName = name;

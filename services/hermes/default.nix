@@ -9,7 +9,9 @@
 
   user = config.vars.users.tm.name;
 
-  dashboard = "https://${config.flake.lib.routeHostname vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
+  dashboardRoute = config.flake.lib.makeTailnetRoute config.my.endpoints.hermes-dashboard;
+
+  dashboard = "https://${config.flake.lib.routeHostname vars "dash.hermes" dashboardRoute}";
 
   # `config` below is the host's; the flake's is read here, before the shadowing.
   nixos = {config, ...}: {

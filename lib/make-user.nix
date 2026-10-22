@@ -7,7 +7,9 @@
   lib,
   nixpkgs,
   ...
-}: {
+}: let
+  inherit (config) my;
+in {
   flake.lib.makeUser = {
     name,
     imports ? [],
@@ -19,6 +21,9 @@
     hosts ? {},
   }: let
     homeModule = {config, ...}: {
+      # The same handoff as a host: a user module takes `my` as an argument.
+      _module.args.my = my;
+
       inherit imports;
 
       home.username = name;

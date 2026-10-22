@@ -1,12 +1,12 @@
 # Heimdall's tailnet control plane; names every tailnet route after the host serving it.
 {config, ...}: let
-  inherit (config) my;
   inherit (config.flake.lib) routeHostname;
   inherit (config.vars) hosts;
 
   nixos = {
     config,
     lib,
+    my,
     ...
   }: let
     inherit (config) vars;

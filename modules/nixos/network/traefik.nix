@@ -2,12 +2,12 @@
 # routes under the tailnet domain and only to the tailnet, public ones under the
 # domain.
 {config, ...}: let
-  inherit (config) my;
   inherit (config.flake.lib) routeHostname;
 
   nixos = {
     config,
     lib,
+    my,
     pkgs,
     quadlet-nix,
     ...
