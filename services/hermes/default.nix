@@ -1,5 +1,5 @@
 # Hermes on yggdrasil; its web UI, dashboard and gateway API are reached over the
-# tailnet. Plugins live in plugins/, each adding itself to `modules`.
+# tailnet. Plugins live in plugins/, each setting `extraPlugins` itself.
 {
   config,
   i-have-adhd,
@@ -7,9 +7,12 @@
 }: let
   vars = config.vars.global.vars;
 
+  user = config.vars.users.tm.name;
+
   dashboard = "https://${config.flake.lib.routeHostname vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
 
-  nixos = {
+  # `config` below is the host's; the flake's is read here, before the shadowing.
+  nixos = {config, ...}: {
     services.hermes-agent = {
       environment.API_SERVER_ENABLED = "true";
 
@@ -29,7 +32,7 @@
         checkpoints.enabled = true;
 
         dashboard = {
-          basic_auth.username = config.vars.users.tm.name;
+          basic_auth.username = user;
           public_url = dashboard;
         };
 
@@ -37,6 +40,10 @@
         webui.dashboard.url = dashboard;
 
         privacy.redact_pii = true;
+
+        # settings merges with recursiveUpdate, so a list has one author: this one,
+        # naming every plugin the modules linked.
+        plugins.enabled = map (plugin: plugin.name) config.services.hermes-agent.extraPlugins;
 
         skills = {
           disabled = ["opencode"];
