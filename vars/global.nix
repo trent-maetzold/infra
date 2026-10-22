@@ -12,9 +12,6 @@
         domain = "ts.trkm.io";
         subnet = "100.64.0.0/10";
       };
-
-      # Runner MicroVMs beside the forge; see services/forgejo.nix.
-      forgejo.runners = 3;
     };
   };
 }
