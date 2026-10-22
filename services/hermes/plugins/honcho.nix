@@ -1,0 +1,58 @@
+# Honcho memory: the provider plugin, the client it imports, and the endpoint
+# services/honcho.nix serves on loopback.
+{
+  config,
+  honcho,
+  ...
+}: let
+  baseUrl = config.my.endpoints.honcho.url;
+  peer = config.vars.users.tm.name;
+in {
+  my.services.hermes.modules = [
+    ({pkgs, ...} @ nixos: {
+      # `memory.provider` reads it by directory, so it is linked but not loaded
+      # as a plugin of its own.
+      my.hermes.plugins.honcho = {
+        src = "${honcho}/hermes-plugin-honcho";
+        enable = false;
+      };
+
+      services.hermes-agent = {
+        # Its httpx/pydantic come from Hermes' sealed venv
+        extraPythonPackages = [
+          (nixos.config.services.hermes-agent.package.python.pkgs.buildPythonPackage rec {
+            pname = "honcho_ai";
+            version = "2.6.0";
+            format = "wheel";
+
+            src = pkgs.fetchPypi {
+              inherit pname version format;
+              dist = "py3";
+              python = "py3";
+              hash = "sha256-gZzdV3Xsrmn2F7FNYMPqPGrJQEs4IfpQy/C2gaoig88=";
+            };
+
+            dontCheckRuntimeDeps = true;
+          })
+        ];
+
+        hermesHomeFiles."honcho.json" = builtins.toJSON {
+          inherit baseUrl;
+
+          hosts.hermes = {
+            enabled = true;
+            aiPeer = "hermes";
+            peerName = peer;
+            workspace = "hermes";
+          };
+        };
+
+        # extraPlugins link as nix-managed-<name>, and providers are found by directory.
+        settings.memory = {
+          provider = "nix-managed-honcho";
+          write_approval = true;
+        };
+      };
+    })
+  ];
+}

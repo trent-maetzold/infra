@@ -96,6 +96,22 @@
         "type": "github"
       }
     },
+    "conduit-push": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792622479,
+        "narHash": "sha256-FNhaxNoKHK29snhXAGsjhIGGiJt1VHDn801Qm8YF114=",
+        "owner": "kaishi00",
+        "repo": "hermes-conduit-notifier",
+        "rev": "dae093b87632d7783670d1a16f7f1d913e52848c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kaishi00",
+        "repo": "hermes-conduit-notifier",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -724,6 +740,7 @@
         "NixVirt": "NixVirt",
         "agent-skills": "agent-skills",
         "colmena": "colmena",
+        "conduit-push": "conduit-push",
         "disko": "disko",
         "disko-zfs": "disko-zfs",
         "flake-parts": "flake-parts_2",
