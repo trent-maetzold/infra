@@ -32,6 +32,7 @@
         privacy.redact_pii = true;
 
         skills = {
+          disabled = ["opencode"];
           guard_agent_created = true;
           write_approval = true;
         };
