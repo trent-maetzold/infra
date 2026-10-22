@@ -127,11 +127,6 @@
       flake = false;
     };
 
-    mnemosyne = {
-      url = "github:mnemosyne-oss/mnemosyne/d73848735a2a48471a62d2c8fb96cd7183c97491";
-      flake = false;
-    };
-
     hermex-push = {
       url = "github:uzairansaruzi/hermex-push";
       flake = false;

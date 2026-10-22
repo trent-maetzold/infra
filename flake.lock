@@ -458,23 +458,6 @@
         "type": "github"
       }
     },
-    "mnemosyne": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1790205943,
-        "narHash": "sha256-gdPJtziCgnOOEpBsL2MjsTFQ8pukTjvGeDW1CXCg0eU=",
-        "owner": "mnemosyne-oss",
-        "repo": "mnemosyne",
-        "rev": "d73848735a2a48471a62d2c8fb96cd7183c97491",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mnemosyne-oss",
-        "repo": "mnemosyne",
-        "rev": "d73848735a2a48471a62d2c8fb96cd7183c97491",
-        "type": "github"
-      }
-    },
     "nix-github-actions": {
       "inputs": {
         "nixpkgs": [
@@ -771,7 +754,6 @@
         "import-tree": "import-tree",
         "lazyvim": "lazyvim",
         "llm-agents": "llm-agents",
-        "mnemosyne": "mnemosyne",
         "nix-index-database": "nix-index-database",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_4",
