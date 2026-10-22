@@ -1,6 +1,10 @@
 # Hermes on yggdrasil; its web UI, dashboard and gateway API are reached over the
 # tailnet. Plugins live in plugins/, each adding itself to `modules`.
-{config, ...}: let
+{
+  config,
+  i-have-adhd,
+  ...
+}: let
   vars = config.vars.global.vars;
 
   dashboard = "https://${config.flake.lib.routeHostname vars "dash.hermes" config.my.services.hermes.routes."dash.hermes"}";
@@ -8,6 +12,9 @@
   nixos = {
     services.hermes-agent = {
       environment.API_SERVER_ENABLED = "true";
+
+      # SOUL.md sets the voice; this is the skill that sets the shape.
+      hermesHomeFiles."skills/productivity/i-have-adhd/SKILL.md" = "${i-have-adhd}/skills/i-have-adhd/SKILL.md";
 
       environmentFiles = map (f: "/var/lib/secrets/${f}") [
         "codeberg-env"

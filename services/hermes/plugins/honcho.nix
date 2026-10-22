@@ -10,12 +10,9 @@
 in {
   my.services.hermes.modules = [
     ({pkgs, ...} @ nixos: {
-      # `memory.provider` reads it by directory, so it is linked but not loaded
-      # as a plugin of its own.
-      my.hermes.plugins.honcho = {
-        src = "${honcho}/hermes-plugin-honcho";
-        enable = false;
-      };
+      # A memory provider, so `memory.provider` activates it by directory; it is
+      # also a plugin, and only an enabled plugin's own hooks run.
+      my.hermes.plugins.honcho.src = "${honcho}/hermes-plugin-honcho";
 
       services.hermes-agent = {
         # Its httpx/pydantic come from Hermes' sealed venv

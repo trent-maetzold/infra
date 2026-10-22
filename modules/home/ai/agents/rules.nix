@@ -50,7 +50,10 @@ in {
     imports = [md];
 
     agents.md = {
-      context = ["- I over-explain. Distill my requests to the facts; answer the same way."];
+      context = [
+        "- I over-explain. Distill my requests to the facts; answer the same way."
+        "- SOUL.md holds the voice; the `i-have-adhd` skill holds the shape: the next action first, numbered steps, state carried across turns."
+      ];
       boundaries = ["- **ALWAYS** read documentation. Context7 and DeepWiki MCPs are available."];
 
       coding-subagents = [
