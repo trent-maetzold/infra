@@ -5,11 +5,11 @@
   honcho,
   ...
 }: let
-  baseUrl = config.my.endpoints.honcho.url;
   peer = config.vars.users.tm.name;
 
   out = {
     config,
+    my,
     pkgs,
     ...
   }: let
@@ -39,7 +39,7 @@
       ];
 
       hermesHomeFiles."honcho.json" = builtins.toJSON {
-        inherit baseUrl;
+        baseUrl = my.endpoints.honcho.url;
 
         hosts.hermes = {
           enabled = true;
