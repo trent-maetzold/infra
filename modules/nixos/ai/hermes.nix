@@ -30,33 +30,31 @@
   in {
     imports = [hermes-agent.nixosModules.default hermes-webui.nixosModules.default];
 
-    config = {
-      services = {
-        hermes-agent = {
-          enable = true;
-          addToSystemPackages = true;
-          # Upstream builds report 0.0.0, failing plugins' `requires_hermes`; bump with the input.
-          package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default.override {version = "0.22.2";};
+    services = {
+      hermes-agent = {
+        enable = true;
+        addToSystemPackages = true;
+        # Upstream builds report 0.0.0, failing plugins' `requires_hermes`; bump with the input.
+        package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default.override {version = "0.22.2";};
 
-          backend = {
-            mode = "dashboard";
-            inherit (dashboard) host port;
-          };
-
-          environment = {
-            API_SERVER_HOST = gateway.host;
-            API_SERVER_PORT = toString gateway.port;
-          };
+        backend = {
+          mode = "dashboard";
+          inherit (dashboard) host port;
         };
 
-        hermes-webui = {
-          enable = true;
-          inherit (endpoint) host port;
-          inherit (cfg) user group;
-          hermesHome = "${cfg.stateDir}/.hermes";
-          stateDir = "${cfg.stateDir}/.hermes-webui";
-          agent.package = cfg.package;
+        environment = {
+          API_SERVER_HOST = gateway.host;
+          API_SERVER_PORT = toString gateway.port;
         };
+      };
+
+      hermes-webui = {
+        enable = true;
+        inherit (endpoint) host port;
+        inherit (cfg) user group;
+        hermesHome = "${cfg.stateDir}/.hermes";
+        stateDir = "${cfg.stateDir}/.hermes-webui";
+        agent.package = cfg.package;
       };
     };
   };
