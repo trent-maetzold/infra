@@ -2,7 +2,7 @@
   out = {pkgs, ...}: {
     home.packages = [pkgs.llm-agents.cursor-agent];
 
-    agents.md.coding-agents = [
+    agents.md.coding-subagents = [
       "- `cursor-cli`: Cursor CLI, command `cursor-agent`. Headless: `cursor-agent -p --model <model[:variant]> \"<prompt>\"`; effort is the model variant slug (e.g. `gpt-5-high`)."
     ];
   };

@@ -78,7 +78,7 @@
       ];
     };
 
-    agents.md.coding-agents = [
+    agents.md.coding-subagents = [
       "- `pi`: Pi, minimal coding agent. Headless: `pi -p \"<prompt>\" --model <model> --thinking <off|minimal|low|medium|high|xhigh|max>`."
     ];
   };

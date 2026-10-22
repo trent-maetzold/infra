@@ -14,7 +14,7 @@
       mutableSettings = true;
     };
 
-    agents.md.coding-agents = [
+    agents.md.coding-subagents = [
       "- `codex`: OpenAI Codex CLI. Headless: `codex exec -m <model> -c model_reasoning_effort=\"<low|medium|high|xhigh|max>\" \"<prompt>\"`."
     ];
   };

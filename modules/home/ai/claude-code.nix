@@ -20,7 +20,7 @@
       };
     };
 
-    agents.md.coding-agents = [
+    agents.md.coding-subagents = [
       "- `claude`: Claude Code. Headless: `claude -p \"<prompt>\" --model <model> --effort <low|medium|high|xhigh|max|ultracode>`."
     ];
   };

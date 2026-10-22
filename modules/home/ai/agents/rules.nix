@@ -6,13 +6,20 @@
     lib,
     ...
   }: let
-    sections = ["context" "boundaries" "workflow" "style" "commands" "tools" "coding-agents"];
+    sections = ["context" "boundaries" "workflow" "style" "commands" "tools" "coding-subagents"];
+
+    # Headings that aren't just the section name in sentence case.
+    titles = {coding-subagents = "Coding Subagents";};
+
     # Agent modules append their own line; sort so the section order is stable.
     ordered = name: rules:
-      if name == "coding-agents"
+      if name == "coding-subagents"
       then lib.sort builtins.lessThan rules
       else rules;
-    render = name: rules: lib.optionalString (rules != []) "## ${lib.toSentenceCase (lib.replaceStrings ["-"] [" "] name)}\n\n${lib.concatLines (ordered name rules)}";
+
+    title = name: titles.${name} or (lib.toSentenceCase (lib.replaceStrings ["-"] [" "] name));
+
+    render = name: rules: lib.optionalString (rules != []) "## ${title name}\n\n${lib.concatLines (ordered name rules)}";
   in {
     options.agents.md =
       lib.genAttrs sections (_:
@@ -45,6 +52,10 @@ in {
     agents.md = {
       context = ["- I over-explain. Distill my requests to the facts; answer the same way."];
       boundaries = ["- **ALWAYS** read documentation. Context7 and DeepWiki MCPs are available."];
+
+      coding-subagents = [
+        "- `omh`: Oh My Hermes, the in-session workflow layer — plans, handoffs and evidence-bound status through the `omh_*` tools."
+      ];
 
       workflow = [
         ''
