@@ -61,6 +61,37 @@ in {
 - Shared package lists: `shared/packages/<name>.nix`, joined to a profile.
 - Read consumer values from module-level `config.vars`. Never take a `user`
   specialArg, host identity or secrets.
+
+## Exporting a module
+
+```nix
+{paseo, ...}: let
+  # Reusable: the attrs and settings that travel with the module everywhere.
+  nixosOut = _: {services.paseo.enable = true;};
+
+  # Concrete: this flake's instance, imported as is by the host that runs it.
+  hosts.paseo.imports = [nixosOut];
+in {
+  # Downstream: `asgard.modules.nixos.paseo`.
+  flake.modules.nixos.paseo = nixosOut;
+
+  # Downstream: `asgard.nixosModules.paseo`.
+  flake.nixosModules.paseo.imports = [hosts.paseo];
+}
+```
+
+- `flake.modules.<class>.<name>` is the reusable module, `<class>` being `home`,
+  `nixos` or `generic` (loadable in both). `flake.homeModules.<name>` and
+  `flake.nixosModules.<name>` are the concrete ones; profiles, hosts and services
+  import those, so they never name a reusable module.
+- `flake.modules` needs `flake-parts.flakeModules.modules` in `flake.nix`'s
+  `imports` (already there). It is not loaded into this flake's own eval — the
+  let binding is how we use it here, and it is why the two share one definition.
+- A leaf is a deferredModule: `{}`, `{...}: {...}` and a path all work, and the
+  class is enforced when a consumer imports it (`nixos` into home-manager errors;
+  `generic` is the escape hatch).
+- Features stay the internal registry profiles wire; `flake.modules` is what
+  downstream flakes import.
 - stateVersion is set once, via `makeStateVersion` in `vars/global.nix`.
 
 Domains: home `base editor lang vcs ai containers`; NixOS `base hardware network

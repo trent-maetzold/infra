@@ -13,7 +13,7 @@
 in {
   my.services.paseo = {
     host = "yggdrasil";
-    modules = [config.features.nixos.ai.paseo hostnames];
+    modules = [config.flake.nixosModules.paseo hostnames];
     routes.${name} = route;
   };
 }

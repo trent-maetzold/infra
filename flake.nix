@@ -13,6 +13,7 @@
       specialArgs = inputs;
     } ({config, ...}: {
       imports = [
+        flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
         (import-tree [./apps ./lib ./modules ./options ./packages ./services ./vars])
       ];

@@ -2,12 +2,8 @@
 # relay. Every option the upstream module offers, spelled out at its default,
 # so what can be set is visible here instead of in the flake.
 {paseo, ...}: let
-  endpoint = {
-    host = "127.0.0.1";
-    port = 6767;
-  };
-
-  nixos = _: {
+  # Reusable: the daemon and its settings, for any host.
+  nixosOut = _: {
     imports = [paseo.nixosModules.default];
 
     services.paseo = {
@@ -36,9 +32,22 @@
       settings = {};
     };
   };
+
+  # Concrete: this flake's paseo, imported as is by the host that runs it.
+  hosts.paseo = {
+    imports = [nixosOut];
+  };
+
+  endpoint = {
+    host = "127.0.0.1";
+    port = 6767;
+  };
 in {
-  # Features
-  features.nixos.ai.paseo = nixos;
+  # Downstream: `asgard.modules.nixos.paseo`.
+  flake.modules.nixos.paseo = nixosOut;
+
+  # Downstream: `asgard.nixosModules.paseo`.
+  flake.nixosModules.paseo.imports = [hosts.paseo];
 
   my.endpoints.paseo = endpoint;
 }
