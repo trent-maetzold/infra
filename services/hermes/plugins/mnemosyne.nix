@@ -7,6 +7,10 @@
 # package fails the build outright. So each package is shipped flat — no
 # declared dependencies, no build-time import or test checks — and its imports
 # resolve from this same PYTHONPATH or from the venv underneath it.
+#
+# The plugin source and its Python deps are both declared because this is a
+# catalog provider rather than a pyproject extra: extraPlugins carries the
+# tree, extraPythonPackages carries the code it imports.
 {
   config,
   mnemosyne,
