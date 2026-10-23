@@ -3,29 +3,25 @@
 # as `asgard.nixosModules.yggdrasil`.
 {
   config,
+  lib,
   paseo,
   ...
 }: let
-  inherit (config.flake.lib) makeTailnetRoute routeHostname;
-
-  host = "yggdrasil";
-  name = "paseo";
-
-  endpoint = {
-    host = "127.0.0.1";
-    port = 6767;
+  route = {
+    hostname = "paseo.ts.trkm.io";
+    endpoint = {
+      ip = config.hosts.yggdrasil.ips.tailnet;
+      port = 6767;
+    };
   };
 
-  route = makeTailnetRoute endpoint;
-
-  # Reusable: the daemon and every option at its default.
-  nixosOut = _: {
+  modules.nixos = _: {
     imports = [paseo.nixosModules.default];
 
     services.paseo = {
       enable = true;
-      listenAddress = endpoint.host;
-      inherit (endpoint) port;
+      listenAddress = lib.mkDefault "127.0.0.1";
+      inherit (route) port;
 
       user = "paseo";
       group = "paseo";
@@ -44,27 +40,21 @@
 
       inheritUserEnvironment = false;
       environment = {};
-      # `$PASEO_HOME/config.json`
       settings = {};
     };
   };
 
-  # Concrete: the instance yggdrasil runs.
-  hosts.${host} = {config, ...}: {
-    imports = [nixosOut];
+  hosts.yggdrasil = {
+    imports = [modules.nixos];
 
-    # The daemon's DNS-rebinding guard only answers the hostname traefik serves;
-    # localhost and addresses stay allowed.
-    services.paseo.hostnames = [(routeHostname config.vars name route)];
+    services.paseo = {
+      hostnames = [route.hostname];
+      listenAddress = route.endpoint.ip;
+      inherit (route.endpoint) port;
+    };
   };
 in {
-  # Downstream: `asgard.modules.nixos.paseo`.
-  flake.modules.nixos.paseo = nixosOut;
-
-  # Downstream: `asgard.nixosModules.yggdrasil`, the module yggdrasil imports.
-  flake.nixosModules.${host}.imports = [hosts.${host}];
-
-  # Where the daemon listens, and the route traefik and headscale serve.
-  my.endpoints.${name} = endpoint;
-  my.routes.${name} = route // {inherit host;};
+  flake.modules.nixos.paseo = modules.nixos;
+  flake.nixosModules.yggdrasil.imports = [hosts.yggdrasil];
+  routes.paseo = route;
 }
