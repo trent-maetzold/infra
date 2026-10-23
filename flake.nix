@@ -13,6 +13,7 @@
       specialArgs = inputs;
     } ({config, ...}: {
       imports = [
+        flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
         (import-tree [./apps ./lib ./modules ./options ./packages ./services ./vars])
       ];
@@ -135,6 +136,11 @@
     oh-my-hermes = {
       url = "github:rlaope/oh-my-hermes";
       flake = false;
+    };
+
+    paseo = {
+      url = "github:getpaseo/paseo";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     i-have-adhd = {

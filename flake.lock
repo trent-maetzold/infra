@@ -634,6 +634,26 @@
         "type": "github"
       }
     },
+    "paseo": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792674567,
+        "narHash": "sha256-R7nl0xxNF6wNg3xqkuGcgbukL+nKbRoXeyMoX/bhEwc=",
+        "owner": "getpaseo",
+        "repo": "paseo",
+        "rev": "d972f67c3fea06fbc163608f5ddcc2c443de83ac",
+        "type": "github"
+      },
+      "original": {
+        "owner": "getpaseo",
+        "repo": "paseo",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -740,6 +760,7 @@
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_4",
         "oh-my-hermes": "oh-my-hermes",
+        "paseo": "paseo",
         "pyproject-nix": "pyproject-nix_2",
         "quadlet-nix": "quadlet-nix"
       }
