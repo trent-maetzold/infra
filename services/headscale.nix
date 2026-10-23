@@ -50,7 +50,19 @@
       };
 
       traefik.dynamicConfigOptions.http = {
+        # Clients never ask for /, which headscale answers with an empty page.
+        middlewares.headplane.redirectRegex = {
+          regex = ".*";
+          replacement = "${vars.tailnet.loginServer}/admin";
+        };
+
         routers = {
+          root = {
+            rule = "Host(`${loginHost}`) && Path(`/`)";
+            service = "noop@internal";
+            middlewares = ["headplane"];
+          };
+
           headplane = {
             rule = "Host(`${loginHost}`) && PathPrefix(`/admin`)";
             service = "headplane";
