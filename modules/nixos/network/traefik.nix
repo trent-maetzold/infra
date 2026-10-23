@@ -4,6 +4,13 @@
   inherit (config) my;
   inherit (config.flake.lib) routeHostname;
 
+  # `api.insecure` serves the dashboard here, on loopback; it is routed like any
+  # service.
+  endpoint = {
+    host = "127.0.0.1";
+    port = 8081;
+  };
+
   nixos = {
     config,
     lib,
@@ -22,7 +29,7 @@
 
       staticConfigOptions = {
         api = {
-          dashboard = true;
+          insecure = true;
           disableDashboardAd = true;
         };
 
@@ -34,6 +41,8 @@
             address = ":80";
             http.redirections.entryPoint.to = "websecure";
           };
+
+          traefik.address = "${endpoint.host}:${toString endpoint.port}";
 
           websecure = {
             address = ":443";
@@ -63,14 +72,7 @@
             service = name;
             middlewares = lib.optional (route.kind == "tailnet") "tailnet";
           })
-          routes
-          // {
-            api = {
-              rule = "Host(`traefik.${vars.domain}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
-              service = "api@internal";
-              middlewares = ["tailnet"];
-            };
-          };
+          routes;
 
         services = lib.mapAttrs (_: route: {loadBalancer.servers = [{inherit (route.endpoint) url;}];}) routes;
       };
@@ -79,4 +81,6 @@
 in {
   # Features
   features.nixos.network.traefik = nixos;
+
+  my.endpoints.traefik = endpoint;
 }
