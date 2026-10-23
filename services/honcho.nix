@@ -70,6 +70,7 @@ in {
 
     modules = [
       config.features.nixos.ai.honcho
+      config.features.nixos.containers.quadlet
       # Volumes, not the image store.
       {persist.dirs."/var/lib/containers/storage/volumes".snapshots = true;}
       {virtualisation.quadlet.containers = lib.genAttrs ["honcho-api" "honcho-deriver"] (_: {containerConfig = honcho;});}
