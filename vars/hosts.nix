@@ -14,6 +14,7 @@ in {
       name = "heimdall";
       system = "aarch64-linux";
       address = "heimdall.ts.trkm.io";
+      tailnetIp = "100.64.0.6";
       imports = [global nixosModules.default nixosModules.qemu-guest nixosModules.tailnet ../hosts/heimdall];
       users = [users.tm-server];
       inherit specialArgs;
@@ -27,8 +28,8 @@ in {
           cf-dns-api-token = {
             secret = "${secrets}/cf-dns-api-token.age";
             destDir = "/var/lib/secrets";
-            user = "caddy";
-            group = "caddy";
+            user = "traefik";
+            group = "traefik";
           };
 
           headplane-cookie-secret = {
@@ -76,11 +77,6 @@ in {
         targetUser = "tm";
 
         keys = {
-          cf-dns-api-token = {
-            secret = "${secrets}/cf-dns-api-token.age";
-            destDir = "/var/lib/secrets";
-          };
-
           codeberg-env = {
             secret = "${secrets}/hermes-codeberg-token.age";
             destDir = "/var/lib/secrets";
@@ -91,11 +87,6 @@ in {
             secret = "${secrets}/deepseek-api-key.age";
             destDir = "/var/lib/secrets";
             env = "DEEPSEEK_API_KEY";
-          };
-
-          dockhand-env = {
-            secret = "${secrets}/dockhand.env.age";
-            destDir = "/var/lib/secrets";
           };
 
           hermes-api-server-env = {

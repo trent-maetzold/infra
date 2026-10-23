@@ -1,12 +1,15 @@
 # Hermes on yggdrasil with Honcho memory; its web UI, dashboard and gateway API
-# are reached over the tailnet.
+# listen on its tailnet IP for the router.
 {
   config,
+  lib,
   hermex-push,
   honcho,
   oh-my-hermes,
   ...
 }: {
+  my.endpoints = lib.genAttrs ["hermes-dashboard" "hermes-gateway" "hermes-webui"] (_: {host = config.vars.hosts.yggdrasil.tailnetIp;});
+
   my.services.hermes = {
     host = "yggdrasil";
 
