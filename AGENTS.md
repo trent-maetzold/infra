@@ -64,7 +64,7 @@ in {
 - stateVersion is set once, via `makeStateVersion` in `vars/global.nix`.
 
 Domains: home `base editor lang vcs ai containers`; NixOS `base hardware network
-platform ai`. `base` is imported everywhere; `core` is a domain's leftovers.
+platform ai containers`. `base` is imported everywhere; `core` is a domain's leftovers.
 
 ## Style
 
