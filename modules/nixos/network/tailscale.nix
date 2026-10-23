@@ -1,5 +1,7 @@
 {config, ...}: let
   out = {config, ...}: {
+    networking.firewall.trustedInterfaces = ["tailscale0"];
+
     services.tailscale = {
       enable = true;
       authKeyFile = "/run/keys/ts-authkey";

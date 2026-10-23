@@ -2,24 +2,13 @@
 # (`my.endpoints.hermes-webui`) shares its HERMES_HOME. The gateway's API server,
 # when enabled, binds `my.endpoints.hermes-gateway`.
 {
+  config,
+  lib,
   hermes-agent,
   hermes-webui,
   ...
 }: let
-  endpoint = {
-    host = "127.0.0.1";
-    port = 8787;
-  };
-
-  gateway = {
-    host = "127.0.0.1";
-    port = 8642;
-  };
-
-  dashboard = {
-    host = "127.0.0.1";
-    port = 9119;
-  };
+  inherit (config) my;
 
   nixos = {
     config,
@@ -39,18 +28,18 @@
 
         backend = {
           mode = "dashboard";
-          inherit (dashboard) host port;
+          inherit (my.endpoints.hermes-dashboard) host port;
         };
 
         environment = {
-          API_SERVER_HOST = gateway.host;
-          API_SERVER_PORT = toString gateway.port;
+          API_SERVER_HOST = my.endpoints.hermes-gateway.host;
+          API_SERVER_PORT = toString my.endpoints.hermes-gateway.port;
         };
       };
 
       hermes-webui = {
         enable = true;
-        inherit (endpoint) host port;
+        inherit (my.endpoints.hermes-webui) host port;
         inherit (cfg) user group;
         hermesHome = "${cfg.stateDir}/.hermes";
         stateDir = "${cfg.stateDir}/.hermes-webui";
@@ -62,9 +51,13 @@ in {
   # Features
   features.nixos.ai.hermes = nixos;
 
-  my.endpoints = {
-    hermes-dashboard = dashboard;
-    hermes-gateway = gateway;
-    hermes-webui = endpoint;
-  };
+  my.endpoints =
+    lib.mapAttrs (_: port: {
+      host = lib.mkDefault "127.0.0.1";
+      inherit port;
+    }) {
+      hermes-dashboard = 9119;
+      hermes-gateway = 8642;
+      hermes-webui = 8787;
+    };
 }

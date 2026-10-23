@@ -1,4 +1,4 @@
-# Heimdall's tailnet control plane; names every tailnet route after the host serving it.
+# Heimdall's tailnet control plane; points every tailnet route at the router.
 {config, ...}: let
   inherit (config) my;
   inherit (config.flake.lib) routeHostname;
@@ -29,7 +29,7 @@
               lib.mapAttrsToList (name: route: {
                 name = routeHostname vars name route;
                 type = "A";
-                value = hosts.${route.host}.tailnetIp;
+                value = hosts.${my.services.traefik.host}.tailnetIp;
               })
               tailnetRoutes;
           };
@@ -49,14 +49,24 @@
         };
       };
 
-      caddy.virtualHosts.${loginHost}.extraConfig = ''
-        handle /admin* {
-          reverse_proxy 127.0.0.1:${toString config.services.headplane.settings.server.port}
-        }
-        handle {
-          reverse_proxy 127.0.0.1:${toString config.services.headscale.port}
-        }
-      '';
+      traefik.dynamicConfigOptions.http = {
+        routers = {
+          headplane = {
+            rule = "Host(`${loginHost}`) && PathPrefix(`/admin`)";
+            service = "headplane";
+          };
+
+          headscale = {
+            rule = "Host(`${loginHost}`)";
+            service = "headscale";
+          };
+        };
+
+        services = {
+          headplane.loadBalancer.servers = [{url = "http://127.0.0.1:${toString config.services.headplane.settings.server.port}";}];
+          headscale.loadBalancer.servers = [{url = "http://127.0.0.1:${toString config.services.headscale.port}";}];
+        };
+      };
     };
   };
 in {
