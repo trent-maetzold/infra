@@ -1,7 +1,6 @@
 {
   config,
   inputs,
-  nixpkgs,
   ...
 }: let
   inherit (config.flake) nixosModules;
@@ -135,13 +134,16 @@ in {
   };
 
   flake = {
-    nixosModules = nixpkgs.lib.mapAttrs (_: host: host.nixosModule) config.vars.hosts;
+    nixosConfigurations = {
+      heimdall = config.vars.hosts.heimdall.nixosConfiguration;
+      muninn = config.vars.hosts.muninn.nixosConfiguration;
+      yggdrasil = config.vars.hosts.yggdrasil.nixosConfiguration;
+    };
 
-    nixosConfigurations = nixpkgs.lib.mapAttrs (name: host:
-      nixpkgs.lib.nixosSystem {
-        inherit (host) specialArgs;
-        modules = [config.flake.nixosModules.${name}];
-      })
-    config.vars.hosts;
+    nixosModules = {
+      heimdall = config.vars.hosts.heimdall.nixosModule;
+      muninn = config.vars.hosts.muninn.nixosModule;
+      yggdrasil = config.vars.hosts.yggdrasil.nixosModule;
+    };
   };
 }

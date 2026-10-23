@@ -21,7 +21,7 @@
     services.paseo = {
       enable = true;
       listenAddress = lib.mkDefault "127.0.0.1";
-      inherit (route) port;
+      inherit (route.endpoint) port;
 
       user = "paseo";
       group = "paseo";
