@@ -7,13 +7,7 @@
   paseo,
   ...
 }: let
-  route = {
-    hostname = "paseo.ts.trkm.io";
-    endpoint = {
-      ip = config.hosts.yggdrasil.ips.tailnet;
-      port = 6767;
-    };
-  };
+  port = 6767;
 
   modules.nixos = _: {
     imports = [paseo.nixosModules.default];
@@ -21,7 +15,7 @@
     services.paseo = {
       enable = true;
       listenAddress = lib.mkDefault "127.0.0.1";
-      inherit (route.endpoint) port;
+      inherit port;
 
       user = "paseo";
       group = "paseo";
@@ -41,6 +35,14 @@
       inheritUserEnvironment = false;
       environment = {};
       settings = {};
+    };
+  };
+
+  route = {
+    hostname = "paseo.ts.trkm.io";
+    endpoint = {
+      ip = config.hosts.yggdrasil.ips.tailnet;
+      inherit port;
     };
   };
 
