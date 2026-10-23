@@ -19,13 +19,13 @@
         # Its httpx/pydantic come from Hermes' sealed venv
         honcho-ai = nixos.config.services.hermes-agent.package.python.pkgs.buildPythonPackage rec {
           pname = "honcho_ai";
-          version = "2.6.0";
+          version = "2.7.0";
           format = "wheel";
           src = pkgs.fetchPypi {
             inherit pname version format;
             dist = "py3";
             python = "py3";
-            hash = "sha256-gZzdV3Xsrmn2F7FNYMPqPGrJQEs4IfpQy/C2gaoig88=";
+            hash = "sha256-zCRXjhhFBnPs5T7ixMWW5AQizcUoGJWTSSA5DYO2WXs=";
           };
           dontCheckRuntimeDeps = true;
         };
