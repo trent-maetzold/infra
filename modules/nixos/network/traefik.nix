@@ -68,6 +68,7 @@
             api = {
               rule = "Host(`traefik.${vars.domain}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))";
               service = "api@internal";
+              middlewares = ["tailnet"];
             };
           };
 
