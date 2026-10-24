@@ -1,0 +1,33 @@
+# Git, lazygit, gh and forgejo-cli.
+{config, ...}: let
+  modules.home = {pkgs, ...}: {
+    home = {
+      packages = [pkgs.forgejo-cli];
+      shellAliases.lg = "lazygit";
+    };
+
+    programs = {
+      gh.enable = true;
+      lazygit.enable = true;
+      zsh.oh-my-zsh.plugins = ["git"];
+
+      git = {
+        enable = true;
+        ignores = [".serena"];
+
+        settings = {
+          init.defaultBranch = "main";
+          pull.rebase = true;
+          push.autoSetupRemote = true;
+        };
+      };
+    };
+  };
+in {
+  # Flake Modules
+  flake.modules.homeManager.git = modules.home;
+
+  # Home Configuration Modules
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.git];
+  flake.homeModules.server.imports = [config.flake.modules.homeManager.git];
+}

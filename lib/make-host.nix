@@ -1,5 +1,5 @@
 # A NixOS host. `imports` carries the profiles (`asgard.nixosModules.*`) and
-# plain host modules; the modules of the `my.services` it runs are added.
+# plain host modules.
 # `users` takes makeUser results. Returns the module, the nixosConfiguration and,
 # when `deployment` is set, a colmena node.
 {
@@ -26,7 +26,8 @@
       then "eth0"
       else "br0";
     nixosModule = {options, ...}: {
-      imports = imports ++ map (u: u.nixosModule) users ++ lib.concatMap (service: lib.optionals (service.host == name) service.modules) (lib.attrValues config.my.services);
+      # hack: modules declare their instance in `flake.nixosModules.<host>`.
+      imports = imports ++ map (u: u.nixosModule) users ++ [(config.flake.nixosModules.${name} or {})];
 
       config = lib.mkMerge [
         {

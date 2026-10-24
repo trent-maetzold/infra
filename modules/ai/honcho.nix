@@ -1,0 +1,215 @@
+# Honcho memory server: API, deriver, PostgreSQL (pgvector) and Valkey on the
+# `honcho` network, reaching each other by container name; only the API is
+# published, on the host's loopback. The secret
+# /var/lib/secrets/honcho-db-password holds the database password.
+#
+# On yggdrasil it is hermes' memory. Generation runs on DeepSeek V4.1 Flash via
+# the DeepSeek API; embeddings on OpenRouter (the openai transport's
+# LLM_OPENAI_API_KEY), at Honcho's 1536 dimensions.
+{
+  config,
+  honcho,
+  lib,
+  quadlet-nix,
+  ...
+}: let
+  endpoint = {
+    host = "127.0.0.1";
+    port = 8000;
+  };
+
+  modules.nixos = {config, ...}: let
+    inherit (config.virtualisation.quadlet) networks volumes;
+
+    # Podman hands the secret to the containers as env.
+    secret = {
+      ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password /var/lib/secrets/honcho-db-password";
+      Restart = "always";
+    };
+
+    container = name: {
+      inherit name;
+      networks = [networks.honcho.ref];
+    };
+
+    api =
+      container "honcho-api"
+      // {
+        image = "ghcr.io/plastic-labs/honcho:latest";
+        secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
+
+        environments = {
+          DB_CONNECTION_URI = "postgresql+psycopg://honcho@honcho-db:5432/honcho";
+          CACHE_URL = "redis://honcho-cache:6379/0?suppress=true";
+          CACHE_ENABLED = "true";
+        };
+      };
+  in {
+    imports = [quadlet-nix.nixosModules.quadlet];
+
+    virtualisation.podman.enable = true;
+
+    virtualisation.quadlet = {
+      networks.honcho = {};
+      volumes.honcho_pgdata = {};
+
+      containers = {
+        honcho-db = {
+          serviceConfig = secret;
+
+          containerConfig =
+            container "honcho-db"
+            // {
+              image = "docker.io/pgvector/pgvector:pg18";
+              secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
+              volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
+
+              environments = {
+                POSTGRES_USER = "honcho";
+                POSTGRES_DB = "honcho";
+              };
+            };
+        };
+
+        # A cache: no snapshots.
+        honcho-cache.containerConfig =
+          container "honcho-cache"
+          // {
+            image = "docker.io/valkey/valkey:9";
+            exec = "valkey-server --save ''";
+          };
+
+        # Restarts until the database accepts connections. Podman's DNAT
+        # skips the host firewall, so publish on loopback only.
+        honcho-api = {
+          serviceConfig = secret;
+
+          containerConfig =
+            api
+            // {
+              exec = "sh docker/entrypoint.sh";
+              publishPorts = ["${endpoint.host}:${toString endpoint.port}:8000"];
+            };
+        };
+
+        honcho-deriver = {
+          serviceConfig = secret;
+          containerConfig = api // container "honcho-deriver" // {exec = "/app/.venv/bin/python -m src.deriver";};
+        };
+      };
+    };
+  };
+  deepseek = "https://api.deepseek.com";
+  user = config.vars.users.tm.name;
+
+  models = {
+    environmentFiles = ["/var/lib/secrets/deepseek-env" "/var/lib/secrets/openrouter-env"];
+
+    environments = {
+      DERIVER_MODEL_CONFIG__TRANSPORT = "openai";
+      DERIVER_MODEL_CONFIG__MODEL = "deepseek-flash";
+      DERIVER_MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DERIVER_MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      SUMMARY_MODEL_CONFIG__TRANSPORT = "openai";
+      SUMMARY_MODEL_CONFIG__MODEL = "deepseek-flash";
+      SUMMARY_MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      SUMMARY_MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DREAM_DEDUCTION_MODEL_CONFIG__TRANSPORT = "openai";
+      DREAM_DEDUCTION_MODEL_CONFIG__MODEL = "deepseek-flash";
+      DREAM_DEDUCTION_MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DREAM_DEDUCTION_MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DREAM_INDUCTION_MODEL_CONFIG__TRANSPORT = "openai";
+      DREAM_INDUCTION_MODEL_CONFIG__MODEL = "deepseek-flash";
+      DREAM_INDUCTION_MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DREAM_INDUCTION_MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__TRANSPORT = "openai";
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__MODEL = "deepseek-flash";
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__TRANSPORT = "openai";
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__MODEL = "deepseek-flash";
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__TRANSPORT = "openai";
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__MODEL = "deepseek-flash";
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__TRANSPORT = "openai";
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__MODEL = "deepseek-flash";
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__TRANSPORT = "openai";
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__MODEL = "deepseek-flash";
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__OVERRIDES__BASE_URL = deepseek;
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__OVERRIDES__API_KEY_ENV = "DEEPSEEK_API_KEY";
+
+      EMBEDDING_MODEL_CONFIG__TRANSPORT = "openai";
+      EMBEDDING_MODEL_CONFIG__MODEL = "qwen/qwen3-embedding-8b";
+      EMBEDDING_MODEL_CONFIG__OVERRIDES__BASE_URL = "https://openrouter.ai/api/v1";
+      # Qwen3 is 4096-dimensional; ask for the schema's 1536.
+      EMBEDDING_MODEL_CONFIG__DIMENSIONS_MODE = "always";
+    };
+  };
+
+  hosts.yggdrasil = {
+    config,
+    pkgs,
+    ...
+  }: let
+    # Its httpx/pydantic come from Hermes' sealed venv
+    honcho-ai = config.services.hermes-agent.package.python.pkgs.buildPythonPackage rec {
+      pname = "honcho_ai";
+      version = "2.7.0";
+      format = "wheel";
+      src = pkgs.fetchPypi {
+        inherit pname version format;
+        dist = "py3";
+        python = "py3";
+        hash = "sha256-zCRXjhhFBnPs5T7ixMWW5AQizcUoGJWTSSA5DYO2WXs=";
+      };
+      dontCheckRuntimeDeps = true;
+    };
+  in {
+    # Volumes, not the image store.
+    persist.dirs."/var/lib/containers/storage/volumes".snapshots = true;
+
+    virtualisation.quadlet.containers = lib.genAttrs ["honcho-api" "honcho-deriver"] (_: {containerConfig = models;});
+
+    services.hermes-agent = {
+      # Directory plugins need plugin.yaml at the package root
+      extraPlugins = lib.mkBefore [(pkgs.runCommand "honcho" {} "cp -r ${honcho}/hermes-plugin-honcho $out")];
+      extraPythonPackages = [honcho-ai];
+
+      hermesHomeFiles."honcho.json" = builtins.toJSON {
+        baseUrl = "http://${endpoint.host}:${toString endpoint.port}";
+        hosts.hermes = {
+          enabled = true;
+          aiPeer = "hermes";
+          peerName = user;
+          workspace = "hermes";
+        };
+      };
+
+      # extraPlugins are linked as nix-managed-<name>, and providers are found by directory
+      settings.memory.provider = "nix-managed-honcho";
+    };
+  };
+in {
+  # Flake Modules
+  flake.modules.nixos.honcho = modules.nixos;
+
+  # NixOS Configuration Modules
+  flake.nixosModules.yggdrasil.imports = [
+    config.flake.modules.nixos.honcho
+    config.flake.modules.nixos.quadlet
+    hosts.yggdrasil
+  ];
+}

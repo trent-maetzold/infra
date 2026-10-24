@@ -1,0 +1,37 @@
+# herdr, a terminal workspace for running coding agents side by side.
+{config, ...}: let
+  modules.home = {
+    lib,
+    pkgs,
+    ...
+  }: {
+    programs.herdr = {
+      enable = true;
+
+      # ld.bfd: ".eh_frame_hdr refers to overlapping FDEs"; lld links it.
+      package = lib.mkDefault (pkgs.llm-agents.herdr.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or []) ++ [pkgs.llvmPackages.lld];
+        env = (old.env or {}) // {RUSTFLAGS = "${old.env.RUSTFLAGS or ""} -C link-arg=-fuse-ld=lld";};
+      }));
+
+      settings = {
+        onboarding = false;
+
+        ui = {
+          sidebar_width = 32;
+          agent_panel_sort = "priority";
+          status_indicators = "symbols";
+          show_agent_labels_on_pane_borders = true;
+          toast.delivery = "herdr";
+          sound.enabled = true;
+        };
+      };
+    };
+  };
+in {
+  # Flake Modules
+  flake.modules.homeManager.herdr = modules.home;
+
+  # Home Configuration Modules
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.herdr];
+}

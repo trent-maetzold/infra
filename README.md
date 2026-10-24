@@ -10,12 +10,9 @@ hosts and users. Rules for editing it are in AGENTS.md.
 
 ```nix
 let
-  inherit (asgard.lib) makeAgentRules makeHost makeStateVersion makeUser;
-  # One stateVersion and the values features read, shared by everything.
-  global = {
-    imports = [(makeStateVersion "26.11")];
-    vars.tailnet.loginServer = "https://hs.work.com";
-  };
+  inherit (asgard.lib) makeAgentRules makeHost makeUser;
+  # The values features read, shared by everything.
+  global.vars.tailnet.loginServer = "https://hs.work.com";
   trent = makeUser {
     name = "trent";
     groups = ["wheel"];               # everything below `name` is optional
@@ -47,8 +44,9 @@ in {
 
 ## Profiles
 
-- `nixosModules`: `default`, `nvidia`, `qemu-guest`, `tailnet`, `wsl`
-- `homeModules`: `default`, `data`, `infra`
+- `nixosModules`: `default`, `nvidia`, `qemu-guest`, `quadlet`, `tailnet`, `wsl`
+- `homeModules`: `default`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
+- `modules.{nixos,homeManager}.<feature>`: each feature alone
 
 Features read your values from `config.vars` (`tailnet` needs
 `vars.tailnet.loginServer`).
@@ -58,7 +56,6 @@ Features read your values from `config.vars` (`tailnet` needs
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`
 - `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
   `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
-- `makeStateVersion v` → module setting `system`/`home` stateVersion; once per flake.
 - `makeDeploymentKey {secret, destDir?, user?, group?}` → colmena key, decrypted
   with rage from an age file on the deploying machine at apply time.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
@@ -76,15 +73,14 @@ Features read your values from `config.vars` (`tailnet` needs
 
 ## Layout
 
-- `modules/`: features, joined into profiles; feature-owned options and
-  functions sit beside them.
-- `lib/`: `makeUser`, `makeHost`, `makeStateVersion`, `makeDeploymentKey`.
+- `modules/<domain>/`: features, joined into profiles, with this flake's
+  instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
+- `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars/`: this flake's inventory; the only place writing hosts/users into `flake.*`.
-- `services/`: services with their host and routes; a host runs the ones naming it.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user.
 
-Every `.nix` under `apps lib modules options packages services vars` is loaded by
+Every `.nix` under `apps hacks lib modules options packages vars` is loaded by
 import-tree. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
