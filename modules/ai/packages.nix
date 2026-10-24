@@ -9,14 +9,17 @@
       "- `codegraph`: semantic code graph for the repo; `codegraph init` once, auto-syncs. Use `codegraph_explore` over MCP."
       "- `gnhf`: keep coding agents running unattended: `gnhf`."
       "- `jscpd`: copy/paste detector: `jscpd --threshold 5 .`."
+      "- `lumen`: view a diff or review a commit in a TUI: `lumen diff`, `lumen diff HEAD~1`."
+      "- `plannotator`: review a plan, doc or diff in the browser with inline notes: `plannotator annotate plan.md`, `plannotator review`."
       "- `qmd`: local search over docs and notes: `qmd search <query>`."
+      "- `revdiff`: annotate a diff, file or doc line by line in a TUI; notes print to stdout on quit: `revdiff main`, `revdiff --staged`."
       "- `rtk`: prefix noisy commands to compact their output: `rtk git status`, `rtk cargo test`."
       "- `tuicr`: review an AI-generated diff like a pull request: `tuicr`."
       "- `ffmpeg`, `jq`, `ungoogled-chromium`: base utilities; `agent-browser` drives the Chromium."
     ];
 
     home.packages = with pkgs;
-      [ffmpeg jq ungoogled-chromium]
+      [ffmpeg jq lumen revdiff ungoogled-chromium]
       ++ (with llm-agents; [
         agent-browser
         bernstein
@@ -24,6 +27,7 @@
         codegraph
         gnhf
         jscpd
+        plannotator
         qmd
         rtk
         tuicr
