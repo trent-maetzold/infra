@@ -1,7 +1,8 @@
-# pi coding agent with its extension packages.
+# pi coding agent with its extension packages and the shared MCP servers.
 {config, ...}: let
   modules.homeManager = {
     config,
+    lib,
     pkgs,
     ...
   }: let
@@ -13,6 +14,7 @@
 
     # Merged into a mutable settings.json so pi keeps runtime choices (model, thinking level).
     settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
+    mcp = config.xdg.configFile."mcp/mcp.json".source;
   in {
     programs.pi-coding-agent.settings = {
       packages = [
@@ -56,6 +58,17 @@
             merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${cfg.configDir}/settings.json" ${settings} 2>/dev/null || cat ${settings})
             run rm -f "${cfg.configDir}/settings.json"
             run install -Dm 644 /dev/stdin "${cfg.configDir}/settings.json" <<< "$merged"
+          '';
+        };
+
+        # pi saves /mcp toggles into mcp.json, so it is merged like settings.json.
+        piMcp = lib.mkIf config.programs.mcp.enable {
+          before = [];
+          after = ["writeBoundary"];
+
+          data = ''
+            merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${cfg.configDir}/mcp.json" ${mcp} 2>/dev/null || cat ${mcp})
+            run install -Dm 644 /dev/stdin "${cfg.configDir}/mcp.json" <<< "$merged"
           '';
         };
       };
