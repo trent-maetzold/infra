@@ -61,7 +61,7 @@ in {
   `mkDefault` only on values consumers tune (images, packages, models).
 - Features never import other features; profiles wire them. Upstream modules
   (`home-manager`, `nix-index-database`) are imported by the feature using them.
-- Package lists are `pkgs-<name>` features in the domain they serve.
+- Package lists are `pkgs-<name>` features in `<domain>/packages.nix`.
 - Read consumer values from module-level `config.vars`. Never take a `user`
   specialArg, host identity or secrets.
 - Every file opens with a one-line description.
@@ -69,7 +69,8 @@ in {
 
 Domains: `nix` (Nix and flake plumbing), `system` (host OS behaviour), `shell`
 (the interactive terminal), `dev` (writing and running code), `ai` (agents,
-models, memory), `network` (tailnet and routing).
+models, memory), `network` (tailnet and routing), `infra` (deploying and
+running fleets).
 
 ## Style
 
