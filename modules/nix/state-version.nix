@@ -1,11 +1,11 @@
 # The flake's one stateVersion, in each default profile.
 {config, ...}: let
   stateVersion = "26.11";
-  modules.home.home = {inherit stateVersion;};
+  modules.homeManager.home = {inherit stateVersion;};
   modules.nixos.system = {inherit stateVersion;};
 in {
   # Flake Modules
-  flake.modules.homeManager.state-version = modules.home;
+  flake.modules.homeManager.state-version = modules.homeManager;
   flake.modules.nixos.state-version = modules.nixos;
 
   # Home Configuration Modules

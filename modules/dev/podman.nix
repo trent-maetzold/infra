@@ -1,6 +1,6 @@
 # Rootless Podman as `docker`, with podman-compose and lazydocker.
 {config, ...}: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     home.packages = with pkgs; [
       fuse-overlayfs
       podman-compose
@@ -18,7 +18,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.podman = modules.home;
+  flake.modules.homeManager.podman = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.podman];

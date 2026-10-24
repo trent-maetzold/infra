@@ -1,6 +1,6 @@
 # herdr, a terminal workspace for running coding agents side by side.
 {config, ...}: let
-  modules.home = {
+  modules.homeManager = {
     lib,
     pkgs,
     ...
@@ -30,7 +30,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.herdr = modules.home;
+  flake.modules.homeManager.herdr = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.herdr];

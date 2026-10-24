@@ -1,6 +1,6 @@
 # pi coding agent with its extension packages.
 {config, ...}: let
-  modules.home = {
+  modules.homeManager = {
     config,
     pkgs,
     ...
@@ -85,7 +85,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.pi = modules.home;
+  flake.modules.homeManager.pi = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.pi];

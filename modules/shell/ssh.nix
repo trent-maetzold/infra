@@ -1,7 +1,7 @@
 # SSH: a strict client config, and an OpenSSH server with keys only and no
 # root login.
 {config, ...}: let
-  modules.home = {
+  modules.homeManager = {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
@@ -28,7 +28,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.ssh = modules.home;
+  flake.modules.homeManager.ssh = modules.homeManager;
   flake.modules.nixos.ssh = modules.nixos;
 
   # Home Configuration Modules

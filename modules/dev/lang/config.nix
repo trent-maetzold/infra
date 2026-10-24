@@ -1,7 +1,7 @@
 # LSPs and formatters for config files: nix, bash, yaml, toml, json, markdown,
 # docker.
 {config, ...}: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     home.packages = with pkgs; [
       alejandra
       bash-language-server
@@ -33,7 +33,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.lang-config = modules.home;
+  flake.modules.homeManager.lang-config = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.lang-config];

@@ -1,6 +1,6 @@
 # Git, lazygit, gh and forgejo-cli.
 {config, ...}: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     home = {
       packages = [pkgs.forgejo-cli];
       shellAliases.lg = "lazygit";
@@ -25,7 +25,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.git = modules.home;
+  flake.modules.homeManager.git = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.git];

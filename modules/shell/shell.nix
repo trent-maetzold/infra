@@ -1,6 +1,6 @@
 # Zsh with oh-my-zsh, autosuggestions and starship.
 {config, ...}: let
-  modules.home = {...}: {
+  modules.homeManager = {...}: {
     programs = {
       starship = {
         enable = true;
@@ -31,7 +31,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.shell = modules.home;
+  flake.modules.homeManager.shell = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.shell];

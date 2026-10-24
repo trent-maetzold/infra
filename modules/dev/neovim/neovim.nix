@@ -4,7 +4,7 @@
   lazyvim,
   ...
 }: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     imports = [lazyvim.homeManagerModules.default];
 
     programs.lazyvim = {
@@ -91,7 +91,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.neovim = modules.home;
+  flake.modules.homeManager.neovim = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.neovim];

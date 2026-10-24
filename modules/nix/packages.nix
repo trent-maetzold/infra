@@ -2,11 +2,11 @@
 {config, ...}: let
   packages = pkgs: with pkgs; [deadnix nix-diff nix-init nix-output-monitor nix-search-tv nix-tree nix-update nurl];
   modules.nixos = {pkgs, ...}: {environment.systemPackages = packages pkgs;};
-  modules.home = {pkgs, ...}: {home.packages = packages pkgs;};
+  modules.homeManager = {pkgs, ...}: {home.packages = packages pkgs;};
 in {
   # Flake Modules
   flake.modules.nixos.pkgs-nix = modules.nixos;
-  flake.modules.homeManager.pkgs-nix = modules.home;
+  flake.modules.homeManager.pkgs-nix = modules.homeManager;
 
   # NixOS Configuration Modules
   flake.nixosModules.default.imports = [config.flake.modules.nixos.pkgs-nix];

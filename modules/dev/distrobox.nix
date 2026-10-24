@@ -1,6 +1,6 @@
 # Distrobox with `bx`, an Arch container for builds needing distro packages.
 {config, ...}: let
-  modules.home = {
+  modules.homeManager = {
     config,
     lib,
     pkgs,
@@ -63,7 +63,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.distrobox = modules.home;
+  flake.modules.homeManager.distrobox = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.distrobox];

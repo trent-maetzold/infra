@@ -1,7 +1,7 @@
 # CLI tools for agents (browser, code graph, docs search, diff review), listed
 # in AGENTS.md.
 {config, ...}: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     agents.md.tools = [
       "- `agent-browser`: drive a headless browser: `agent-browser open <url>`, then `snapshot`, `click`, `fill`."
       "- `bernstein`: govern agent runs, deterministic scheduling, isolated worktrees, signed audit trail: `bernstein`."
@@ -35,7 +35,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.pkgs-ai = modules.home;
+  flake.modules.homeManager.pkgs-ai = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.pkgs-ai];

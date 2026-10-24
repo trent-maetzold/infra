@@ -41,13 +41,13 @@ relative imports except data paths: reach other files through `config.flake.*`.
 ```nix
 # Git and forgejo-cli.
 {config, ...}: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     programs.git.enable = true;
     home.packages = [pkgs.forgejo-cli];
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.git = modules.home;
+  flake.modules.homeManager.git = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.git];

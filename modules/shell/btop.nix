@@ -4,7 +4,7 @@
     environment.systemPackages = [pkgs.btop];
   };
 
-  modules.home = {
+  modules.homeManager = {
     programs.btop = {
       enable = true;
       settings.vim_keys = true;
@@ -13,7 +13,7 @@
 in {
   # Flake Modules
   flake.modules.nixos.btop = modules.nixos;
-  flake.modules.homeManager.btop = modules.home;
+  flake.modules.homeManager.btop = modules.homeManager;
 
   # NixOS Configuration Modules
   flake.nixosModules.default.imports = [config.flake.modules.nixos.btop];

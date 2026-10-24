@@ -1,6 +1,6 @@
 # Cursor CLI (`cursor-agent`).
 {config, ...}: let
-  modules.home = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     home.packages = [pkgs.llm-agents.cursor-agent];
 
     agents.md.coding-agents = [
@@ -9,7 +9,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.cursor-cli = modules.home;
+  flake.modules.homeManager.cursor-cli = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.cursor-cli.imports = [config.flake.modules.homeManager.cursor-cli];

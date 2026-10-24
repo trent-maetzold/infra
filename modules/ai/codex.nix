@@ -1,6 +1,6 @@
 # OpenAI Codex CLI with the shared AGENTS.md and MCP servers.
 {config, ...}: let
-  modules.home = {
+  modules.homeManager = {
     config,
     lib,
     pkgs,
@@ -21,7 +21,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.codex = modules.home;
+  flake.modules.homeManager.codex = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.codex];

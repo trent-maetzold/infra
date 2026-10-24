@@ -5,13 +5,9 @@
   lib,
   ...
 }: let
-  records =
-    lib.mapAttrsToList (_: route: {
-      name = route.hostname;
-      type = "A";
-      value = config.hosts.heimdall.ips.tailnet;
-    })
-    (lib.filterAttrs (_: route: route.dns == "tailnet") config.routes);
+  inherit (config) routes;
+  inherit (config.flake.lib) makeTailnetDNS;
+  inherit (config.hosts) heimdall;
 
   modules.nixos = {config, ...}: let
     inherit (config) vars;
@@ -50,7 +46,7 @@
     inherit (config.services.headscale.settings) server_url;
     loginHost = lib.removePrefix "https://" server_url;
   in {
-    services.headscale.settings.dns.extra_records = records;
+    services.headscale.settings.dns.extra_records = makeTailnetDNS heimdall.ips.tailnet routes;
 
     services.traefik.dynamicConfigOptions.http = {
       # Clients never ask for /, which headscale answers with an empty page.

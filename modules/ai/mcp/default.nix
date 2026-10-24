@@ -1,6 +1,6 @@
 # MCP servers shared by every agent: Context7, DeepWiki.
 {config, ...}: let
-  modules.home = {...}: {
+  modules.homeManager = {...}: {
     programs.mcp = {
       enable = true;
 
@@ -12,7 +12,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.mcp = modules.home;
+  flake.modules.homeManager.mcp = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.mcp];

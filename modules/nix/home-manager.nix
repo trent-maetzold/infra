@@ -5,7 +5,7 @@
   home-manager,
   ...
 }: let
-  modules.home = {config, ...}: {
+  modules.homeManager = {config, ...}: {
     home = {
       homeDirectory = "/home/${config.home.username}";
       sessionPath = ["${config.home.homeDirectory}/.local/bin"];
@@ -24,7 +24,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.home-manager = modules.home;
+  flake.modules.homeManager.home-manager = modules.homeManager;
   flake.modules.nixos.home-manager = modules.nixos;
 
   # Home Configuration Modules

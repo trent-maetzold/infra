@@ -1,6 +1,6 @@
 # pi's zentui theme: minimalist editor and starship-style footer.
 {config, ...}: let
-  modules.home = {...}: {
+  modules.homeManager = {...}: {
     config = {
       programs.pi-coding-agent.settings.packages = ["npm:pi-zentui"];
 
@@ -63,7 +63,7 @@
   };
 in {
   # Flake Modules
-  flake.modules.homeManager.pi-zentui = modules.home;
+  flake.modules.homeManager.pi-zentui = modules.homeManager;
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.pi-zentui];

@@ -29,7 +29,7 @@
     };
   };
 
-  modules.home = {
+  modules.homeManager = {
     config,
     lib,
     pkgs,
@@ -72,7 +72,7 @@
 in {
   # Flake Modules
   flake.modules.nixos.nix = modules.nixos;
-  flake.modules.homeManager.nix = modules.home;
+  flake.modules.homeManager.nix = modules.homeManager;
 
   # NixOS Configuration Modules
   flake.nixosModules.default.imports = [config.flake.modules.nixos.nix];
