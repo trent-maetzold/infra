@@ -4,6 +4,7 @@
     vars = {
       domain = "trkm.io";
       acmeEmail = "tkm89@proton.me";
+      timeZone = "America/Chicago";
 
       tailnet = {
         loginServer = "https://hs.trkm.io";

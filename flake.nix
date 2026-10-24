@@ -6,6 +6,7 @@
     import-tree,
     colmena,
     llm-agents,
+    revdiff,
     ...
   }:
     flake-parts.lib.mkFlake {
@@ -15,7 +16,7 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./lib ./modules ./options ./packages ./services ./vars])
+        (import-tree [./apps ./hacks ./lib ./modules ./options ./packages ./vars])
       ];
 
       flake.colmenaHive = let
@@ -35,6 +36,7 @@
       flake.overlays = {
         colmena = colmena.overlays.default;
         llm-agents = llm-agents.overlays.shared-nixpkgs;
+        revdiff = final: _: {revdiff = revdiff.packages.${final.stdenv.hostPlatform.system}.default;};
       };
 
       perSystem = {
@@ -112,6 +114,11 @@
 
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    revdiff = {
+      url = "github:umputun/revdiff";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

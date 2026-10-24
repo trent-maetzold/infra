@@ -124,17 +124,11 @@ in {
     };
   };
 
-  flake = {
-    nixosConfigurations = {
-      heimdall = config.vars.hosts.heimdall.nixosConfiguration;
-      muninn = config.vars.hosts.muninn.nixosConfiguration;
-      yggdrasil = config.vars.hosts.yggdrasil.nixosConfiguration;
-    };
-
-    nixosModules = {
-      heimdall = config.vars.hosts.heimdall.nixosModule;
-      muninn = config.vars.hosts.muninn.nixosModule;
-      yggdrasil = config.vars.hosts.yggdrasil.nixosModule;
-    };
+  # hack: `flake.nixosModules.<host>` holds only the modules' instances, which
+  # makeHost imports.
+  flake.nixosConfigurations = {
+    heimdall = config.vars.hosts.heimdall.nixosConfiguration;
+    muninn = config.vars.hosts.muninn.nixosConfiguration;
+    yggdrasil = config.vars.hosts.yggdrasil.nixosConfiguration;
   };
 }

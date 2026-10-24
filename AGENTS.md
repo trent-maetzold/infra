@@ -14,40 +14,43 @@ secrets. Commands are in README.md.
 
 ## Where things go
 
-- `modules/<side>/<domain>/<feature>.nix`: one feature; never names a host or
-  user. `modules/shared/` registers on both sides.
-- `lib/`: the consumer contract only (`makeUser`, `makeHost`,
-  `makeStateVersion`, `makeDeploymentKey`).
+- `modules/<domain>/<feature>.nix`: one feature, exported as
+  `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
+  flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
+  or user.
+- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`).
 - A feature's own options and functions live with it: `ai/agents/rules.nix`
   declares `agents.md` and `makeAgentRules`.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
   infra identity (names, emails, addresses, hostIds) lives here.
-- `services/<s>.nix`: opinionated; picks the host, imports the modules and
-  declares the routes (`makePrivateRoute`/`makeTailnetRoute`/`makePublicRoute`)
-  of one service. `modules/` features only listen on loopback and export
-  `my.endpoints.<name>`.
+- This flake's instance of a feature sits in the same file: a `hosts.<h>`
+  module added to `flake.nixosModules.<h>`, and its `routes.<n>`
+  (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
+  traefik and headscale turn routes into routers and DNS records.
+- `hacks/`: translations from today's lib and vars; `# hack:` marks the rest.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user. They import
   profiles, never a single feature, so deleting a feature can't break them
   silently. Push back on requests that break this.
 
-`flake.nix` loads `apps lib modules options packages services vars` with import-tree. No
+`flake.nix` loads `apps hacks lib modules options packages vars` with import-tree. No
 relative imports except data paths: reach other files through `config.flake.*`.
 
 ## Writing a feature
 
 ```nix
+# Git and forgejo-cli.
 {config, ...}: let
-  out = {pkgs, ...}: {
+  modules.homeManager = {pkgs, ...}: {
     programs.git.enable = true;
     home.packages = [pkgs.forgejo-cli];
   };
 in {
-  # Features
-  features.home.vcs.git = out;
+  # Flake Modules
+  flake.modules.homeManager.git = modules.homeManager;
 
-  # Home Manager Modules
-  flake.homeModules.default.imports = [config.features.home.vcs.git];
+  # Home Configuration Modules
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.git];
 }
 ```
 
@@ -58,13 +61,16 @@ in {
   `mkDefault` only on values consumers tune (images, packages, models).
 - Features never import other features; profiles wire them. Upstream modules
   (`home-manager`, `nix-index-database`) are imported by the feature using them.
-- Shared package lists: `shared/packages/<name>.nix`, joined to a profile.
+- Package lists are `pkgs-<name>` features in `<domain>/packages.nix`.
 - Read consumer values from module-level `config.vars`. Never take a `user`
   specialArg, host identity or secrets.
-- stateVersion is set once, via `makeStateVersion` in `vars/global.nix`.
+- Every file opens with a one-line description.
+- stateVersion is set once, in `nix/state-version.nix`.
 
-Domains: home `base editor lang vcs ai containers`; NixOS `base hardware network
-platform ai containers`. `base` is imported everywhere; `core` is a domain's leftovers.
+Domains: `nix` (Nix and flake plumbing), `system` (host OS behaviour), `shell`
+(the interactive terminal), `dev` (writing and running code), `ai` (agents,
+models, memory), `network` (tailnet and routing), `infra` (deploying and
+running fleets).
 
 ## Style
 
