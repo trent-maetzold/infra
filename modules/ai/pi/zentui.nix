@@ -1,8 +1,8 @@
 # pi's zentui theme: minimalist editor and starship-style footer.
 {config, ...}: let
-  modules.homeManager = {pkgs, ...}: {
+  modules.homeManager = {...}: {
     config = {
-      programs.pi-coding-agent.settings.packages = ["${pkgs.pi-plugins}/node_modules/pi-zentui"];
+      programs.pi-coding-agent.settings.packages = ["npm:pi-zentui"];
 
       home.file.".pi/agent/zentui.json".text = builtins.toJSON {
         components = {
