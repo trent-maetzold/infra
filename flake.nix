@@ -16,11 +16,12 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./lib ./modules ./options ./packages ./vars])
+        (import-tree [./apps ./hosts ./lib ./modules ./options ./packages ./users])
+        ./vars.nix
       ];
 
       flake.colmenaHive = let
-        hosts = nixpkgs.lib.filterAttrs (_: h: h ? colmenaNode) config.vars.hosts;
+        hosts = nixpkgs.lib.filterAttrs (_: h: h ? colmenaNode) config.flake.hosts;
       in
         colmena.lib.makeHive ({
             meta = {

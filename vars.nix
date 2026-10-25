@@ -1,10 +1,11 @@
 # Shared by every host and user: the values features read from `config.vars`.
-{config, ...}: {
+{
   vars.global = {
     vars = {
       domain = "trkm.io";
       acmeEmail = "tkm89@proton.me";
       timeZone = "America/Chicago";
+      flake = "/home/tm/code/asgard";
 
       tailnet = {
         loginServer = "https://hs.trkm.io";

@@ -12,14 +12,16 @@ hosts and users. Rules for editing it are in AGENTS.md.
 let
   inherit (asgard.lib) makeAgentRules makeHost makeUser;
   # The values features read, shared by everything.
-  global.vars.tailnet.loginServer = "https://hs.work.com";
+  global.vars = {
+    tailnet.loginServer = "https://hs.work.com";
+    flake = "/home/trent/code/infra"; # nh
+  };
   trent = makeUser {
     name = "trent";
     groups = ["wheel"];               # everything below `name` is optional
     shell = "zsh";
     publicKey = "ssh-ed25519 ...";
     git = {name = "Trent"; email = "trent@work.com";};
-    flake = "/home/trent/code/infra"; # nh
     hosts = {inherit box;};           # ssh client entries
     imports = [global asgard.homeModules.default ./home/trent (makeAgentRules {workflow = "- Open a PR.";})];
   };
@@ -78,11 +80,12 @@ Features read your values from `config.vars` (`tailnet` needs
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
 - `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
-- `vars/`: this flake's inventory; the only place writing hosts/users into `flake.*`.
-- `hosts/<h>/`, `home/<u>/`: plain modules for one host or user.
+- `vars.nix`: data shared by every host and user (`global`).
+- `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
+  `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
+  in `_modules/`.
 
-Every `.nix` under `apps lib modules options packages vars` (except `_` paths) is loaded by
-import-tree. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+Every `.nix` under `apps hosts lib modules options packages users` (except `_` paths) is loaded by import-tree, plus `vars.nix`. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 
