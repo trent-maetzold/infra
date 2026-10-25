@@ -26,6 +26,7 @@
         "npm:@juicesharp/rpiv-todo"
         "npm:@narumitw/pi-usage"
         # "npm:pi-committer"
+        "npm:pi-caveman"
         "npm:pi-lens"
         "npm:pi-goal-x"
         "npm:pi-simplify"
