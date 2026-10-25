@@ -39,6 +39,22 @@
         "type": "github"
       }
     },
+    "awesome-copilot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792712747,
+        "narHash": "sha256-GVfc++Tv5dxbldNFbBU1rEhlihBR9NXtO06Ichjf6iQ=",
+        "owner": "github",
+        "repo": "awesome-copilot",
+        "rev": "d85f762d6e521abf5fe16703946e9b38adc42da7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "github",
+        "repo": "awesome-copilot",
+        "type": "github"
+      }
+    },
     "bun2nix": {
       "inputs": {
         "flake-parts": [
@@ -782,6 +798,7 @@
       "inputs": {
         "NixVirt": "NixVirt",
         "agent-skills": "agent-skills",
+        "awesome-copilot": "awesome-copilot",
         "colmena": "colmena",
         "disko": "disko",
         "disko-zfs": "disko-zfs",
