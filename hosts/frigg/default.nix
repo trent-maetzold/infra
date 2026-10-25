@@ -12,7 +12,7 @@ in {
     name = "frigg";
     system = "x86_64-linux";
     address = "frigg.ts.trkm.io";
-    imports = [global nixosModules.family ./_modules/disk-config.nix ./_modules/nvidia.nix];
+    imports = [global nixosModules.family nixosModules.disko-btrfs nixosModules.disko-tmpfs-root {disko.devices.disk.main.device = "/dev/nvme0n1";} ./_modules/nvidia.nix];
     users = with users; [trent justine leo violet june];
     ssh.frigg.User = "trent";
     specialArgs = inputs;

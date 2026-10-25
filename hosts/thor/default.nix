@@ -12,7 +12,7 @@ in {
     name = "thor";
     system = "x86_64-linux";
     address = "thor.ts.trkm.io";
-    imports = [global nixosModules.default nixosModules.preservation nixosModules.tailnet ./_modules/disk-config.nix];
+    imports = [global nixosModules.default nixosModules.preservation nixosModules.tailnet nixosModules.disko-btrfs nixosModules.disko-tmpfs-root {disko.devices.disk.main.device = "/dev/nvme0n1";}];
     users = [users.trent];
     ssh.thor.User = "trent";
     specialArgs = inputs;

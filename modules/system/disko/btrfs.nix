@@ -1,32 +1,29 @@
-# One NVMe: an ESP and btrfs for /nix, /persist and /home; `/` is a tmpfs.
-{disko, ...}: let
+# Disk `main`: a 4G ESP with systemd-boot and btrfs @nix, @persist and @home.
+# Hosts set `disko.devices.disk.main.device`.
+{
+  config,
+  disko,
+  ...
+}: let
   mountOptions = ["compress=zstd" "noatime"];
-in {
-  imports = [disko.nixosModules.disko];
 
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
-  };
+  modules.nixos = {
+    imports = [disko.nixosModules.disko];
 
-  fileSystems."/persist".neededForBoot = true;
-
-  disko.devices = {
-    nodev."/" = {
-      fsType = "tmpfs";
-      mountOptions = ["size=2G" "mode=755"];
+    boot.loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
     };
 
-    disk.nvme0 = {
+    disko.devices.disk.main = {
       type = "disk";
-      device = "/dev/nvme0n1";
 
       content = {
         type = "gpt";
 
         partitions = {
           esp = {
-            size = "1G";
+            size = "4G";
             type = "EF00";
 
             content = {
@@ -66,4 +63,10 @@ in {
       };
     };
   };
+in {
+  # Flake Modules
+  flake.modules.nixos.disko-btrfs = modules.nixos;
+
+  # NixOS Configuration Modules
+  flake.nixosModules.disko-btrfs.imports = [config.flake.modules.nixos.disko-btrfs];
 }
