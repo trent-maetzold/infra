@@ -9,7 +9,6 @@
       groups = ["wheel"];
       shell = "zsh";
       publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZMIGNBlZ+VX528eFfwCmEuN4oQCigRA+FPwADzixds tm@hive";
-      flake = "/home/tm/code/asgard";
       inherit (config.flake) hosts;
 
       git = {

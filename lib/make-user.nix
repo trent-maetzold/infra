@@ -15,7 +15,6 @@
     shell ? null,
     publicKey ? null,
     git ? null,
-    flake ? null,
     hosts ? {},
   }: let
     homeModule = {config, ...}: {
@@ -25,7 +24,6 @@
 
       programs = {
         git.settings.user = lib.mkIf (config.programs.git.enable && git != null) git;
-        nh.flake = lib.mkIf (config.programs.nh.enable && flake != null) flake;
         ssh.settings = lib.mkIf config.programs.ssh.enable (lib.concatMapAttrs (_: host: lib.mapAttrs (_: s: {User = name;} // s) host.ssh) hosts);
       };
     };

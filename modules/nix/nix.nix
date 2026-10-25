@@ -43,7 +43,11 @@
     home.packages = [pkgs.nx];
 
     programs = {
-      nh.enable = true;
+      nh = {
+        enable = true;
+        flake = config.vars.flake;
+      };
+
       nix-index-database.comma.enable = true;
 
       nix-init = {

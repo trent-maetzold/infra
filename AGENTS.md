@@ -27,7 +27,7 @@ secrets. Commands are in README.md.
   paths, so the feature imports them itself. Packages and scripts are overlays in
   the domain's `pkgs/` (`nix/pkgs/nx.nix`); features use `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
-- `vars/`: data every host and user shares (`global`: domain, tailnet, time zone).
+- `vars.nix`: data every host and user shares (`global`: domain, tailnet, time zone, flake path).
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
   module added to `flake.nixosModules.<h>`, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
@@ -40,8 +40,8 @@ secrets. Commands are in README.md.
   feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 
-`flake.nix` loads `apps hosts lib modules options packages users vars` with
-import-tree. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
+`flake.nix` loads `apps hosts lib modules options packages users` with
+import-tree, plus `vars.nix`. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
 through `config.flake.*`.
 
 ## Writing a feature
