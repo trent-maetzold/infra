@@ -1,7 +1,6 @@
 # llama-swap models that need a GPU.
 {lib, ...}: let
   makeModel = import ../_lib/make-model.nix {inherit lib;};
-  makeModelOption = import ../_lib/make-model-option.nix {inherit lib;};
 in let
   modules.nixos = {
     config,
@@ -47,11 +46,6 @@ in let
           };
         };
       };
-    };
-
-    options.services.llama-swap.models = {
-      "ornith-1.5-35b-a3b" = makeModelOption "ornith-1.5-35b-a3b";
-      "refact-1.6b-fim" = makeModelOption "refact-1.6b-fim";
     };
   };
 in {

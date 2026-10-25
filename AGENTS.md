@@ -19,8 +19,9 @@ secrets. Commands are in README.md.
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
 - `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`).
-- A feature's own options and consumer functions live with it:
-  `ai/agents/rules.nix` declares `agents.md` and `makeAgentRules`.
+- A feature with options is a dir: `options.nix` declares them (and its consumer
+  functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
+  config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
 - Modules are pure config. Any computation is a named `make<Thing>` in the
   domain's `_lib/` (`network/_lib/make-traefik-http.nix`); import-tree skips `/_`
   paths, so the feature imports them itself. Packages and scripts are overlays in

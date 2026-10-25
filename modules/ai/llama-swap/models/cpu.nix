@@ -1,7 +1,6 @@
 # llama-swap models small enough for the CPU.
 {lib, ...}: let
   makeModel = import ../_lib/make-model.nix {inherit lib;};
-  makeModelOption = import ../_lib/make-model-option.nix {inherit lib;};
 in let
   modules.nixos = {
     config,
@@ -44,11 +43,6 @@ in let
           };
         };
       };
-    };
-
-    options.services.llama-swap.models = {
-      "lfm2.5-2.6b" = makeModelOption "lfm2.5-2.6b";
-      "lfm2.5-8b-a1b" = makeModelOption "lfm2.5-8b-a1b";
     };
   };
 in {

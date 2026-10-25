@@ -167,7 +167,7 @@
     honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
   in {
     # Volumes, not the image store.
-    persist.dirs."/var/lib/containers/storage/volumes".snapshots = true;
+    persistence.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 
     virtualisation.quadlet.containers = {
       honcho-api.containerConfig = models;
