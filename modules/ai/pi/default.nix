@@ -1,38 +1,32 @@
-# pi coding agent with its extension packages and the shared MCP servers.
+# pi coding agent with its extension packages, built from packages/pi-plugins.
 {config, ...}: let
   modules.homeManager = {
     config,
-    lib,
     pkgs,
     ...
   }: let
     cfg = config.programs.pi-coding-agent;
 
-    npmrc = pkgs.writeText "pi-npm-allow-all-scripts.npmrc" ''
-      dangerously-allow-all-scripts=true
-    '';
-
     # Merged into a mutable settings.json so pi keeps runtime choices (model, thinking level).
     settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
-    mcp = config.xdg.configFile."mcp/mcp.json".source;
   in {
     programs.pi-coding-agent.settings = {
-      packages = [
-        "npm:@dietrichgebert/ponytail"
-        "npm:@gotgenes/pi-permission-model-judge"
-        "npm:@gotgenes/pi-permission-system"
-        "npm:@juicesharp/rpiv-ask-user-question"
-        "npm:@juicesharp/rpiv-btw"
-        "npm:@juicesharp/rpiv-todo"
-        "npm:@narumitw/pi-usage"
-        # "npm:pi-committer"
-        "npm:pi-caveman"
-        "npm:pi-lens"
-        "npm:pi-goal-x"
-        "npm:pi-simplify"
-        "npm:billion-context-pi"
-        "npm:pi-reasonix"
-        "npm:pi-everforest"
+      packages = map (name: "${pkgs.pi-plugins}/node_modules/${name}") [
+        "@dietrichgebert/ponytail"
+        "@gotgenes/pi-permission-model-judge"
+        "@gotgenes/pi-permission-system"
+        "@juicesharp/rpiv-ask-user-question"
+        "@juicesharp/rpiv-btw"
+        "@juicesharp/rpiv-todo"
+        "@narumitw/pi-usage"
+        "pi-caveman"
+        "pi-lens"
+        "pi-goal-x"
+        "pi-mcp-adapter"
+        "pi-simplify"
+        "billion-context-pi"
+        "pi-reasonix"
+        "pi-everforest"
       ];
 
       theme = "everforest-light-soft/everforest-dark-soft";
@@ -40,17 +34,6 @@
 
     home = {
       activation = {
-        piNpm = {
-          before = [];
-          after = ["writeBoundary"];
-
-          data = ''
-            run rm -rf "${cfg.configDir}/npm"
-            run mkdir -p "${cfg.configDir}/npm"
-            run install -m 644 ${npmrc} "${cfg.configDir}/npm/.npmrc"
-          '';
-        };
-
         piSettings = {
           before = [];
           after = ["writeBoundary"];
@@ -59,17 +42,6 @@
             merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${cfg.configDir}/settings.json" ${settings} 2>/dev/null || cat ${settings})
             run rm -f "${cfg.configDir}/settings.json"
             run install -Dm 644 /dev/stdin "${cfg.configDir}/settings.json" <<< "$merged"
-          '';
-        };
-
-        # pi saves /mcp toggles into mcp.json, so it is merged like settings.json.
-        piMcp = lib.mkIf config.programs.mcp.enable {
-          before = [];
-          after = ["writeBoundary"];
-
-          data = ''
-            merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${cfg.configDir}/mcp.json" ${mcp} 2>/dev/null || cat ${mcp})
-            run install -Dm 644 /dev/stdin "${cfg.configDir}/mcp.json" <<< "$merged"
           '';
         };
       };

@@ -1,0 +1,22 @@
+{
+  "name": "pi-plugins",
+  "private": true,
+  "dependencies": {
+    "@dietrichgebert/ponytail": "5.3.2",
+    "@gotgenes/pi-permission-model-judge": "3.0.0",
+    "@gotgenes/pi-permission-system": "41.0.0",
+    "@juicesharp/rpiv-ask-user-question": "2.15.0",
+    "@juicesharp/rpiv-btw": "2.15.0",
+    "@juicesharp/rpiv-todo": "2.15.0",
+    "@narumitw/pi-usage": "0.68.1",
+    "billion-context-pi": "0.1.83",
+    "pi-caveman": "1.0.12",
+    "pi-everforest": "0.1.8",
+    "pi-goal-x": "0.34.0",
+    "pi-lens": "4.4.4",
+    "pi-mcp-adapter": "6.0.0",
+    "pi-reasonix": "1.1.0",
+    "pi-simplify": "0.2.3",
+    "pi-zentui": "0.32.0"
+  }
+}
