@@ -19,8 +19,12 @@ secrets. Commands are in README.md.
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
 - `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`).
-- A feature's own options and functions live with it: `ai/agents/rules.nix`
-  declares `agents.md` and `makeAgentRules`.
+- A feature's own options and consumer functions live with it:
+  `ai/agents/rules.nix` declares `agents.md` and `makeAgentRules`.
+- Modules are pure config. Any computation is a named `make<Thing>` in the
+  domain's `_lib/` (`network/_lib/make-traefik-http.nix`); import-tree skips `/_`
+  paths, so the feature imports them itself. Packages and scripts are overlays in
+  the domain's `pkgs/` (`nix/pkgs/nx.nix`); features use `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
   infra identity (names, emails, addresses, hostIds) lives here.
@@ -28,13 +32,13 @@ secrets. Commands are in README.md.
   module added to `flake.nixosModules.<h>`, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
   traefik and headscale turn routes into routers and DNS records.
-- `hacks/`: translations from today's lib and vars; `# hack:` marks the rest.
 - `hosts/<h>/`, `home/<u>/`: plain modules for one host or user. They import
   profiles, never a single feature, so deleting a feature can't break them
   silently. Push back on requests that break this.
 
-`flake.nix` loads `apps hacks lib modules options packages vars` with import-tree. No
-relative imports except data paths: reach other files through `config.flake.*`.
+`flake.nix` loads `apps lib modules options packages vars` with import-tree. No
+relative imports except data paths and `_lib/`: reach other files
+through `config.flake.*`.
 
 ## Writing a feature
 

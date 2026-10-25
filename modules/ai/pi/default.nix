@@ -1,7 +1,9 @@
 # pi coding agent with its extension packages; pi-mcp-adapter loads the shared MCP servers.
 {config, ...}: let
+  mutableSettings = ./_lib/mutable-settings.nix;
+in let
   modules.homeManager = {pkgs, ...}: {
-    imports = [config.flake.lib.piMutableSettings];
+    imports = [mutableSettings];
 
     programs.pi-coding-agent.settings = {
       packages = [

@@ -8,7 +8,6 @@
 # LLM_OPENAI_API_KEY), at Honcho's 1536 dimensions.
 {
   config,
-  honcho,
   lib,
   quadlet-nix,
   ...
@@ -27,23 +26,18 @@
       Restart = "always";
     };
 
-    container = name: {
-      inherit name;
+    api = {
+      name = "honcho-api";
       networks = [networks.honcho.ref];
-    };
+      image = "ghcr.io/plastic-labs/honcho:latest";
+      secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
 
-    api =
-      container "honcho-api"
-      // {
-        image = "ghcr.io/plastic-labs/honcho:latest";
-        secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
-
-        environments = {
-          DB_CONNECTION_URI = "postgresql+psycopg://honcho@honcho-db:5432/honcho";
-          CACHE_URL = "redis://honcho-cache:6379/0?suppress=true";
-          CACHE_ENABLED = "true";
-        };
+      environments = {
+        DB_CONNECTION_URI = "postgresql+psycopg://honcho@honcho-db:5432/honcho";
+        CACHE_URL = "redis://honcho-cache:6379/0?suppress=true";
+        CACHE_ENABLED = "true";
       };
+    };
   in {
     imports = [quadlet-nix.nixosModules.quadlet];
 
@@ -57,27 +51,27 @@
         honcho-db = {
           serviceConfig = secret;
 
-          containerConfig =
-            container "honcho-db"
-            // {
-              image = "docker.io/pgvector/pgvector:pg18";
-              secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
-              volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
+          containerConfig = {
+            name = "honcho-db";
+            networks = [networks.honcho.ref];
+            image = "docker.io/pgvector/pgvector:pg18";
+            secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
+            volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
 
-              environments = {
-                POSTGRES_USER = "honcho";
-                POSTGRES_DB = "honcho";
-              };
+            environments = {
+              POSTGRES_USER = "honcho";
+              POSTGRES_DB = "honcho";
             };
+          };
         };
 
         # A cache: no snapshots.
-        honcho-cache.containerConfig =
-          container "honcho-cache"
-          // {
-            image = "docker.io/valkey/valkey:9";
-            exec = "valkey-server --save ''";
-          };
+        honcho-cache.containerConfig = {
+          name = "honcho-cache";
+          networks = [networks.honcho.ref];
+          image = "docker.io/valkey/valkey:9";
+          exec = "valkey-server --save ''";
+        };
 
         # Restarts until the database accepts connections. Podman's DNAT
         # skips the host firewall, so publish on loopback only.
@@ -94,7 +88,13 @@
 
         honcho-deriver = {
           serviceConfig = secret;
-          containerConfig = api // container "honcho-deriver" // {exec = "/app/.venv/bin/python -m src.deriver";};
+
+          containerConfig =
+            api
+            // {
+              name = "honcho-deriver";
+              exec = "/app/.venv/bin/python -m src.deriver";
+            };
         };
       };
     };
@@ -164,28 +164,18 @@
     pkgs,
     ...
   }: let
-    # Its httpx/pydantic come from Hermes' sealed venv
-    honcho-ai = config.services.hermes-agent.package.python.pkgs.buildPythonPackage rec {
-      pname = "honcho_ai";
-      version = "2.7.0";
-      format = "wheel";
-      src = pkgs.fetchPypi {
-        inherit pname version format;
-        dist = "py3";
-        python = "py3";
-        hash = "sha256-zCRXjhhFBnPs5T7ixMWW5AQizcUoGJWTSSA5DYO2WXs=";
-      };
-      dontCheckRuntimeDeps = true;
-    };
+    honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
   in {
     # Volumes, not the image store.
     persist.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 
-    virtualisation.quadlet.containers = lib.genAttrs ["honcho-api" "honcho-deriver"] (_: {containerConfig = models;});
+    virtualisation.quadlet.containers = {
+      honcho-api.containerConfig = models;
+      honcho-deriver.containerConfig = models;
+    };
 
     services.hermes-agent = {
-      # Directory plugins need plugin.yaml at the package root
-      extraPlugins = lib.mkBefore [(pkgs.runCommand "honcho" {} "cp -r ${honcho}/hermes-plugin-honcho $out")];
+      extraPlugins = lib.mkBefore [pkgs.honcho-plugin];
       extraPythonPackages = [honcho-ai];
 
       hermesHomeFiles."honcho.json" = builtins.toJSON {
