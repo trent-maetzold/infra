@@ -27,17 +27,20 @@ secrets. Commands are in README.md.
   paths, so the feature imports them itself. Packages and scripts are overlays in
   the domain's `pkgs/` (`nix/pkgs/nx.nix`); features use `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
-- `vars/`: this flake's inventory, calling `makeHost`/`makeUser`. All PII and
-  infra identity (names, emails, addresses, hostIds) lives here.
+- `vars/`: data every host and user shares (`global`: domain, tailnet, time zone).
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
   module added to `flake.nixosModules.<h>`, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
   traefik and headscale turn routes into routers and DNS records.
-- `hosts/<h>/`, `home/<u>/`: plain modules for one host or user. They import
-  profiles, never a single feature, so deleting a feature can't break them
-  silently. Push back on requests that break this.
+- `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
+  `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
+  identity (emails, addresses, hostIds, secrets) live there. Other files beside
+  them are plain modules they import. They import profiles, never a single
+  feature, so deleting a feature can't break them silently. Push back on
+  requests that break this.
 
-`flake.nix` loads `apps lib modules options packages vars` with import-tree. No
+`flake.nix` loads `apps lib modules options packages vars`, plus each
+`hosts/*/default.nix` and `users/*/default.nix`, with import-tree. No
 relative imports except data paths and `_lib/`: reach other files
 through `config.flake.*`.
 

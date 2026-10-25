@@ -100,7 +100,7 @@
     };
   };
   deepseek = "https://api.deepseek.com";
-  user = config.vars.users.tm.name;
+  user = config.flake.users.tm.name;
 
   models = {
     environmentFiles = ["/var/lib/secrets/deepseek-env" "/var/lib/secrets/openrouter-env"];

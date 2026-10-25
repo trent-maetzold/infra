@@ -83,7 +83,7 @@
     };
   };
 
-  user = config.vars.users.tm.name;
+  user = config.flake.users.tm.name;
   dashboard = "https://${routes."dash.hermes".hostname}";
 
   hosts.yggdrasil = {pkgs, ...}: {

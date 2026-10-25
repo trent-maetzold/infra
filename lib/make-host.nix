@@ -18,6 +18,7 @@
     hostId ? null,
     tailnetIp ? null,
     lan ? {},
+    ssh ? {},
     deployment ? null,
   }: let
     # The interfaces bond into bond0 behind br0, which holds the address.
@@ -61,7 +62,8 @@
 
       ssh =
         {${name}.HostName = address;}
-        // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;};
+        // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}
+        // ssh;
     }
     // lib.optionalAttrs (deployment != null) {
       colmenaNode = {
