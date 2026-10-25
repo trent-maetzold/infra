@@ -154,5 +154,10 @@
       url = "github:ayghri/i-have-adhd";
       flake = false;
     };
+
+    awesome-copilot = {
+      url = "github:github/awesome-copilot";
+      flake = false;
+    };
   };
 }

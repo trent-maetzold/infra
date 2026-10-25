@@ -5,6 +5,7 @@
 # scripts are executable.
 {
   agent-skills,
+  awesome-copilot,
   config,
   i-have-adhd,
   lib,
@@ -37,12 +38,19 @@ in {
     imports = [skills];
 
     programs.agent-skills = {
-      sources.i-have-adhd = {
-        path = i-have-adhd;
-        subdir = "skills";
+      sources = {
+        awesome-copilot = {
+          path = awesome-copilot;
+          subdir = "skills";
+        };
+
+        i-have-adhd = {
+          path = i-have-adhd;
+          subdir = "skills";
+        };
       };
 
-      skills.enable = ["i-have-adhd"];
+      skills.enable = ["git-commit" "i-have-adhd"];
     };
   };
 

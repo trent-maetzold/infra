@@ -13,7 +13,7 @@
 
       git = {
         enable = true;
-        ignores = [".serena"];
+        ignores = [".pi-lens-probe-home" ".serena"];
 
         settings = {
           init.defaultBranch = "main";
