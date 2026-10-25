@@ -7,6 +7,8 @@
     };
 
     security.rtkit.enable = true;
+    # Users with an empty password log in without one.
+    security.pam.services.lightdm.allowNullPassword = true;
   };
 in {
   # Flake Modules

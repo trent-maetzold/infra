@@ -1,6 +1,7 @@
 # A user. `imports` carries the profiles (`asgard.homeModules.*`) and plain
 # home modules. The rest is glue that applies only where a feature already
 # enabled the program; `hosts` (makeHost results) become ssh client entries.
+# An `initialPassword` must be changed at first login.
 {
   config,
   home-manager,
@@ -16,6 +17,8 @@
     publicKey ? null,
     git ? null,
     hosts ? {},
+    hashedPassword ? null,
+    initialPassword ? null,
   }: let
     homeModule = {config, ...}: {
       inherit imports;
@@ -43,6 +46,16 @@
         extraGroups = groups;
         openssh.authorizedKeys.keys = lib.optional (publicKey != null) publicKey;
         shell = lib.mkIf (shell != null) pkgs.${shell};
+        hashedPassword = lib.mkIf (hashedPassword != null) hashedPassword;
+        initialPassword = lib.mkIf (initialPassword != null) initialPassword;
+      };
+
+      # /var/lib/nixos holds user-creation state, so it outlives reboots wherever users do.
+      systemd.services."expire-${name}-password" = lib.mkIf (initialPassword != null) {
+        wantedBy = ["multi-user.target"];
+        unitConfig.ConditionPathExists = "!/var/lib/nixos/expired-${name}";
+        serviceConfig.Type = "oneshot";
+        script = "${pkgs.shadow}/bin/chage -d 0 ${name} && touch /var/lib/nixos/expired-${name}";
       };
     };
 
