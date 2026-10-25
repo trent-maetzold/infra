@@ -13,22 +13,10 @@ in {
     system = "x86_64-linux";
     address = "yggdrasil.ts.trkm.io";
     tailnetIp = "100.64.0.2";
-    imports = [global nixosModules.default nixosModules.tailnet ./boot.nix ./disk-config.nix ./persistence.nix ./vms/mimir.nix {hardware.facter.reportPath = ./facter.json;}];
+    imports = [global nixosModules.default nixosModules.tailnet ./_modules/boot.nix ./_modules/disk-config.nix ./_modules/persistence.nix {hardware.facter.reportPath = ./_modules/facter.json;}];
     users = [users.tm];
     hostId = "6d8a7c3f";
 
-    ssh = {
-      mimir = {
-        HostName = "mimir.ts.trkm.io";
-        User = "root";
-      };
-
-      yggdrasil-vnc = {
-        HostName = "yggdrasil.ts.trkm.io";
-        LocalForward = "5900 127.0.0.1:5900";
-        ExitOnForwardFailure = "yes";
-      };
-    };
     specialArgs = inputs;
 
     lan = {

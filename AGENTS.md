@@ -34,14 +34,14 @@ secrets. Commands are in README.md.
   traefik and headscale turn routes into routers and DNS records.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
-  identity (emails, addresses, hostIds, secrets) live there. Other files beside
-  them are plain modules they import. They import profiles, never a single
+  identity (emails, addresses, hostIds, secrets) live there. Their plain modules
+  live in `_modules/` beside them. A VM is its own host (`yggdrasil-mimir`); a
+  non-NixOS one gets no `nixosConfiguration`. They import profiles, never a single
   feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 
-`flake.nix` loads `apps lib modules options packages vars`, plus each
-`hosts/*/default.nix` and `users/*/default.nix`, with import-tree. No
-relative imports except data paths and `_lib/`: reach other files
+`flake.nix` loads `apps hosts lib modules options packages users vars` with
+import-tree. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
 through `config.flake.*`.
 
 ## Writing a feature

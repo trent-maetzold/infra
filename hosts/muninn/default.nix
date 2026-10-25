@@ -11,7 +11,7 @@ in {
     name = "muninn";
     address = "muninn.ts.trkm.io";
     system = "x86_64-linux";
-    imports = [global nixosModules.default nixosModules.wsl ./binfmt.nix];
+    imports = [global nixosModules.default nixosModules.wsl ./_modules/binfmt.nix];
     users = [users.tm];
     lan.address = "10.10.10.125";
     specialArgs = inputs;

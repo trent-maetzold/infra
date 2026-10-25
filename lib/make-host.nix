@@ -60,10 +60,7 @@
         modules = [nixosModule];
       };
 
-      ssh =
-        {${name}.HostName = address;}
-        // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}
-        // ssh;
+      ssh = lib.recursiveUpdate ({${name}.HostName = address;} // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}) ssh;
     }
     // lib.optionalAttrs (deployment != null) {
       colmenaNode = {

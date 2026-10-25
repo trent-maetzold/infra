@@ -80,11 +80,10 @@ Features read your values from `config.vars` (`tailnet` needs
 - `options/`: global flake-parts options and the profile registry.
 - `vars/`: data shared by every host and user (`global`).
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
-  `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; other files beside them
-  are plain modules.
+  `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
+  in `_modules/`.
 
-Every `.nix` under `apps lib modules options packages vars` (except `_` paths), and each
-`hosts/*/default.nix` and `users/*/default.nix`, is loaded by import-tree. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+Every `.nix` under `apps hosts lib modules options packages users vars` (except `_` paths) is loaded by import-tree. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 

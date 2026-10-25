@@ -16,9 +16,7 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./lib ./modules ./options ./packages ./vars])
-        # Only each host and user entry point; their other files are plain modules.
-        (import-tree.match "/[^/]+/default\\.nix" [./hosts ./users])
+        (import-tree [./apps ./hosts ./lib ./modules ./options ./packages ./users ./vars])
       ];
 
       flake.colmenaHive = let

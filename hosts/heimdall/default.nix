@@ -13,7 +13,7 @@ in {
     system = "aarch64-linux";
     address = "heimdall.ts.trkm.io";
     tailnetIp = "100.64.0.6";
-    imports = [global nixosModules.default nixosModules.qemu-guest nixosModules.tailnet ./boot.nix ./disk-config.nix];
+    imports = [global nixosModules.default nixosModules.qemu-guest nixosModules.tailnet ./_modules/boot.nix ./_modules/disk-config.nix];
     users = [users.tm-server];
     specialArgs = inputs;
 
