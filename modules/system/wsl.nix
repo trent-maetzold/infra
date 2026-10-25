@@ -13,13 +13,13 @@
     imports = [nixos-wsl.nixosModules.wsl];
 
     environment.systemPackages = with pkgs; [
-      (writeShellScriptBin "wslview" ''exec wsl-open "$@"'')
+      wslview
       wsl-open
     ];
 
     hardware = lib.mkIf config.hardware.nvidia-container-toolkit.enable {
       nvidia-container-toolkit.suppressNvidiaDriverAssertion = true;
-      nvidia.package = pkgs.runCommand "wsl-nvidia-driver-stub" {outputs = ["out" "lib"];} "mkdir -p $out $lib";
+      nvidia.package = pkgs.wsl-nvidia-driver-stub;
     };
 
     wsl = {

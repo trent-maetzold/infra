@@ -1,5 +1,11 @@
 # Traefik on heimdall, routing every route: tailnet ones only to the tailnet.
-{config, ...}: let
+{
+  config,
+  lib,
+  ...
+}: let
+  makeTraefikHttp = import ./_lib/make-traefik-http.nix {inherit lib;};
+in let
   # `api.insecure` serves the dashboard here; it is routed like any service.
   dashboard = {
     ip = "127.0.0.1";
@@ -61,19 +67,9 @@
     endpoint = dashboard;
   };
 
-  hosts.heimdall = {lib, ...}: {
+  hosts.heimdall = {
     services.traefik.dynamicConfigOptions.http = lib.mkMerge [
-      {
-        routers =
-          lib.mapAttrs (name: route: {
-            rule = "Host(`${route.hostname}`)";
-            service = name;
-            middlewares = lib.optional (!route.public) "tailnet";
-          })
-          config.routes;
-
-        services = lib.mapAttrs (_: route: {loadBalancer.servers = [{url = "http://${route.endpoint.ip}:${toString route.endpoint.port}";}];}) config.routes;
-      }
+      (makeTraefikHttp config.routes)
 
       # The dashboard's assets are relative, so it only works under /dashboard/.
       {

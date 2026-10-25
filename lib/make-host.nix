@@ -26,7 +26,7 @@
       then "eth0"
       else "br0";
     nixosModule = {options, ...}: {
-      # hack: modules declare their instance in `flake.nixosModules.<host>`.
+      # Features declare their instance on this host in `flake.nixosModules.<host>`.
       imports = imports ++ map (u: u.nixosModule) users ++ [(config.flake.nixosModules.${name} or {})];
 
       config = lib.mkMerge [

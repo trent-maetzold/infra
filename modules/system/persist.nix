@@ -1,7 +1,13 @@
 # State that outlives a reboot. Features declare what they need; the host
 # picks how: `volumes` for dirs wanting snapshots, `plain` for the rest. On a
 # persistent root (`none`) there is nothing to do.
-{config, ...}: let
+{
+  config,
+  lib,
+  ...
+}: let
+  makeSnapshotWarnings = import ./_lib/make-snapshot-warnings.nix {inherit lib;};
+in let
   persist = {
     config,
     lib,
@@ -30,8 +36,6 @@
       type = types.attrsOf types.str;
       default = {};
     };
-
-    snapshotted = lib.attrNames (lib.filterAttrs (_: d: d.snapshots) config.persist.dirs);
   in {
     options.persist = {
       volumes = mkOption {
@@ -69,7 +73,7 @@
       };
     };
 
-    config.warnings = lib.optional (config.persist.volumes == "none" && snapshotted != []) "persist: ${lib.concatStringsSep ", " snapshotted} want snapshots, but persist.volumes is none.";
+    config.warnings = makeSnapshotWarnings config.persist;
   };
 in {
   flake.modules.nixos.persist = persist;

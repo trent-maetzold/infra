@@ -124,8 +124,6 @@ in {
     };
   };
 
-  # hack: `flake.nixosModules.<host>` holds only the modules' instances, which
-  # makeHost imports.
   flake.nixosConfigurations = {
     heimdall = config.vars.hosts.heimdall.nixosConfiguration;
     muninn = config.vars.hosts.muninn.nixosConfiguration;

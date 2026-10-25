@@ -5,8 +5,7 @@
       fuse-overlayfs
       podman-compose
       slirp4netns
-      # For tools that shell out to `docker`, without the Docker API socket.
-      (writeShellScriptBin "docker" ''exec ${podman}/bin/podman "$@"'')
+      docker-compat
     ];
 
     programs = {

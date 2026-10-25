@@ -6,8 +6,6 @@
   lib,
   hermes-agent,
   hermes-webui,
-  hermex-push,
-  oh-my-hermes,
   ...
 }: let
   ports = {
@@ -56,33 +54,46 @@
     };
   };
 
-  routes =
-    lib.mapAttrs (name: port: {
-      hostname = "${name}.ts.trkm.io";
+  routes = {
+    hermes = {
+      hostname = "hermes.ts.trkm.io";
+
       endpoint = {
         ip = config.hosts.yggdrasil.ips.tailnet;
-        inherit port;
+        port = ports.webui;
       };
-    }) {
-      hermes = ports.webui;
-      "dash.hermes" = ports.dashboard;
-      "gw.hermes" = ports.gateway;
     };
+
+    "dash.hermes" = {
+      hostname = "dash.hermes.ts.trkm.io";
+
+      endpoint = {
+        ip = config.hosts.yggdrasil.ips.tailnet;
+        port = ports.dashboard;
+      };
+    };
+
+    "gw.hermes" = {
+      hostname = "gw.hermes.ts.trkm.io";
+
+      endpoint = {
+        ip = config.hosts.yggdrasil.ips.tailnet;
+        port = ports.gateway;
+      };
+    };
+  };
 
   user = config.vars.users.tm.name;
   dashboard = "https://${routes."dash.hermes".hostname}";
 
-  hosts.yggdrasil = {pkgs, ...}: let
-    # Directory plugins need plugin.yaml at the package root
-    plugin = name: src: pkgs.runCommand name {} "cp -r ${src} $out";
-  in {
+  hosts.yggdrasil = {pkgs, ...}: {
     services.hermes-agent = {
       backend = {
         host = routes."dash.hermes".endpoint.ip;
         inherit (routes."dash.hermes".endpoint) port;
       };
 
-      extraPlugins = [(plugin "omh" "${oh-my-hermes}/src/plugin_bundle/omh") (plugin "hermex-push" "${hermex-push}/plugin")];
+      extraPlugins = with pkgs; [omh hermex-push-plugin];
 
       environment = {
         API_SERVER_ENABLED = "true";

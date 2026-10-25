@@ -8,7 +8,6 @@
   awesome-copilot,
   config,
   i-have-adhd,
-  lib,
   ...
 }: let
   # Keyed so makeAgentSkill can import it again without duplicate options.
@@ -58,35 +57,13 @@ in {
   flake.homeModules.default.imports = [config.flake.modules.homeManager.agent-skills];
 
   # Functions
-  flake.lib.makeAgentSkill = {
-    name,
-    description,
-    text,
-    scripts ? {},
-    references ? {},
-  }: {pkgs, ...}: let
-    file = dir: executable: n: content: {
-      name = "${name}/${dir}/${n}";
-
-      path =
-        if builtins.isPath content
-        then content
-        else
-          pkgs.writeTextFile {
-            name = n;
-            text = content;
-            inherit executable;
-          };
-    };
+  flake.lib.makeAgentSkill = {name, ...} @ skill: {pkgs, ...}: let
+    agent-skill = pkgs.callPackage ./_lib/agent-skill.nix skill;
   in {
     imports = [skills];
 
     programs.agent-skills = {
-      sources.${name}.path = pkgs.runCommand "skill-${name}" {} "cp -rL ${pkgs.linkFarm name (
-        [(file "." false "SKILL.md" "---\nname: ${name}\ndescription: ${builtins.toJSON description}\n---\n\n${text}")]
-        ++ lib.mapAttrsToList (file "scripts" true) scripts
-        ++ lib.mapAttrsToList (file "references" false) references
-      )} $out";
+      sources.${name}.path = agent-skill;
 
       skills.explicit.${name}.from = name;
     };

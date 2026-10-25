@@ -6,26 +6,19 @@
     lib,
     ...
   }: let
+    makeAgentsMd = import ./_lib/make-agents-md.nix {inherit lib;};
+    makeSectionOptions = import ./_lib/make-section-options.nix {inherit lib;};
+  in let
     sections = ["context" "boundaries" "workflow" "style" "commands" "tools" "coding-agents"];
-    # Agent modules append their own line; sort so the section order is stable.
-    ordered = name: rules:
-      if name == "coding-agents"
-      then lib.sort builtins.lessThan rules
-      else rules;
-    render = name: rules: lib.optionalString (rules != []) "## ${lib.toSentenceCase (lib.replaceStrings ["-"] [" "] name)}\n\n${lib.concatLines (ordered name rules)}";
   in {
     options.agents.md =
-      lib.genAttrs sections (_:
-        lib.mkOption {
-          type = lib.types.listOf lib.types.lines;
-          default = [];
-        })
+      makeSectionOptions sections
       // {
         # For agents that take AGENTS.md as text (claude-code, codex).
         text = lib.mkOption {
           type = lib.types.str;
           readOnly = true;
-          default = lib.concatStringsSep "\n" (lib.filter (s: s != "") (map (s: render s config.agents.md.${s}) sections));
+          default = makeAgentsMd sections config.agents.md;
         };
       };
 

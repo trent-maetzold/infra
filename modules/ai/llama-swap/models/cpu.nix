@@ -1,7 +1,8 @@
 # llama-swap models small enough for the CPU.
-{config, ...}: let
-  inherit (config.flake.lib) makeModel makeModelOption;
-
+{lib, ...}: let
+  makeModel = import ../_lib/make-model.nix {inherit lib;};
+  makeModelOption = import ../_lib/make-model-option.nix {inherit lib;};
+in let
   modules.nixos = {
     config,
     lib,
@@ -10,7 +11,7 @@
     cfg = config.services.llama-swap;
   in {
     config = {
-      services.llama-swap.settings.models = lib.filterAttrs (_: v: v != null) {
+      services.llama-swap.settings.models = {
         "lfm2.5-2.6b" = makeModel cfg "lfm2.5-2.6b" {
           cmd = lib.mkDefault ''
             ${cfg.llamaServer} --port ''${PORT} --host 127.0.0.1 \
