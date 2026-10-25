@@ -5,7 +5,7 @@
   lib,
   ...
 }: {
-  persist.volumes = "zfs";
+  persistence.volumes = "zfs";
 
   disko.devices.zpool.tank.datasets = lib.mapAttrs' (dir: d:
     lib.nameValuePair (baseNameOf dir) {
@@ -15,5 +15,5 @@
       # A switch can add a dataset; mount it only once disko-zfs created it.
       mountOptions = ["x-systemd.requires=disko-zfs.service"];
     })
-  (lib.filterAttrs (_: d: d.snapshots) config.persist.dirs);
+  (lib.filterAttrs (_: d: d.snapshots) config.persistence.dirs);
 }

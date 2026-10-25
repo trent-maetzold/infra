@@ -1,18 +1,6 @@
-# State that outlives a reboot. Features declare what they need; the host
-# picks how: `volumes` for dirs wanting snapshots, `plain` for the rest. On a
-# persistent root (`none`) there is nothing to do.
+# `persistence`: what state features need kept, and how the host keeps it.
 {
-  config,
-  lib,
-  ...
-}: let
-  makeSnapshotWarnings = import ./_lib/make-snapshot-warnings.nix {inherit lib;};
-in let
-  persist = {
-    config,
-    lib,
-    ...
-  }: let
+  flake.modules.nixos.persistence = {lib, ...}: let
     inherit (lib) mkOption types;
 
     owner = {
@@ -37,7 +25,7 @@ in let
       default = {};
     };
   in {
-    options.persist = {
+    options.persistence = {
       volumes = mkOption {
         type = types.enum ["none" "zfs" "btrfs"];
         default = "none";
@@ -72,10 +60,5 @@ in let
         default = {};
       };
     };
-
-    config.warnings = makeSnapshotWarnings config.persist;
   };
-in {
-  flake.modules.nixos.persist = persist;
-  flake.nixosModules.default.imports = [config.flake.modules.nixos.persist];
 }
