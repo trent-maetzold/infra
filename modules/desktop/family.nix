@@ -1,8 +1,8 @@
-# The family desktop: a base host plus the tailnet; desktop features add themselves.
+# The family desktop: a base host, preservation and the tailnet; desktop features add themselves.
 {config, ...}: {
   # Home Configuration Modules
   flake.homeModules.family = {};
 
   # NixOS Configuration Modules
-  flake.nixosModules.family.imports = with config.flake.nixosModules; [default tailnet];
+  flake.nixosModules.family.imports = with config.flake.nixosModules; [default preservation tailnet];
 }
