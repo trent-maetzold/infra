@@ -56,7 +56,16 @@
       };
 
       files = mkOption {
-        type = types.attrsOf (types.submodule {options = owner;});
+        type = types.attrsOf (types.submodule {
+          options =
+            owner
+            // {
+              mode = mkOption {
+                type = types.str;
+                default = "0644";
+              };
+            };
+        });
         default = {};
       };
     };

@@ -46,7 +46,7 @@ in {
 
 ## Profiles
 
-- `nixosModules`: `default`, `family`, `nvidia-ctk`, `qemu-guest`, `quadlet`, `tailnet`, `wsl`, `wsl-nvidia-ctk`
+- `nixosModules`: `default`, `family`, `nvidia-ctk`, `preservation`, `qemu-guest`, `quadlet`, `tailnet`, `wsl`, `wsl-nvidia-ctk`
 - `homeModules`: `default`, `family`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
 - `modules.{nixos,homeManager}.<feature>`: each feature alone
 
