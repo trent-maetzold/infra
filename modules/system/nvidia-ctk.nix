@@ -6,8 +6,8 @@
   };
 in {
   # Flake Modules
-  flake.modules.nixos.nvidia = modules.nixos;
+  flake.modules.nixos.nvidia-ctk = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.nvidia.imports = [config.flake.modules.nixos.nvidia];
+  flake.nixosModules.nvidia-ctk.imports = [config.flake.modules.nixos.nvidia-ctk];
 }

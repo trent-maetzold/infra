@@ -2,7 +2,7 @@
   imports = [
     ./boot.nix
     ./disk-config.nix
-    ./persist.nix
+    ./persistence.nix
     ./vms/mimir.nix
   ];
 

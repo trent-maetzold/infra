@@ -3,17 +3,10 @@ let
   modules.nixos = {
     config,
     lib,
-    pkgs,
     ...
   }: let
     cfg = config.services.llama-swap;
     wslEnabled = config.wsl.enable or false;
-
-    llamaServer = lib.getExe' (
-      if cfg.cuda.enable
-      then pkgs.llama-cpp.override {cudaSupport = true;}
-      else pkgs.llama-cpp
-    ) "llama-server";
   in {
     config = {
       services.llama-swap.enable = true;
@@ -38,16 +31,6 @@ let
         lib.optional
         ((cfg.settings.models or {}) == {})
         "llama-swap is enabled but no models are configured (services.llama-swap.settings.models). The service will serve nothing.";
-    };
-
-    options = {
-      services.llama-swap.cuda.enable = lib.mkEnableOption "cuda support for llama-cpp";
-
-      services.llama-swap.llamaServer = lib.mkOption {
-        type = lib.types.path;
-        default = llamaServer;
-        description = "llama-server binary used by llama-swap model commands.";
-      };
     };
   };
 in {
