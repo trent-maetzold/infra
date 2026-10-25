@@ -78,7 +78,7 @@ in {
 Domains: `nix` (Nix and flake plumbing), `system` (host OS behaviour), `shell`
 (the interactive terminal), `dev` (writing and running code), `ai` (agents,
 models, memory), `network` (tailnet and routing), `infra` (deploying and
-running fleets).
+running fleets), `desktop` (graphical sessions and their apps).
 
 ## Style
 

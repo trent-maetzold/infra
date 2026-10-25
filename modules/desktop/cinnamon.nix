@@ -1,0 +1,17 @@
+# Cinnamon on X11 with LightDM; it brings NetworkManager, PipeWire and portals.
+{config, ...}: let
+  modules.nixos = {
+    services.xserver = {
+      enable = true;
+      desktopManager.cinnamon.enable = true;
+    };
+
+    security.rtkit.enable = true;
+  };
+in {
+  # Flake Modules
+  flake.modules.nixos.cinnamon = modules.nixos;
+
+  # NixOS Configuration Modules
+  flake.nixosModules.family.imports = [config.flake.modules.nixos.cinnamon];
+}
