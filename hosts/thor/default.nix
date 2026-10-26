@@ -11,7 +11,12 @@ in {
     name = "thor";
     system = "x86_64-linux";
     address = "thor.ts.trkm.io";
-    imports = [nixosModules.globals nixosModules.default nixosModules.thor {disko.devices.disk.main.device = "/dev/nvme0n1";}];
+    imports = [
+      nixosModules.globals
+      nixosModules.default
+      nixosModules.thor
+      {disko.devices.disk.main.device = "/dev/nvme0n1";}
+    ];
     users = [users.trent];
     ssh.thor.User = "trent";
     specialArgs = inputs;
