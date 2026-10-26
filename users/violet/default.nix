@@ -8,5 +8,5 @@ in {
     imports = [homeModules.violet];
   };
 
-  flake.homeModules.violet.imports = [homeModules.family];
+  flake.homeModules.violet.imports = [homeModules.kids];
 }

@@ -13,7 +13,6 @@ in {
   flake.modules.nixos.disko-tmpfs-root = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.disko-tmpfs-root.imports = [config.flake.modules.nixos.disko-tmpfs-root];
   flake.nixosModules.frigg.imports = [config.flake.modules.nixos.disko-tmpfs-root];
   flake.nixosModules.thor.imports = [config.flake.modules.nixos.disko-tmpfs-root];
 }

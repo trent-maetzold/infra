@@ -63,6 +63,8 @@ in {
   flake.modules.nixos.preservation = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.preservation.imports = [config.flake.modules.nixos.preservation];
-  flake.nixosModules.thor.imports = [config.flake.modules.nixos.preservation];
+  flake.nixosModules = {
+    family.imports = [config.flake.modules.nixos.preservation];
+    thor.imports = [config.flake.modules.nixos.preservation];
+  };
 }
