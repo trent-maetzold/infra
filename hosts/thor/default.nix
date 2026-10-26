@@ -5,14 +5,13 @@
   ...
 }: let
   inherit (config.flake) nixosModules users;
-  inherit (config.vars) global;
   secrets = "/home/tm/code/nix-secrets/secrets";
 in {
   flake.hosts.thor = config.flake.lib.makeHost {
     name = "thor";
     system = "x86_64-linux";
     address = "thor.ts.trkm.io";
-    imports = [global nixosModules.default nixosModules.preservation nixosModules.tailnet nixosModules.disko-btrfs nixosModules.disko-tmpfs-root {disko.devices.disk.main.device = "/dev/nvme0n1";}];
+    imports = [nixosModules.global nixosModules.default nixosModules.preservation nixosModules.tailnet nixosModules.disko-btrfs nixosModules.disko-tmpfs-root {disko.devices.disk.main.device = "/dev/nvme0n1";}];
     users = [users.trent];
     ssh.thor.User = "trent";
     specialArgs = inputs;
