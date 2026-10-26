@@ -1,6 +1,6 @@
 # justine: family desktop with Flatpak and Chrome; sets her own password at first login.
 {config, ...}: let
-  inherit (config.flake) homeModules modules;
+  inherit (config.flake) homeModules;
 in {
   flake.users.justine = config.flake.lib.makeUser {
     name = "justine";
@@ -8,9 +8,5 @@ in {
     imports = [homeModules.justine];
   };
 
-  flake.homeModules.justine.imports = [
-    homeModules.family
-    modules.homeManager.flatpak
-    {services.flatpak.packages = ["com.google.Chrome"];}
-  ];
+  flake.homeModules.justine.imports = [homeModules.family {services.flatpak.packages = ["com.google.Chrome"];}];
 }

@@ -1,7 +1,6 @@
-# trent: tm's workstation setup under the new name, plus NVIDIA monitors.
+# trent: tm's workstation setup under the new name; features add the rest.
 {config, ...}: let
-  inherit (config.flake) homeModules modules;
-  inherit (config.vars) global;
+  inherit (config.flake) homeModules;
 in {
   flake.users.trent = config.flake.lib.makeUser {
     name = "trent";
@@ -15,6 +14,8 @@ in {
       email = "trent@maetzold.co";
     };
 
-    imports = [global homeModules.default homeModules.data homeModules.infra modules.homeManager.nvidia-tools];
+    imports = [homeModules.trent];
   };
+
+  flake.homeModules.trent.imports = [homeModules.global homeModules.default];
 }

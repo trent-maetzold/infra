@@ -1,6 +1,6 @@
 # leo: family desktop with Roblox Studio; logs in without a password.
 {config, ...}: let
-  inherit (config.flake) homeModules modules;
+  inherit (config.flake) homeModules;
 in {
   flake.users.leo = config.flake.lib.makeUser {
     name = "leo";
@@ -8,5 +8,5 @@ in {
     imports = [homeModules.leo];
   };
 
-  flake.homeModules.leo.imports = [homeModules.family modules.homeManager.roblox-studio];
+  flake.homeModules.leo.imports = [homeModules.family];
 }

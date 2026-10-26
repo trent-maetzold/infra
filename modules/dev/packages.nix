@@ -9,4 +9,5 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.data.imports = [config.flake.modules.homeManager.pkgs-data];
+  flake.homeModules.trent.imports = [config.flake.modules.homeManager.pkgs-data];
 }

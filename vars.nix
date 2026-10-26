@@ -1,6 +1,6 @@
 # Shared by every host and user: the values features read from `config.vars`.
-{
-  vars.global = {
+let
+  global = {
     vars = {
       domain = "trkm.io";
       acmeEmail = "tkm89@proton.me";
@@ -14,4 +14,7 @@
       };
     };
   };
+in {
+  flake.homeModules.global = global;
+  flake.nixosModules.global = global;
 }

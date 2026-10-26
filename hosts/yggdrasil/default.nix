@@ -5,7 +5,6 @@
   ...
 }: let
   inherit (config.flake) nixosModules users;
-  inherit (config.vars) global;
   secrets = "/home/tm/code/nix-secrets/secrets";
 in {
   flake.hosts.yggdrasil = config.flake.lib.makeHost {
@@ -13,7 +12,7 @@ in {
     system = "x86_64-linux";
     address = "yggdrasil.ts.trkm.io";
     tailnetIp = "100.64.0.2";
-    imports = [global nixosModules.default nixosModules.tailnet ./_modules/boot.nix ./_modules/disk-config.nix ./_modules/persistence.nix {hardware.facter.reportPath = ./_modules/facter.json;}];
+    imports = [nixosModules.global nixosModules.default nixosModules.tailnet ./_modules/boot.nix ./_modules/disk-config.nix ./_modules/persistence.nix {hardware.facter.reportPath = ./_modules/facter.json;}];
     users = [users.tm];
     hostId = "6d8a7c3f";
 
