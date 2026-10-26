@@ -15,7 +15,8 @@ in {
       nixosModules.globals
       nixosModules.default
       nixosModules.thor
-      {disko.devices.disk.main.device = "/dev/nvme0n1";}
+      ./_modules/boot.nix
+      ./_modules/disk-config.nix
     ];
     users = [users.trent];
     ssh.thor.User = "trent";

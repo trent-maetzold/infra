@@ -1,4 +1,4 @@
-# Disk `main`: a 4G ESP with systemd-boot and btrfs @nix, @persist and @home.
+# Disk `main`: a 4G ESP and btrfs @nix, @persist and @home.
 # Hosts set `disko.devices.disk.main.device`.
 {
   config,
@@ -9,11 +9,6 @@
 
   modules.nixos = {
     imports = [disko.nixosModules.disko];
-
-    boot.loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
 
     disko.devices.disk.main = {
       type = "disk";

@@ -16,7 +16,8 @@ in {
       nixosModules.default
       nixosModules.desktop
       nixosModules.frigg
-      {disko.devices.disk.main.device = "/dev/nvme0n1";}
+      ./_modules/boot.nix
+      ./_modules/disk-config.nix
       ./_modules/nvidia.nix
     ];
     users = with users; [trent justine leo violet june];
