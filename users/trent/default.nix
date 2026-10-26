@@ -21,4 +21,6 @@ in {
       homeModules.trent
     ];
   };
+
+  flake.homeModules.trent = {};
 }
