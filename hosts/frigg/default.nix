@@ -31,4 +31,6 @@ in {
   };
 
   flake.nixosConfigurations.frigg = config.flake.hosts.frigg.nixosConfiguration;
+
+  flake.nixosModules.frigg = {};
 }

@@ -29,4 +29,6 @@ in {
   };
 
   flake.nixosConfigurations.thor = config.flake.hosts.thor.nixosConfiguration;
+
+  flake.nixosModules.thor = {};
 }
