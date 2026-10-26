@@ -48,4 +48,6 @@ in {
   };
 
   flake.nixosConfigurations.heimdall = config.flake.hosts.heimdall.nixosConfiguration;
+
+  flake.nixosModules.heimdall = {};
 }

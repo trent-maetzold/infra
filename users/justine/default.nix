@@ -7,4 +7,6 @@ in {
     initialPassword = "changeme";
     imports = [homeModules.justine];
   };
+
+  flake.homeModules.justine = {};
 }

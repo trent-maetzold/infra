@@ -86,4 +86,6 @@ in {
   };
 
   flake.nixosConfigurations.yggdrasil = config.flake.hosts.yggdrasil.nixosConfiguration;
+
+  flake.nixosModules.yggdrasil = {};
 }

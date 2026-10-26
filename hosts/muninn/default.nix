@@ -22,4 +22,6 @@ in {
   };
 
   flake.nixosConfigurations.muninn = config.flake.hosts.muninn.nixosConfiguration;
+
+  flake.nixosModules.muninn = {};
 }

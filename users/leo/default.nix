@@ -10,4 +10,6 @@ in {
       homeModules.kids
     ];
   };
+
+  flake.homeModules.leo = {};
 }
