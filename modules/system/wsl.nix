@@ -34,7 +34,5 @@ in {
   flake.modules.nixos.wsl-nvidia-ctk = modules.nixos-nvidia-ctk;
 
   # NixOS Configuration Modules
-  flake.nixosModules.wsl.imports = [config.flake.modules.nixos.wsl];
-  flake.nixosModules.muninn.imports = [config.flake.modules.nixos.wsl];
-  flake.nixosModules.wsl-nvidia-ctk.imports = with config.flake.modules.nixos; [nvidia-ctk wsl-nvidia-ctk];
+  flake.nixosModules.muninn.imports = with config.flake.modules.nixos; [wsl wsl-nvidia-ctk];
 }

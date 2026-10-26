@@ -28,7 +28,7 @@ let
   box = makeHost {
     name = "box";
     system = "x86_64-linux";
-    imports = [global asgard.nixosModules.default asgard.nixosModules.tailnet ./hosts/box];
+    imports = [global asgard.nixosModules.default asgard.modules.nixos.tailscale ./hosts/box];
     users = [trent];
     specialArgs = inputs;             # everything below here is optional
     address = "box.example.com";      # ssh HostName

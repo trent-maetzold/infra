@@ -8,5 +8,5 @@ in {
     imports = [homeModules.leo];
   };
 
-  flake.homeModules.leo.imports = [homeModules.family];
+  flake.homeModules.leo.imports = [homeModules.kids];
 }

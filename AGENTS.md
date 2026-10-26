@@ -34,6 +34,9 @@ secrets. Commands are in README.md.
   that get it, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
   traefik and headscale turn routes into routers and DNS records.
+- Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
+  Profiles bundle several features; a single feature is reused as
+  `flake.modules.<class>.<feature>`, never as a one-feature profile.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
   identity (emails, addresses, hostIds, secrets) live there. Their plain modules
