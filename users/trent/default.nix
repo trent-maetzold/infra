@@ -6,7 +6,7 @@ in {
     name = "trent";
     groups = ["wheel"];
     shell = "zsh";
-    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZMIGNBlZ+VX528eFfwCmEuN4oQCigRA+FPwADzixds tm@hive";
+    publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZMIGNBlZ+VX528eFfwCmEuN4oQCigRA+FPwADzixds trent-maetzold@id";
     inherit (config.flake) hosts;
 
     git = {
@@ -14,12 +14,11 @@ in {
       email = "trent@maetzold.co";
     };
 
-    imports = [homeModules.trent];
+    imports = [
+      homeModules.globals
+      homeModules.default
+      homeModules.infra
+      homeModules.trent
+    ];
   };
-
-  flake.homeModules.trent.imports = [
-    homeModules.globals
-    homeModules.default
-    homeModules.infra
-  ];
 }

@@ -6,8 +6,5 @@
   };
 
   # Home Configuration Modules
-  flake.homeModules = {
-    leo.imports = [config.flake.modules.homeManager.roblox-studio];
-    violet.imports = [config.flake.modules.homeManager.roblox-studio];
-  };
+  flake.homeModules.kids.imports = [config.flake.modules.homeManager.roblox-studio];
 }
