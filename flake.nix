@@ -85,6 +85,9 @@
       inputs.disko.follows = "disko";
     };
 
+    # Desktop
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
+
     # Infra
     colmena = {
       url = "github:zhaofengli/colmena";

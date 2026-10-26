@@ -46,8 +46,8 @@ in {
 
 ## Profiles
 
-- `nixosModules`: `default`, `nvidia-ctk`, `qemu-guest`, `quadlet`, `tailnet`, `wsl`, `wsl-nvidia-ctk`
-- `homeModules`: `default`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
+- `nixosModules`: `default`, `family`, `nvidia-ctk`, `qemu-guest`, `quadlet`, `tailnet`, `wsl`, `wsl-nvidia-ctk`
+- `homeModules`: `default`, `family`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
 - `modules.{nixos,homeManager}.<feature>`: each feature alone
 
 Features read your values from `config.vars` (`tailnet` needs
