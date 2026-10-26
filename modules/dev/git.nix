@@ -29,5 +29,5 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.git];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager.git];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager.git];
 }

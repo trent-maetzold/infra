@@ -7,11 +7,13 @@
     };
 
     security.rtkit.enable = true;
+    # Users with an empty password log in without one.
+    security.pam.services.lightdm.allowNullPassword = true;
   };
 in {
   # Flake Modules
   flake.modules.nixos.cinnamon = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.family.imports = [config.flake.modules.nixos.cinnamon];
+  flake.nixosModules.desktop.imports = [config.flake.modules.nixos.cinnamon];
 }

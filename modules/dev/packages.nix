@@ -8,5 +8,5 @@ in {
   flake.modules.homeManager.pkgs-data = modules.homeManager;
 
   # Home Configuration Modules
-  flake.homeModules.data.imports = [config.flake.modules.homeManager.pkgs-data];
+  flake.homeModules.default.imports = [config.flake.modules.homeManager.pkgs-data];
 }

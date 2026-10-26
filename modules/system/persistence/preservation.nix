@@ -1,7 +1,6 @@
 # Keeps `persistence` state on /persist with preservation, for hosts whose `/`
 # is a tmpfs.
 {
-  config,
   lib,
   preservation,
   ...
@@ -61,7 +60,4 @@ in let
 in {
   # Flake Modules
   flake.modules.nixos.preservation = modules.nixos;
-
-  # NixOS Configuration Modules
-  flake.nixosModules.preservation.imports = [config.flake.modules.nixos.preservation];
 }

@@ -1,7 +1,6 @@
 # tm: the workstation user; tm-server is the same user with server tooling only.
 {config, ...}: let
   inherit (config.flake) homeModules;
-  inherit (config.vars) global;
 
   tm = imports:
     config.flake.lib.makeUser {
@@ -16,16 +15,23 @@
         email = "trent@maetzold.co";
       };
 
-      imports = [global] ++ imports;
+      inherit imports;
     };
 in {
   flake.users = {
-    tm = tm [homeModules.default homeModules.data homeModules.infra];
+    tm = tm [homeModules.tm];
     # Servers: shell, git and nix tooling only.
-    tm-server = tm [homeModules.server];
+    tm-server = tm [
+      homeModules.globals
+      homeModules.default-slim
+    ];
   };
 
-  flake.homeModules.tm = config.flake.users.tm.homeModule;
+  flake.homeModules.tm.imports = [
+    homeModules.globals
+    homeModules.default
+    homeModules.infra
+  ];
 
   perSystem = {system, ...}: {
     legacyPackages.homeConfigurations.tm = config.flake.users.tm.homeConfiguration system;

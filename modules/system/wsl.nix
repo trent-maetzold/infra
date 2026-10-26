@@ -22,7 +22,7 @@
   };
 
   # The NVIDIA container toolkit on WSL, against the Windows driver.
-  modules.nixos-nvidia-ctk = {pkgs, ...}: {
+  modules.nixos-ctk = {pkgs, ...}: {
     hardware = {
       nvidia-container-toolkit.suppressNvidiaDriverAssertion = true;
       nvidia.package = pkgs.wsl-nvidia-driver-stub;
@@ -31,9 +31,8 @@
 in {
   # Flake Modules
   flake.modules.nixos.wsl = modules.nixos;
-  flake.modules.nixos.wsl-nvidia-ctk = modules.nixos-nvidia-ctk;
+  flake.modules.nixos.wsl-ctk = modules.nixos-ctk;
 
   # NixOS Configuration Modules
-  flake.nixosModules.wsl.imports = [config.flake.modules.nixos.wsl];
-  flake.nixosModules.wsl-nvidia-ctk.imports = with config.flake.modules.nixos; [nvidia-ctk wsl-nvidia-ctk];
+  flake.nixosModules.muninn.imports = with config.flake.modules.nixos; [wsl wsl-ctk];
 }

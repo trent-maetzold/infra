@@ -8,5 +8,5 @@ in {
   flake.modules.nixos.qemu-guest = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.qemu-guest.imports = [config.flake.modules.nixos.qemu-guest];
+  flake.nixosModules.heimdall.imports = [config.flake.modules.nixos.qemu-guest];
 }

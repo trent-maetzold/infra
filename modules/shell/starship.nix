@@ -17,5 +17,5 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.starship];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager.starship];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager.starship];
 }

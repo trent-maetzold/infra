@@ -16,5 +16,8 @@ in {
   flake.modules.nixos.tailscale = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.tailnet.imports = [config.flake.modules.nixos.tailscale];
+  flake.nixosModules = {
+    heimdall.imports = [config.flake.modules.nixos.tailscale];
+    yggdrasil.imports = [config.flake.modules.nixos.tailscale];
+  };
 }
