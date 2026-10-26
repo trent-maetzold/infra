@@ -5,6 +5,9 @@ in {
   flake.users.leo = config.flake.lib.makeUser {
     name = "leo";
     hashedPassword = "";
-    imports = [homeModules.kids];
+    imports = [
+      homeModules.leo
+      homeModules.kids
+    ];
   };
 }
