@@ -64,4 +64,5 @@ in {
 
   # NixOS Configuration Modules
   flake.nixosModules.preservation.imports = [config.flake.modules.nixos.preservation];
+  flake.nixosModules.thor.imports = [config.flake.modules.nixos.preservation];
 }

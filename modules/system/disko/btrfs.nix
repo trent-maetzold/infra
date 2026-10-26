@@ -69,4 +69,6 @@ in {
 
   # NixOS Configuration Modules
   flake.nixosModules.disko-btrfs.imports = [config.flake.modules.nixos.disko-btrfs];
+  flake.nixosModules.frigg.imports = [config.flake.modules.nixos.disko-btrfs];
+  flake.nixosModules.thor.imports = [config.flake.modules.nixos.disko-btrfs];
 }
