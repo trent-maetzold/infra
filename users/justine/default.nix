@@ -5,6 +5,9 @@ in {
   flake.users.justine = config.flake.lib.makeUser {
     name = "justine";
     initialPassword = "changeme";
-    imports = [homeModules.family modules.homeManager.google-chrome];
+    unfreePackages = ["google-chrome"];
+    imports = [homeModules.justine];
   };
+
+  flake.homeModules.justine.imports = [homeModules.family modules.homeManager.google-chrome];
 }

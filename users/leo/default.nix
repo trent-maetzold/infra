@@ -5,6 +5,8 @@ in {
   flake.users.leo = config.flake.lib.makeUser {
     name = "leo";
     hashedPassword = "";
-    imports = [homeModules.family modules.homeManager.roblox-studio];
+    imports = [homeModules.leo];
   };
+
+  flake.homeModules.leo.imports = [homeModules.family modules.homeManager.roblox-studio];
 }
