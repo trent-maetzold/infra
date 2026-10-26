@@ -12,7 +12,7 @@ in {
     system = "x86_64-linux";
     address = "yggdrasil.ts.trkm.io";
     tailnetIp = "100.64.0.2";
-    imports = [nixosModules.global nixosModules.default nixosModules.yggdrasil ./_modules/boot.nix ./_modules/disk-config.nix ./_modules/persistence.nix {hardware.facter.reportPath = ./_modules/facter.json;}];
+    imports = [nixosModules.globals nixosModules.default nixosModules.yggdrasil ./_modules/boot.nix ./_modules/disk-config.nix ./_modules/persistence.nix {hardware.facter.reportPath = ./_modules/facter.json;}];
     users = [users.tm];
     hostId = "6d8a7c3f";
 

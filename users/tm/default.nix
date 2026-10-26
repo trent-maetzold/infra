@@ -15,7 +15,7 @@
         email = "trent@maetzold.co";
       };
 
-      imports = [homeModules.global] ++ imports;
+      imports = [homeModules.globals] ++ imports;
     };
 in {
   flake.users = {

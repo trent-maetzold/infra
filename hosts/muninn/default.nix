@@ -10,7 +10,7 @@ in {
     name = "muninn";
     address = "muninn.ts.trkm.io";
     system = "x86_64-linux";
-    imports = [nixosModules.global nixosModules.default nixosModules.muninn ./_modules/binfmt.nix];
+    imports = [nixosModules.globals nixosModules.default nixosModules.muninn ./_modules/binfmt.nix];
     users = [users.tm];
     lan.address = "10.10.10.125";
     specialArgs = inputs;

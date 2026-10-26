@@ -12,7 +12,7 @@ hosts and users. Rules for editing it are in AGENTS.md.
 let
   inherit (asgard.lib) makeAgentRules makeHost makeUser;
   # The values features read, shared by everything.
-  global.vars = {
+  globals.vars = {
     tailnet.loginServer = "https://hs.work.com";
     flake = "/home/trent/code/infra"; # nh
   };
@@ -23,12 +23,12 @@ let
     publicKey = "ssh-ed25519 ...";
     git = {name = "Trent"; email = "trent@work.com";};
     hosts = {inherit box;};           # ssh client entries
-    imports = [global asgard.homeModules.default ./home/trent (makeAgentRules {workflow = "- Open a PR.";})];
+    imports = [globals asgard.homeModules.default ./home/trent (makeAgentRules {workflow = "- Open a PR.";})];
   };
   box = makeHost {
     name = "box";
     system = "x86_64-linux";
-    imports = [global asgard.nixosModules.default asgard.modules.nixos.tailscale ./hosts/box];
+    imports = [globals asgard.nixosModules.default asgard.modules.nixos.tailscale ./hosts/box];
     users = [trent];
     specialArgs = inputs;             # everything below here is optional
     address = "box.example.com";      # ssh HostName
@@ -46,8 +46,8 @@ in {
 
 ## Profiles
 
-- `nixosModules`: `default`, `family`, `nvidia-ctk`, `preservation`, `qemu-guest`, `quadlet`, `tailnet`, `wsl`, `wsl-nvidia-ctk`
-- `homeModules`: `default`, `family`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
+- `nixosModules`: `default`, `family`, `quadlet`
+- `homeModules`: `default`, `kids`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
 - `modules.{nixos,homeManager}.<feature>`: each feature alone
 
 Features read your values from `config.vars` (`tailnet` needs
@@ -80,7 +80,7 @@ Features read your values from `config.vars` (`tailnet` needs
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
 - `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
-- `vars.nix`: data shared by every host and user (`global`).
+- `vars.nix`: data shared by every host and user (`globals`).
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
   in `_modules/`.

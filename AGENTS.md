@@ -27,7 +27,7 @@ secrets. Commands are in README.md.
   paths, so the feature imports them itself. Packages and scripts are overlays in
   the domain's `pkgs/` (`nix/pkgs/nx.nix`); features use `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
-- `vars.nix`: `{homeModules,nixosModules}.global`, the data every host and user shares (domain, tailnet, time zone, flake path).
+- `vars.nix`: `{homeModules,nixosModules}.globals`, the data every host and user shares (domain, tailnet, time zone, flake path).
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
   module added to `flake.nixosModules.<h>`, the feature itself added to
   `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
@@ -35,8 +35,6 @@ secrets. Commands are in README.md.
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
   traefik and headscale turn routes into routers and DNS records.
 - Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
-  Profiles bundle several features; a single feature is reused as
-  `flake.modules.<class>.<feature>`, never as a one-feature profile.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
   identity (emails, addresses, hostIds, secrets) live there. Their plain modules
