@@ -33,7 +33,7 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.ssh];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager.ssh];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager.ssh];
 
   # NixOS Configuration Modules
   flake.nixosModules.default.imports = [config.flake.modules.nixos.ssh];

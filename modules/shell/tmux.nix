@@ -32,5 +32,5 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.tmux];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager.tmux];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager.tmux];
 }

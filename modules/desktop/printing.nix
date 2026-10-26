@@ -14,5 +14,5 @@ in {
   flake.modules.nixos.printing = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.family.imports = [config.flake.modules.nixos.printing];
+  flake.nixosModules.desktop.imports = [config.flake.modules.nixos.printing];
 }

@@ -3,18 +3,17 @@
 {
   flake = {
     homeModules = {
-      data = {};
       default = {};
+      default-slim = {};
+      desktop = {};
+      kids = {};
       infra = {};
-      server = {};
     };
 
     nixosModules = {
       default = {};
+      desktop = {};
       nvidia = {};
-      qemu-guest = {};
-      tailnet = {};
-      wsl = {};
     };
   };
 }

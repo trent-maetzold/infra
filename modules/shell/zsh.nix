@@ -15,5 +15,5 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.zsh];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager.zsh];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager.zsh];
 }

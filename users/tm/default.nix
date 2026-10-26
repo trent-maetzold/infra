@@ -15,16 +15,16 @@
         email = "trent@maetzold.co";
       };
 
-      imports = [homeModules.globals] ++ imports;
+      inherit imports;
     };
 in {
   flake.users = {
-    tm = tm [homeModules.default homeModules.data homeModules.infra];
+    tm = tm [homeModules.tm];
     # Servers: shell, git and nix tooling only.
-    tm-server = tm [homeModules.server];
+    tm-server = tm [homeModules.globals homeModules.default-slim];
   };
 
-  flake.homeModules.tm = config.flake.users.tm.homeModule;
+  flake.homeModules.tm.imports = [homeModules.globals homeModules.default homeModules.infra];
 
   perSystem = {system, ...}: {
     legacyPackages.homeConfigurations.tm = config.flake.users.tm.homeConfiguration system;
