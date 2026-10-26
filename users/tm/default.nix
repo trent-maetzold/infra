@@ -21,10 +21,17 @@ in {
   flake.users = {
     tm = tm [homeModules.tm];
     # Servers: shell, git and nix tooling only.
-    tm-server = tm [homeModules.globals homeModules.default-slim];
+    tm-server = tm [
+      homeModules.globals
+      homeModules.default-slim
+    ];
   };
 
-  flake.homeModules.tm.imports = [homeModules.globals homeModules.default homeModules.infra];
+  flake.homeModules.tm.imports = [
+    homeModules.globals
+    homeModules.default
+    homeModules.infra
+  ];
 
   perSystem = {system, ...}: {
     legacyPackages.homeConfigurations.tm = config.flake.users.tm.homeConfiguration system;

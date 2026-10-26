@@ -17,5 +17,9 @@ in {
     imports = [homeModules.trent];
   };
 
-  flake.homeModules.trent.imports = [homeModules.globals homeModules.default homeModules.infra];
+  flake.homeModules.trent.imports = [
+    homeModules.globals
+    homeModules.default
+    homeModules.infra
+  ];
 }
