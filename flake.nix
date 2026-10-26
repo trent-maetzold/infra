@@ -85,6 +85,8 @@
       inputs.disko.follows = "disko";
     };
 
+    preservation.url = "github:nix-community/preservation";
+
     # Desktop
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
