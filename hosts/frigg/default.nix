@@ -11,7 +11,7 @@ in {
     name = "frigg";
     system = "x86_64-linux";
     address = "frigg.ts.trkm.io";
-    imports = [nixosModules.globals nixosModules.family nixosModules.frigg {disko.devices.disk.main.device = "/dev/nvme0n1";} ./_modules/nvidia.nix];
+    imports = [nixosModules.globals nixosModules.default nixosModules.desktop nixosModules.frigg {disko.devices.disk.main.device = "/dev/nvme0n1";} ./_modules/nvidia.nix];
     users = with users; [trent justine leo violet june];
     ssh.frigg.User = "trent";
     specialArgs = inputs;

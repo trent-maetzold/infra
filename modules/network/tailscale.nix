@@ -17,6 +17,7 @@ in {
 
   # NixOS Configuration Modules
   flake.nixosModules = {
+    frigg.imports = [config.flake.modules.nixos.tailscale];
     heimdall.imports = [config.flake.modules.nixos.tailscale];
     thor.imports = [config.flake.modules.nixos.tailscale];
     yggdrasil.imports = [config.flake.modules.nixos.tailscale];
