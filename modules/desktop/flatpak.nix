@@ -19,5 +19,8 @@
   };
 
   # Home Configuration Modules
-  flake.homeModules.justine.imports = [config.flake.modules.homeManager.flatpak];
+  flake.homeModules = {
+    justine.imports = [config.flake.modules.homeManager.flatpak];
+    trent.imports = [config.flake.modules.homeManager.flatpak];
+  };
 }
