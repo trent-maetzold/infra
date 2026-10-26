@@ -15,5 +15,5 @@ in {
   flake.modules.nixos.cinnamon = modules.nixos;
 
   # NixOS Configuration Modules
-  flake.nixosModules.family.imports = [config.flake.modules.nixos.cinnamon];
+  flake.nixosModules.desktop.imports = [config.flake.modules.nixos.cinnamon];
 }

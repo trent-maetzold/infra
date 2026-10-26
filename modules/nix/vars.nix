@@ -14,7 +14,7 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.vars];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager.vars];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager.vars];
 
   # NixOS Configuration Modules
   flake.nixosModules.default.imports = [config.flake.modules.nixos.vars];

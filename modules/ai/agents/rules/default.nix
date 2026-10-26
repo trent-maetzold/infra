@@ -32,5 +32,5 @@
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager."AGENTS.md"];
-  flake.homeModules.server.imports = [config.flake.modules.homeManager."AGENTS.md"];
+  flake.homeModules.default-slim.imports = [config.flake.modules.homeManager."AGENTS.md"];
 }

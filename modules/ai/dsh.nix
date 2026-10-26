@@ -1,5 +1,5 @@
 # DeepSeek's agent harness, dsh.
-{config, ...}: let
+let
   modules.homeManager = {pkgs, ...}: {
     home.packages = [pkgs.llm-agents.dsh];
 
@@ -10,7 +10,4 @@
 in {
   # Flake Modules
   flake.modules.homeManager.dsh = modules.homeManager;
-
-  # Home Configuration Modules
-  flake.homeModules.dsh.imports = [config.flake.modules.homeManager.dsh];
 }

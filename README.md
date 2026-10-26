@@ -46,8 +46,8 @@ in {
 
 ## Profiles
 
-- `nixosModules`: `default`, `family`, `quadlet`
-- `homeModules`: `default`, `kids`, `server`, `data`, `infra`, `cursor-cli`, `dsh`
+- `nixosModules`: `default`
+- `homeModules`: `default`, `default-slim`, `desktop`, `kids`, `infra`
 - `modules.{nixos,homeManager}.<feature>`: each feature alone
 
 Features read your values from `config.vars` (`tailnet` needs

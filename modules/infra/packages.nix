@@ -9,5 +9,4 @@ in {
 
   # Home Configuration Modules
   flake.homeModules.infra.imports = [config.flake.modules.homeManager.pkgs-infra];
-  flake.homeModules.trent.imports = [config.flake.modules.homeManager.pkgs-infra];
 }
