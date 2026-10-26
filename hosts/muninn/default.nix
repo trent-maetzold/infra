@@ -13,7 +13,6 @@ in {
     imports = [
       nixosModules.globals
       nixosModules.default
-      nixosModules.nvidia
       nixosModules.muninn
       ./_modules/binfmt.nix
     ];
