@@ -1,8 +1,7 @@
 # A user. `imports` carries the profiles (`asgard.homeModules.*`) and plain
 # home modules. The rest is glue that applies only where a feature already
 # enabled the program; `hosts` (makeHost results) become ssh client entries.
-# An `initialPassword` must be changed at first login. `unfreePackages` are
-# allowed on every host the user is on.
+# An `initialPassword` must be changed at first login.
 {
   config,
   home-manager,
@@ -20,7 +19,6 @@
     hosts ? {},
     hashedPassword ? null,
     initialPassword ? null,
-    unfreePackages ? [],
   }: let
     homeModule = {config, ...}: {
       inherit imports;
@@ -39,7 +37,6 @@
       imports = [home-manager.nixosModules.home-manager];
 
       home-manager.users.${name} = homeModule;
-      nixpkgs.config.allowUnfreePackages = unfreePackages;
 
       # A login shell needs its NixOS module for /etc/shells and the system profile.
       programs = lib.optionalAttrs (shell != null) {${shell}.enable = true;};
@@ -66,7 +63,6 @@
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           inherit system;
-          config.allowUnfreePackages = unfreePackages;
           overlays = lib.attrValues config.flake.overlays;
         };
 
