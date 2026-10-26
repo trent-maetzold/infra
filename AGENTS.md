@@ -29,8 +29,9 @@ secrets. Commands are in README.md.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars.nix`: `{homeModules,nixosModules}.global`, the data every host and user shares (domain, tailnet, time zone, flake path).
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
-  module added to `flake.nixosModules.<h>`, the feature added to
-  `flake.homeModules.<u>` for the users who get it, and its `routes.<n>`
+  module added to `flake.nixosModules.<h>`, the feature itself added to
+  `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
+  that get it, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
   traefik and headscale turn routes into routers and DNS records.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
