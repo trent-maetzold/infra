@@ -1,4 +1,5 @@
-# Distrobox with `bx`, an Arch container for builds needing distro packages.
+# Distrobox with `bx`, an Arch container for builds needing distro packages, and
+# `gcbx`, a uv Debian container able to build psycopg2 and gssapi.
 {config, ...}: let
   modules.homeManager = {
     config,
@@ -8,10 +9,14 @@
   }: let
     makeDistroboxWrapper = import ./_lib/make-distrobox-wrapper.nix {inherit pkgs;};
   in {
-    agents.md.tools = ["- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."];
+    agents.md.tools = [
+      "- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."
+      "- `gcbx`: Debian distrobox with uv, libpq, krb5 and Python headers (psycopg2, gssapi): `gcbx <cmd>`."
+    ];
 
     home.file = {
       ".local/bin/bx" = makeDistroboxWrapper "bx";
+      ".local/bin/gcbx" = makeDistroboxWrapper "gcbx";
       ".local/bin/distrobox-export".source = "${pkgs.distrobox}/bin/distrobox-export";
       ".local/bin/distrobox-host-exec".source = "${pkgs.distrobox}/bin/distrobox-host-exec";
     };
@@ -22,6 +27,13 @@
       containers.bx = {
         image = lib.mkDefault "archlinux:base-devel";
         additional_packages = lib.mkDefault "zsh";
+        entry = true;
+        init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
+      };
+
+      containers.gcbx = {
+        image = "ghcr.io/astral-sh/uv:trixie";
+        additional_packages = "libkrb5-dev libpq-dev python3-dev zsh";
         entry = true;
         init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
       };
