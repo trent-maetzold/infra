@@ -123,6 +123,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Pins the SBCL its bootstrap image is built against; do not follows nixpkgs.
+    autolith.url = "github:lambda-symbolics/autolith";
+
+    maki = {
+      url = "github:tontinton/maki";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     revdiff = {
       url = "github:umputun/revdiff";
       inputs.nixpkgs.follows = "nixpkgs";
