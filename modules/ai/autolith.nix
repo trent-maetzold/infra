@@ -6,7 +6,7 @@
     pkgs,
     ...
   }: let
-    mcp = import ./_lib/make-mcp-sexp.nix {inherit lib;} config.programs.mcp.servers;
+    mcp = import ./_lib/make-mcp-sexp.nix {inherit lib pkgs;} config.programs.mcp.servers;
   in {
     home.packages = [pkgs.autolith];
 

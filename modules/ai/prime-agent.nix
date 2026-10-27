@@ -7,7 +7,7 @@
     ...
   }: let
     mergeJson = import ./_lib/make-merged-json.nix;
-    mcp = config.xdg.configFile."mcp/mcp.json".source;
+    mcp = import ./_lib/make-mcp-json.nix {inherit lib pkgs;} config.programs.mcp.servers;
     settings = "${config.home.homeDirectory}/.prime/agent/settings.json";
   in {
     home.packages = [pkgs.llm-agents.prime-agent];

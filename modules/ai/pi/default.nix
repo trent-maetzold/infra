@@ -5,9 +5,12 @@
 in let
   modules.homeManager = {
     config,
+    lib,
     pkgs,
     ...
-  }: {
+  }: let
+    mcp = import ../_lib/make-mcp-json.nix {inherit lib pkgs;} config.programs.mcp.servers;
+  in {
     imports = [mutableSettings];
 
     programs.pi-coding-agent.settings = {
@@ -40,7 +43,7 @@ in let
       before = [];
       after = ["writeBoundary"];
 
-      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
+      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" mcp;
     };
 
     home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};

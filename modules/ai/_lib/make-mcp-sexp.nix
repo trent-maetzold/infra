@@ -1,7 +1,7 @@
 # `programs.mcp` servers as autolith's native S-expression configuration.
-# autolith only accepts `:environment VARNAME` references, never literal values,
-# and `programs.mcp` holds values, so stdio env is not rendered.
-{lib}: servers: let
+# env is carried by the wrapper command: autolith accepts only `:environment
+# VARNAME` references, never literal values.
+{lib, pkgs}: servers: let
   quote = value: "\"${value}\"";
   render = server:
     if server ? url
@@ -12,5 +12,5 @@
 in ''
   (:version 1
    :servers
-   (${lib.concatMapStringsSep " " render (import ./make-mcp-servers.nix {inherit lib;} servers)}))
+   (${lib.concatMapStringsSep " " render (import ./make-mcp-servers.nix {inherit lib pkgs;} servers)}))
 ''

@@ -2,13 +2,16 @@
 {config, ...}: let
   modules.homeManager = {
     config,
+    lib,
     pkgs,
     ...
-  }: {
+  }: let
+    mcp = import ./_lib/make-mcp-json.nix {inherit lib pkgs;} config.programs.mcp.servers;
+  in {
     home.packages = [pkgs.llm-agents.jcode];
 
-    # jcode reads the Claude-style mcpServers file programs.mcp generates.
-    home.file.".jcode/mcp.json".source = config.xdg.configFile."mcp/mcp.json".source;
+    # jcode reads the Claude-style mcpServers file.
+    home.file.".jcode/mcp.json".source = mcp;
 
     agents.md.coding-agents = [
       "- `jcode`: Rust coding TUI, ~3 MB per extra session, swarm coordination. Headless: `jcode run \"<message>\"`; add `--json` for the result alone."

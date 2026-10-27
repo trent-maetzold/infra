@@ -6,7 +6,7 @@
     pkgs,
     ...
   }: let
-    mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" (import ./_lib/make-mcp-toml.nix {inherit lib;} config.programs.mcp.servers);
+    mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" (import ./_lib/make-mcp-toml.nix {inherit lib pkgs;} config.programs.mcp.servers);
   in {
     home.packages = [pkgs.maki];
 
