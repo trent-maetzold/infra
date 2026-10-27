@@ -1,28 +1,26 @@
-# Distrobox with `bx`, an Arch container for builds needing distro packages, and
-# `gbx`, a uv Debian container able to build psycopg2 and gssapi.
+# Distrobox with `bx`, a uv Debian build container able to build psycopg2 and gssapi.
 {config, ...}: let
-  modules.homeManager = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
+  modules.homeManager = {pkgs, ...}: let
     makeDistroboxWrapper = import ./_lib/make-distrobox-wrapper.nix {inherit pkgs;};
+
+    containerfile = pkgs.writeTextDir "Containerfile" ''
+      FROM ghcr.io/astral-sh/uv:trixie
+      RUN apt-get update && apt-get install -y --no-install-recommends libkrb5-dev libpq-dev python3-dev && rm -rf /var/lib/apt/lists/*
+    '';
   in {
-    agents.md.tools = [
-      "- `bx`: distrobox for builds that need distro packages or a mutable distro: `bx <cmd>`."
-      "- `gbx`: Debian distrobox with uv, libpq, krb5 and Python headers (psycopg2, gssapi): `gbx <cmd>`."
-    ];
+    agents.md.tools = ["- `bx`: Debian distrobox with uv, build tools, libpq, krb5 and Python headers, for builds needing distro packages: `bx <cmd>`."];
 
     home.file = {
       ".local/bin/bx" = makeDistroboxWrapper "bx";
-      ".local/bin/gbx" = makeDistroboxWrapper "gbx";
       ".local/bin/distrobox-export".source = "${pkgs.distrobox}/bin/distrobox-export";
       ".local/bin/distrobox-host-exec".source = "${pkgs.distrobox}/bin/distrobox-host-exec";
     };
 
-    # Pre-pulled; the wrappers create the containers on first use.
-    services.podman.images = lib.mapAttrs (_: c: {inherit (c) image;}) config.programs.distrobox.containers;
+    # Tagged localhost/homemanager/bx; the wrapper creates the container on first use.
+    services.podman.builds.bx = {
+      file = "${containerfile}/Containerfile";
+      workingDirectory = "${containerfile}";
+    };
 
     programs.distrobox = {
       enable = true;
@@ -30,23 +28,11 @@
       enableSystemdUnit = false;
 
       containers.bx = {
-        image = lib.mkDefault "archlinux:base-devel";
-        additional_packages = lib.mkDefault "zsh";
+        image = "localhost/homemanager/bx";
         entry = true;
-        init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
       };
 
-      containers.gbx = {
-        image = "ghcr.io/astral-sh/uv:trixie";
-        additional_packages = "libkrb5-dev libpq-dev python3-dev zsh";
-        entry = true;
-        init_hooks = ["usermod -s /usr/bin/zsh ${config.home.username}"];
-      };
-
-      settings = {
-        container_manager = "podman";
-        container_always_pull = "1";
-      };
+      settings.container_manager = "podman";
     };
   };
 in {

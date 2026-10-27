@@ -10,7 +10,7 @@
     dangerously-allow-all-scripts=true
   '';
 
-  makeMergedJson = import ./make-merged-json.nix {inherit pkgs;};
+  mergeJson = import ./merge-json.nix;
   settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
 in {
   home = {
@@ -31,7 +31,7 @@ in {
         before = [];
         after = ["piNpm"];
 
-        data = makeMergedJson "${cfg.configDir}/settings.json" settings;
+        data = mergeJson pkgs "${cfg.configDir}/settings.json" settings;
       };
 
       # Offline, pi installs them on its next start instead.

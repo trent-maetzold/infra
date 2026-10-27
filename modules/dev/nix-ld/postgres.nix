@@ -1,7 +1,7 @@
 # PostgreSQL's libpq for unpatched binaries (nix-ld).
 let
   modules.nixos = {pkgs, ...}: {
-    programs.nix-ld.libraries = with pkgs; [libpq libpq.dev];
+    programs.nix-ld.libraries = with pkgs.libpq; [out dev];
   };
 in {
   # Flake Modules

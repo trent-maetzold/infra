@@ -1,14 +1,13 @@
 # pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
 {config, ...}: let
+  mergeJson = import ./_lib/merge-json.nix;
   mutableSettings = ./_lib/mutable-settings.nix;
 in let
   modules.homeManager = {
     config,
     pkgs,
     ...
-  }: let
-    makeMergedJson = import ./_lib/make-merged-json.nix {inherit pkgs;};
-  in {
+  }: {
     imports = [mutableSettings];
 
     programs.pi-coding-agent.settings = {
@@ -41,7 +40,7 @@ in let
       before = [];
       after = ["writeBoundary"];
 
-      data = makeMergedJson "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
+      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
     };
 
     home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
