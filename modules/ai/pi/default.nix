@@ -6,7 +6,9 @@ in let
     config,
     pkgs,
     ...
-  }: {
+  }: let
+    makeMergedJson = import ./_lib/make-merged-json.nix {inherit pkgs;};
+  in {
     imports = [mutableSettings];
 
     programs.pi-coding-agent.settings = {
@@ -39,13 +41,7 @@ in let
       before = [];
       after = ["writeBoundary"];
 
-      data = let
-        mcp = "${config.programs.pi-coding-agent.configDir}/mcp.json";
-        servers = config.xdg.configFile."mcp/mcp.json".source;
-      in ''
-        merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${mcp}" ${servers} 2>/dev/null || cat ${servers})
-        run install -Dm 644 /dev/stdin "${mcp}" <<< "$merged"
-      '';
+      data = makeMergedJson "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
     };
 
     home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
