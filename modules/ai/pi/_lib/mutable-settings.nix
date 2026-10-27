@@ -10,6 +10,7 @@
     dangerously-allow-all-scripts=true
   '';
 
+  mergeJson = import ./merge-json.nix;
   settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
 in {
   home = {
@@ -30,11 +31,7 @@ in {
         before = [];
         after = ["piNpm"];
 
-        data = ''
-          merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "${cfg.configDir}/settings.json" ${settings} 2>/dev/null || cat ${settings})
-          run rm -f "${cfg.configDir}/settings.json"
-          run install -Dm 644 /dev/stdin "${cfg.configDir}/settings.json" <<< "$merged"
-        '';
+        data = mergeJson pkgs "${cfg.configDir}/settings.json" settings;
       };
 
       # Offline, pi installs them on its next start instead.

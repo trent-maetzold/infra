@@ -1,8 +1,13 @@
-# pi coding agent with its extension packages; pi-mcp-adapter loads the shared MCP servers.
+# pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
 {config, ...}: let
+  mergeJson = import ./_lib/merge-json.nix;
   mutableSettings = ./_lib/mutable-settings.nix;
 in let
-  modules.homeManager = {pkgs, ...}: {
+  modules.homeManager = {
+    config,
+    pkgs,
+    ...
+  }: {
     imports = [mutableSettings];
 
     programs.pi-coding-agent.settings = {
@@ -25,11 +30,17 @@ in let
         "npm:@dietrichgebert/ponytail"
         "npm:pi-caveman"
         "npm:pi-everforest"
-        # Integrations
-        "npm:pi-mcp-adapter"
       ];
 
       theme = "everforest-light-soft/everforest-dark-soft";
+    };
+
+    # Merged so `/mcp` keeps its enabled and exposure choices.
+    home.activation.piMcp = {
+      before = [];
+      after = ["writeBoundary"];
+
+      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
     };
 
     home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
