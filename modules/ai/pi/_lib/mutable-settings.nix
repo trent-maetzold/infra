@@ -10,7 +10,7 @@
     dangerously-allow-all-scripts=true
   '';
 
-  mergeJson = import ./merge-json.nix;
+  mergeJson = import ../../_lib/make-merged-json.nix;
   settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
 in {
   home = {

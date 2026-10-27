@@ -6,11 +6,7 @@
     pkgs,
     ...
   }: let
-    servers = lib.filterAttrs (_: server: server.url != null) config.programs.mcp.servers;
-
-    mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" {
-      mcp = lib.mapAttrs (_: server: {inherit (server) url;}) servers;
-    };
+    mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" (import ./_lib/make-mcp-toml.nix {inherit lib;} config.programs.mcp.servers);
   in {
     home.packages = [pkgs.maki];
 

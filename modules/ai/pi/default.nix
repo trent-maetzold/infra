@@ -1,6 +1,6 @@
 # pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
 {config, ...}: let
-  mergeJson = import ./_lib/merge-json.nix;
+  mergeJson = import ../_lib/make-merged-json.nix;
   mutableSettings = ./_lib/mutable-settings.nix;
 in let
   modules.homeManager = {
