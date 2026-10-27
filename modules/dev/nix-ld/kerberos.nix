@@ -1,7 +1,13 @@
 # Kerberos (MIT krb5) for unpatched binaries (nix-ld).
 let
   modules.nixos = {pkgs, ...}: {
-    programs.nix-ld.libraries = with pkgs.krb5; [lib dev];
+    programs.nix-ld.libraries = [
+      (pkgs.buildEnv {
+        name = "nix-ld-kerberos";
+        paths = [pkgs.krb5];
+        extraOutputsToInstall = ["lib" "dev"];
+      })
+    ];
   };
 in {
   # Flake Modules

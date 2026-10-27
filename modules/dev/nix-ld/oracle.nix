@@ -2,7 +2,14 @@
 let
   modules.nixos = {pkgs, ...}: {
     nixpkgs.config.allowUnfreePackages = ["oracle-instantclient"];
-    programs.nix-ld.libraries = [pkgs.libaio] ++ (with pkgs.oracle-instantclient; [lib dev]);
+    programs.nix-ld.libraries = [
+      pkgs.libaio
+      (pkgs.buildEnv {
+        name = "nix-ld-oracle";
+        paths = [pkgs.oracle-instantclient];
+        extraOutputsToInstall = ["lib" "dev"];
+      })
+    ];
   };
 in {
   # Flake Modules
