@@ -30,6 +30,7 @@
       containers.bx = {
         image = "localhost/homemanager/bx";
         entry = true;
+        volume = "/etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro";
       };
 
       settings.container_manager = "podman";
