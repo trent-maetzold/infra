@@ -21,11 +21,13 @@
       ".local/bin/distrobox-host-exec".source = "${pkgs.distrobox}/bin/distrobox-host-exec";
     };
 
-    # Rebuild the containers on switch, not only at the next login.
-    systemd.user.services.distrobox-home-manager.Unit.X-Restart-Triggers = [config.xdg.configFile."distrobox/containers.ini".source];
+    # Pre-pulled; the wrappers create the containers on first use.
+    services.podman.images = lib.mapAttrs (_: c: {inherit (c) image;}) config.programs.distrobox.containers;
 
     programs.distrobox = {
       enable = true;
+      # Its unit can't find a home-manager podman.
+      enableSystemdUnit = false;
 
       containers.bx = {
         image = lib.mkDefault "archlinux:base-devel";
