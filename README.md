@@ -77,8 +77,9 @@ Features read your values from `config.vars` (`tailnet` needs
 
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
-  Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
+  Helpers sit in `_lib/`.
 - `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeCli`.
+- `packages/`: packages and scripts, as overlays.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: data shared by every host and user (`globals`).
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling

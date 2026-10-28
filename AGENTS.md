@@ -25,7 +25,7 @@ secrets. Commands are in README.md.
 - Modules are pure config. Any computation is a named `make<Thing>` in the
   domain's `_lib/` (`network/_lib/make-traefik-http.nix`); import-tree skips `/_`
   paths, so the feature imports them itself. Packages and scripts are overlays in
-  the domain's `pkgs/` (`nix/pkgs/nx.nix`); features use `pkgs.<name>`.
+  root `packages/` (`packages/nx.nix`); features use `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars.nix`: `{homeModules,nixosModules}.globals`, the data every host and user shares (domain, tailnet, time zone, flake path).
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`

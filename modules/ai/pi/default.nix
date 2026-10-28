@@ -18,7 +18,7 @@ in let
         inherit (config.programs.mcp.servers.gateway) url;
       };
     });
-    jail = import ../_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    makeJail = import ../_lib/make-jail.nix {inherit config jail-nix pkgs;};
     configDir = "${config.xdg.configHome}/pi/agent";
   in {
     imports = [mutableSettings];
@@ -63,7 +63,7 @@ in let
       enable = true;
       inherit configDir;
       # bun and nodejs for packages pi installs, e.g. `npm:@termdraw/pi`.
-      package = jail "pi" pkgs.llm-agents.pi {
+      package = makeJail "pi" pkgs.llm-agents.pi {
         env.PI_CODING_AGENT_DIR = configDir;
         packages = [pkgs.bun pkgs.nodejs];
       };

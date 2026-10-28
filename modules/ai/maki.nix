@@ -11,10 +11,10 @@
     ...
   }: let
     mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" {mcp.gateway = {inherit (config.programs.mcp.servers.gateway) url;};};
-    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
   in {
     home.packages = [
-      (jail "maki" pkgs.maki {
+      (makeJail "maki" pkgs.maki {
         state = with config.xdg; ["${configHome}/maki" "${dataHome}/maki" "${stateHome}/maki" "${cacheHome}/maki"];
       })
     ];

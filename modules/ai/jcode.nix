@@ -10,10 +10,10 @@
     ...
   }: let
     inherit (config.programs.mcp.servers.gateway) url;
-    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
     JCODE_HOME = "${config.xdg.dataHome}/jcode";
   in {
-    home.packages = [(jail "jcode" pkgs.llm-agents.jcode {env = {inherit JCODE_HOME;};})];
+    home.packages = [(makeJail "jcode" pkgs.llm-agents.jcode {env = {inherit JCODE_HOME;};})];
     home.sessionVariables = {inherit JCODE_HOME;};
 
     # jcode reads the Claude-style mcpServers file.

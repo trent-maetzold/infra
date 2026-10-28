@@ -10,10 +10,10 @@
     ...
   }: let
     inherit (config.programs.mcp.servers.gateway) url;
-    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
   in {
     home.packages = [
-      (jail "autolith" pkgs.autolith {
+      (makeJail "autolith" pkgs.autolith {
         state = with config.xdg; ["${configHome}/autolith" "${dataHome}/autolith" "${stateHome}/autolith" "${cacheHome}/autolith"];
       })
     ];

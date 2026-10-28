@@ -10,14 +10,14 @@
     pkgs,
     ...
   }: let
-    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
     configDir = "${config.xdg.configHome}/claude";
   in {
     programs.claude-code = {
       enable = true;
       inherit configDir;
       # llm-agents' build is not marked unfree, unlike nixpkgs' claude-code.
-      package = lib.mkDefault (jail "claude" pkgs.llm-agents.claude-code {env.CLAUDE_CONFIG_DIR = configDir;});
+      package = lib.mkDefault (makeJail "claude" pkgs.llm-agents.claude-code {env.CLAUDE_CONFIG_DIR = configDir;});
       context = config.agents.md.text;
       enableMcpIntegration = true;
       # Claude Code rewrites settings.json at runtime; merge instead of a read-only store link.
