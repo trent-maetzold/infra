@@ -1,6 +1,6 @@
-# agentgateway on loopback fronts every MCP server: Context7, DeepWiki, skillport.
+# The MCP gateway on loopback fronts every MCP server: Context7, DeepWiki, skillport.
 # Agents get it as their one MCP server, `gateway`; secrets and tool policy stay
-# outside their jails. Add servers to `agentgateway.targets`.
+# outside their jails. Add servers to `mcp.targets`.
 {
   awesome-copilot,
   config,
@@ -16,7 +16,7 @@
     port = 18744;
     skills = pkgs.linkFarm "skillport-skills" {git-commit = "${awesome-copilot}/skills/git-commit";};
   in {
-    agentgateway.targets = [
+    mcp.targets = [
       {
         name = "context7";
         mcp.host = "https://mcp.context7.com/mcp";
@@ -52,7 +52,7 @@
         inherit port;
         bindAddress = "127.0.0.1";
       };
-      routes = [{backends = [{mcp.targets = config.agentgateway.targets;}];}];
+      routes = [{backends = [{mcp.targets = config.mcp.targets;}];}];
     };
 
     systemd.user.services.agentgateway = {
