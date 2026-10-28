@@ -50,12 +50,19 @@
         (lib.optionalAttrs (options ? wsl && users != []) {wsl.defaultUser = (lib.head users).name;})
       ];
     };
+  in let
+    # The consumer's own secrets specialArg, extended with this flake's
+    # deployment keys' destinations (name → path for features' auth gating).
+    secrets = (specialArgs.secrets or {}) // lib.mapAttrs (key: value: (value.destDir or "/run/keys") + "/${key}") (deployment.keys or {});
+    # Returned so the colmena hive's nodeSpecialArgs agrees with nixosSystem's.
+    hostSpecialArgs = specialArgs // {inherit secrets;};
   in
     {
-      inherit name system specialArgs nixosModule tailnetIp;
+      inherit name system nixosModule tailnetIp;
+      specialArgs = hostSpecialArgs;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
-        inherit specialArgs;
+        specialArgs = hostSpecialArgs;
         modules = [nixosModule];
       };
 

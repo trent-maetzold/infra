@@ -10,8 +10,13 @@ in let
   inherit (config) routes;
   inherit (config.hosts) heimdall;
 
-  modules.nixos = {config, ...}: let
+  modules.nixos = {
+    config,
+    secrets ? {},
+    ...
+  }: let
     inherit (config) vars;
+    cookieSecret = secrets.headplane-cookie-secret or null;
   in {
     services = {
       headscale = {
@@ -32,10 +37,11 @@ in let
         enable = true;
 
         settings = {
-          server = {
-            base_url = "${vars.tailnet.loginServer}/admin";
-            cookie_secret_path = "/var/lib/secrets/headplane-cookie-secret";
-          };
+          server =
+            {
+              base_url = "${vars.tailnet.loginServer}/admin";
+            }
+            // lib.optionalAttrs (cookieSecret != null) {cookie_secret_path = cookieSecret;};
 
           headscale.config_path = config.services.headscale.configFile;
         };
