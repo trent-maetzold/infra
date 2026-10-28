@@ -123,6 +123,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    bifrost = {
+      url = "github:maximhq/bifrost";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Pins the SBCL its bootstrap image is built against; do not follows nixpkgs.
     autolith.url = "github:lambda-symbolics/autolith";
 

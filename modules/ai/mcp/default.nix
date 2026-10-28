@@ -1,69 +1,70 @@
-# The MCP gateway on loopback fronts every MCP server: Context7, DeepWiki, skillport.
+# Bifrost on loopback fronts every MCP server: Context7, DeepWiki, skillport.
 # Agents get it as their one MCP server, `gateway`; secrets and tool policy stay
-# outside their jails. Add servers to `mcp.targets`.
+# outside their jails. Add servers to `flake.programs.mcp.servers`.
 {
   awesome-copilot,
+  bifrost,
   config,
   ...
 }: let
-  modules.homeManager = {
+  port = 18744;
+  stateDir = "/var/lib/bifrost";
+
+  # This flake's additions, merged over the feature's defaults.
+  extraServers = config.flake.programs.mcp.servers;
+
+  modules.nixos = {
     config,
     lib,
     pkgs,
     ...
   }: let
-    yaml = pkgs.formats.yaml {};
-    port = 18744;
     skills = pkgs.linkFarm "skillport-skills" {git-commit = "${awesome-copilot}/skills/git-commit";};
-  in {
-    mcp.targets = [
-      {
-        name = "context7";
-        mcp.host = "https://mcp.context7.com/mcp";
-      }
-      {
-        name = "deepwiki";
-        mcp.host = "https://mcp.deepwiki.com/mcp";
-      }
-      {
-        name = "skillport";
-        stdio = {
-          cmd = lib.getExe pkgs.skillport-mcp;
-          env = {
-            SKILLPORT_SKILLS_DIR = "${skills}";
-            SKILLPORT_DB_PATH = "${config.xdg.cacheHome}/skillport/skills.lancedb";
-            SKILLPORT_META_DIR = "${config.xdg.stateHome}/skillport";
-          };
-        };
-      }
-    ];
 
+    defaults = {
+      context7.url = "https://mcp.context7.com/mcp";
+      deepwiki.url = "https://mcp.deepwiki.com/mcp";
+      skillport = {
+        command = lib.getExe pkgs.skillport-mcp;
+        args = [];
+        env = {
+          SKILLPORT_SKILLS_DIR = "${skills}";
+          SKILLPORT_DB_PATH = "${stateDir}/skillport/skills.lancedb";
+          SKILLPORT_META_DIR = "${stateDir}/skillport";
+        };
+      };
+    };
+
+    servers = defaults // extraServers;
+    makeClient = import ../_lib/make-bifrost-client.nix {inherit lib pkgs;};
+  in {
+    imports = [bifrost.nixosModules.bifrost];
+
+    services.bifrost = {
+      enable = true;
+      package = bifrost.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      host = "127.0.0.1";
+      inherit port stateDir;
+
+      environment = lib.concatMapAttrs (_: server: lib.filterAttrs (_: builtins.isString) (server.env or {})) servers;
+
+      settings.mcp.client_configs = lib.mapAttrsToList makeClient servers;
+    };
+  };
+
+  modules.homeManager = _: {
     programs.mcp = {
       enable = true;
       servers.gateway.url = "http://127.0.0.1:${toString port}/mcp";
     };
-
-    xdg.configFile."agentgateway/config.yaml".source = yaml.generate "agentgateway.yaml" {
-      config = {
-        statsAddr = "127.0.0.1:15020";
-        readinessAddr = "127.0.0.1:15021";
-      };
-      gateways.default = {
-        inherit port;
-        bindAddress = "127.0.0.1";
-      };
-      routes = [{backends = [{mcp.targets = config.mcp.targets;}];}];
-    };
-
-    systemd.user.services.agentgateway = {
-      Unit.Description = "agentgateway MCP gateway";
-      Service.ExecStart = "${lib.getExe pkgs.agentgateway} -f ${config.xdg.configHome}/agentgateway/config.yaml";
-      Install.WantedBy = ["default.target"];
-    };
   };
 in {
   # Flake Modules
+  flake.modules.nixos.mcp = modules.nixos;
   flake.modules.homeManager.mcp = modules.homeManager;
+
+  # NixOS Configuration Modules
+  flake.nixosModules.default.imports = [config.flake.modules.nixos.mcp];
 
   # Home Configuration Modules
   flake.homeModules.default.imports = [config.flake.modules.homeManager.mcp];

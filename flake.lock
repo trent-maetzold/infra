@@ -75,6 +75,26 @@
         "type": "github"
       }
     },
+    "bifrost": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793212656,
+        "narHash": "sha256-NFStuhvHyjETGV9jZf6+E0DIA6OEOkl+N+OAxcDsL+8=",
+        "owner": "maximhq",
+        "repo": "bifrost",
+        "rev": "2c998a4f4f73c539655bd5d841730f651ef0afbc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "maximhq",
+        "repo": "bifrost",
+        "type": "github"
+      }
+    },
     "bun2nix": {
       "inputs": {
         "flake-parts": [
@@ -955,6 +975,7 @@
         "agent-skills": "agent-skills",
         "autolith": "autolith",
         "awesome-copilot": "awesome-copilot",
+        "bifrost": "bifrost",
         "colmena": "colmena",
         "disko": "disko",
         "disko-zfs": "disko-zfs",
