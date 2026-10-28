@@ -4,16 +4,18 @@
   jail-nix,
   ...
 }: let
+  inherit (config.flake.lib) makeAgentJail;
+
   modules.homeManager = {
     config,
     pkgs,
     ...
   }: let
     inherit (config.programs.mcp.servers.gateway) url;
-    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    jail = makeAgentJail {inherit config jail-nix pkgs;};
   in {
     home.packages = [
-      (makeJail "autolith" pkgs.autolith {
+      (jail "autolith" pkgs.autolith {
         state = with config.xdg; ["${configHome}/autolith" "${dataHome}/autolith" "${stateHome}/autolith" "${cacheHome}/autolith"];
       })
     ];

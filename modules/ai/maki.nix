@@ -4,6 +4,8 @@
   jail-nix,
   ...
 }: let
+  inherit (config.flake.lib) makeAgentJail;
+
   modules.homeManager = {
     config,
     lib,
@@ -11,10 +13,10 @@
     ...
   }: let
     mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" {mcp.gateway = {inherit (config.programs.mcp.servers.gateway) url;};};
-    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    jail = makeAgentJail {inherit config jail-nix pkgs;};
   in {
     home.packages = [
-      (makeJail "maki" pkgs.maki {
+      (jail "maki" pkgs.maki {
         state = with config.xdg; ["${configHome}/maki" "${dataHome}/maki" "${stateHome}/maki" "${cacheHome}/maki"];
       })
     ];

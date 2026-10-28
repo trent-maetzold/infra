@@ -4,16 +4,18 @@
   jail-nix,
   ...
 }: let
+  inherit (config.flake.lib) makeAgentJail;
+
   modules.homeManager = {
     config,
     pkgs,
     ...
   }: let
     inherit (config.programs.mcp.servers.gateway) url;
-    makeJail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    jail = makeAgentJail {inherit config jail-nix pkgs;};
     JCODE_HOME = "${config.xdg.dataHome}/jcode";
   in {
-    home.packages = [(makeJail "jcode" pkgs.llm-agents.jcode {env = {inherit JCODE_HOME;};})];
+    home.packages = [(jail "jcode" pkgs.llm-agents.jcode {env = {inherit JCODE_HOME;};})];
     home.sessionVariables = {inherit JCODE_HOME;};
 
     # jcode reads the Claude-style mcpServers file.

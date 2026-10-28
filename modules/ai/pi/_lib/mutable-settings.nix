@@ -1,5 +1,5 @@
 # HM module that merges pi's settings into a mutable settings.json and installs its packages.
-{
+makeMergedJson: {
   config,
   pkgs,
   ...
@@ -10,7 +10,6 @@
     dangerously-allow-all-scripts=true
   '';
 
-  mergeJson = import ../../_lib/make-merged-json.nix;
   settings = (pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings;
 in {
   home = {
@@ -31,7 +30,7 @@ in {
         before = [];
         after = ["piNpm"];
 
-        data = mergeJson pkgs "${cfg.configDir}/settings.json" settings;
+        data = makeMergedJson pkgs "${cfg.configDir}/settings.json" settings;
       };
 
       # Offline, pi installs them on its next start instead.

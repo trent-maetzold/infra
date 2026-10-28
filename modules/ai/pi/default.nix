@@ -4,8 +4,8 @@
   jail-nix,
   ...
 }: let
-  mergeJson = import ../_lib/make-merged-json.nix;
-  mutableSettings = ./_lib/mutable-settings.nix;
+  inherit (config.flake.lib) makeAgentJail makeMergedJson;
+  mutableSettings = import ./_lib/mutable-settings.nix makeMergedJson;
 in let
   modules.homeManager = {
     config,
@@ -18,7 +18,7 @@ in let
         inherit (config.programs.mcp.servers.gateway) url;
       };
     });
-    makeJail = import ../_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    jail = makeAgentJail {inherit config jail-nix pkgs;};
     configDir = "${config.xdg.configHome}/pi/agent";
   in {
     imports = [mutableSettings];
@@ -53,7 +53,7 @@ in let
       before = [];
       after = ["writeBoundary"];
 
-      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" mcp;
+      data = makeMergedJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" mcp;
     };
 
     xdg.configFile."pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
@@ -63,7 +63,7 @@ in let
       enable = true;
       inherit configDir;
       # bun and nodejs for packages pi installs, e.g. `npm:@termdraw/pi`.
-      package = makeJail "pi" pkgs.llm-agents.pi {
+      package = jail "pi" pkgs.llm-agents.pi {
         env.PI_CODING_AGENT_DIR = configDir;
         packages = [pkgs.bun pkgs.nodejs];
       };
