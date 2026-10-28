@@ -1,7 +1,14 @@
 # Cursor CLI (`cursor-agent`).
-let
-  modules.homeManager = {pkgs, ...}: {
-    home.packages = [pkgs.llm-agents.cursor-agent];
+{jail-nix, ...}: let
+  modules.homeManager = {
+    config,
+    pkgs,
+    ...
+  }: let
+    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+  in {
+    # cursor-agent has no home override, so its state stays in ~/.cursor.
+    home.packages = [(jail "cursor-agent" pkgs.llm-agents.cursor-agent {state = ["${config.home.homeDirectory}/.cursor" "${config.xdg.configHome}/cursor"];})];
 
     agents.md.coding-agents = [
       "- `cursor-cli`: Cursor CLI, command `cursor-agent`. Headless: `cursor-agent -p --model <model[:variant]> \"<prompt>\"`; effort is the model variant slug (e.g. `gpt-5-high`)."

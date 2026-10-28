@@ -1,5 +1,9 @@
-# prime-agent, Prime Intellect's RLM agent (a pi fork), with the shared MCP servers.
-{config, ...}: let
+# prime-agent, Prime Intellect's RLM agent (a pi fork), with the MCP gateway.
+{
+  config,
+  jail-nix,
+  ...
+}: let
   modules.homeManager = {
     config,
     lib,
@@ -7,10 +11,17 @@
     ...
   }: let
     mergeJson = import ./_lib/make-merged-json.nix;
-    mcp = import ./_lib/make-mcp-json.nix {inherit lib pkgs;} config.programs.mcp.servers;
+    mcp = pkgs.writeText "mcp.json" (builtins.toJSON {
+      mcpServers.gateway = {
+        type = "http";
+        inherit (config.programs.mcp.servers.gateway) url;
+      };
+    });
     settings = "${config.home.homeDirectory}/.prime/agent/settings.json";
+    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
   in {
-    home.packages = [pkgs.llm-agents.prime-agent];
+    # prime-agent has no XDG or home override, so its state stays in ~/.prime.
+    home.packages = [(jail "prime-agent" pkgs.llm-agents.prime-agent {state = ["${config.home.homeDirectory}/.prime"];})];
 
     # prime-agent rewrites settings.json; merge so /mcp edits survive, and keep the servers.
     home.activation.primeMcp = lib.hm.dag.entryAfter ["writeBoundary"] (mergeJson pkgs settings mcp);

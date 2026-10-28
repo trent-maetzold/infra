@@ -3,7 +3,7 @@
   # Flake Modules
   flake.modules.homeManager."AGENTS.md".agents.md = {
     context = ["- I over-explain. Distill my requests to the facts; answer the same way."];
-    boundaries = ["- **ALWAYS** read documentation. Context7 and DeepWiki MCPs are available."];
+    boundaries = ["- **ALWAYS** read documentation. Context7 and DeepWiki are on the `gateway` MCP server; skillport there loads more skills."];
 
     workflow = [
       ''

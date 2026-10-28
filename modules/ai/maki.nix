@@ -1,14 +1,23 @@
 # maki, a Rust coding agent with Lua plugins, from its own flake.
-{config, ...}: let
+{
+  config,
+  jail-nix,
+  ...
+}: let
   modules.homeManager = {
     config,
     lib,
     pkgs,
     ...
   }: let
-    mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" (import ./_lib/make-mcp-toml.nix {inherit lib pkgs;} config.programs.mcp.servers);
+    mcp = (pkgs.formats.toml {}).generate "maki-mcp.toml" {mcp.gateway = {inherit (config.programs.mcp.servers.gateway) url;};};
+    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
   in {
-    home.packages = [pkgs.maki];
+    home.packages = [
+      (jail "maki" pkgs.maki {
+        state = with config.xdg; ["${configHome}/maki" "${dataHome}/maki" "${stateHome}/maki" "${cacheHome}/maki"];
+      })
+    ];
 
     # maki's /mcp picker writes mcp.toml, so activation installs a mutable copy.
     home.activation.makiMcp = lib.hm.dag.entryAfter ["writeBoundary"] ''

@@ -1,15 +1,25 @@
-# pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
-{config, ...}: let
+# pi coding agent with its extension packages; its built-in MCP loads the gateway.
+{
+  config,
+  jail-nix,
+  ...
+}: let
   mergeJson = import ../_lib/make-merged-json.nix;
   mutableSettings = ./_lib/mutable-settings.nix;
 in let
   modules.homeManager = {
     config,
-    lib,
     pkgs,
     ...
   }: let
-    mcp = import ../_lib/make-mcp-json.nix {inherit lib pkgs;} config.programs.mcp.servers;
+    mcp = pkgs.writeText "mcp.json" (builtins.toJSON {
+      mcpServers.gateway = {
+        type = "http";
+        inherit (config.programs.mcp.servers.gateway) url;
+      };
+    });
+    jail = import ../_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    configDir = "${config.xdg.configHome}/pi/agent";
   in {
     imports = [mutableSettings];
 
@@ -46,17 +56,17 @@ in let
       data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" mcp;
     };
 
-    home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+    xdg.configFile."pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
     xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
 
     programs.pi-coding-agent = {
       enable = true;
-      package = pkgs.llm-agents.pi;
-
-      extraPackages = with pkgs; [
-        bun
-        nodejs
-      ];
+      inherit configDir;
+      # bun and nodejs for packages pi installs, e.g. `npm:@termdraw/pi`.
+      package = jail "pi" pkgs.llm-agents.pi {
+        env.PI_CODING_AGENT_DIR = configDir;
+        packages = [pkgs.bun pkgs.nodejs];
+      };
     };
 
     agents.md.coding-agents = [

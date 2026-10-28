@@ -1,17 +1,28 @@
 # jcode, a Rust coding TUI; llm-agents, since its flake ships only a dev shell.
-{config, ...}: let
+{
+  config,
+  jail-nix,
+  ...
+}: let
   modules.homeManager = {
     config,
-    lib,
     pkgs,
     ...
   }: let
-    mcp = import ./_lib/make-mcp-json.nix {inherit lib pkgs;} config.programs.mcp.servers;
+    inherit (config.programs.mcp.servers.gateway) url;
+    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
+    JCODE_HOME = "${config.xdg.dataHome}/jcode";
   in {
-    home.packages = [pkgs.llm-agents.jcode];
+    home.packages = [(jail "jcode" pkgs.llm-agents.jcode {env = {inherit JCODE_HOME;};})];
+    home.sessionVariables = {inherit JCODE_HOME;};
 
     # jcode reads the Claude-style mcpServers file.
-    home.file.".jcode/mcp.json".source = mcp;
+    xdg.dataFile."jcode/mcp.json".text = builtins.toJSON {
+      mcpServers.gateway = {
+        type = "http";
+        inherit url;
+      };
+    };
 
     agents.md.coding-agents = [
       "- `jcode`: Rust coding TUI, ~3 MB per extra session, swarm coordination. Headless: `jcode run \"<message>\"`; add `--json` for the result alone."

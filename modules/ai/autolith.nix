@@ -1,16 +1,24 @@
 # autolith, a live, self-modifying Common Lisp agent, from its own flake.
-{config, ...}: let
+{
+  config,
+  jail-nix,
+  ...
+}: let
   modules.homeManager = {
     config,
-    lib,
     pkgs,
     ...
   }: let
-    mcp = import ./_lib/make-mcp-sexp.nix {inherit lib pkgs;} config.programs.mcp.servers;
+    inherit (config.programs.mcp.servers.gateway) url;
+    jail = import ./_lib/make-jail.nix {inherit config jail-nix pkgs;};
   in {
-    home.packages = [pkgs.autolith];
+    home.packages = [
+      (jail "autolith" pkgs.autolith {
+        state = with config.xdg; ["${configHome}/autolith" "${dataHome}/autolith" "${stateHome}/autolith" "${cacheHome}/autolith"];
+      })
+    ];
 
-    xdg.configFile."autolith/mcp.sexp".text = mcp;
+    xdg.configFile."autolith/mcp.sexp".text = ''(:version 1 :servers ((:name "gateway" :transport (:type :http :url "${url}"))))'';
 
     agents.md.coding-agents = [
       "- `autolith`: Common Lisp agent that edits its own running image. Headless: `autolith --permissions auto run-job --input <job.sexp> --output <result.sexp>`; the job file names the role, prompt and output contract."

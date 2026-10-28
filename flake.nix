@@ -136,6 +136,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    jail-nix.url = "sourcehut:~alexdavid/jail.nix";
+
     agent-skills = {
       url = "github:Kyure-A/agent-skills-nix";
       inputs.nixpkgs.follows = "nixpkgs";
