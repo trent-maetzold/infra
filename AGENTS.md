@@ -18,14 +18,17 @@ secrets. Commands are in README.md.
   `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
-- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`).
+- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`,
+  `makeEnvFile`).
 - A feature with options is a dir: `options.nix` declares them (and its consumer
   functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
   config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
-- Modules are pure config. Any computation is a named `make<Thing>` in the
-  domain's `_lib/` (`network/_lib/make-traefik-http.nix`); import-tree skips `/_`
-  paths, so the feature imports them itself. Packages and scripts are overlays in
-  the domain's `pkgs/` (`nix/pkgs/nx.nix`); features use `pkgs.<name>`.
+- Modules are pure config. Any computation is a named `make<Thing>` in its
+  feature's `_lib/` (`network/traefik/_lib/make-traefik-http.nix`), or the
+  domain's if features share it (`ai/agents/_lib`); import-tree skips
+  `/_` paths, so the feature imports them itself. Packages and scripts are
+  overlays in the same places' `pkgs/` (`nix/nix/pkgs/nx.nix`); features use
+  `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
 - `vars.nix`: `{homeModules,nixosModules}.globals`, the data every host and user shares (domain, tailnet, time zone, flake path).
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
@@ -43,7 +46,7 @@ secrets. Commands are in README.md.
   feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 
-`flake.nix` loads `apps hosts lib modules options packages users` with
+`flake.nix` loads `apps hosts lib modules options users` with
 import-tree, plus `vars.nix`. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
 through `config.flake.*`.
 
@@ -74,7 +77,13 @@ in {
   (`home-manager`, `nix-index-database`) are imported by the feature using them.
 - Package lists are `pkgs-<name>` features in `<domain>/packages.nix`.
 - Read consumer values from module-level `config.vars`. Never take a `user`
-  specialArg, host identity or secrets.
+  specialArg or host identity.
+- A secret is a module arg with no default, the path of a file holding only its
+  value (`{cf-dns-api-token, ...}:`), so a missing one fails evaluation. How the
+  file gets onto the host is the consumer's business, never the feature's. Take
+  it only in the module that reads it. A secret a feature can run without goes
+  in a `<feature>-<part>` module importing the base (`tailscale-auth`). Build
+  env files from them (`makeEnvFile`).
 - Every file opens with a one-line description.
 - stateVersion is set once, in `nix/state-version.nix`.
 

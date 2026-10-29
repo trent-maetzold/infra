@@ -1,7 +1,7 @@
 # Honcho memory server: API, deriver, PostgreSQL (pgvector) and Valkey on the
 # `honcho` network, reaching each other by container name; only the API is
-# published, on the host's loopback; the `honcho-db-password` secret holds the
-# database password.
+# published, on the host's loopback. `honcho-db-password` is the database
+# password's file.
 #
 # On yggdrasil it is hermes' memory. Generation runs on DeepSeek V4.1 Flash via
 # the DeepSeek API; embeddings on OpenRouter (the openai transport's
@@ -12,6 +12,8 @@
   quadlet-nix,
   ...
 }: let
+  inherit (config.flake.lib) makeEnvFile;
+
   endpoint = {
     host = "127.0.0.1";
     port = 8000;
@@ -19,15 +21,24 @@
 
   modules.nixos = {
     config,
-    secrets ? {},
+    pkgs,
+    honcho-db-password,
     ...
   }: let
     inherit (config.virtualisation.quadlet) networks volumes;
 
-    # Podman hands the secret to the containers as env.
-    passwordFile = secrets.honcho-db-password or null;
-    secret = lib.optionalAttrs (passwordFile != null) {
-      ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password ${passwordFile}";
+    db = makeEnvFile {
+      inherit pkgs;
+      name = "honcho-db";
+      vars.POSTGRES_PASSWORD = honcho-db-password;
+    };
+    apiEnv = makeEnvFile {
+      inherit pkgs;
+      name = "honcho-api";
+      vars.PGPASSWORD = honcho-db-password;
+    };
+    service = {
+      inherit (apiEnv) ExecStartPre;
       Restart = "always";
     };
 
@@ -35,7 +46,7 @@
       name = "honcho-api";
       networks = [networks.honcho.ref];
       image = "ghcr.io/plastic-labs/honcho:latest";
-      secrets = lib.optional (passwordFile != null) "honcho-db-password,type=env,target=PGPASSWORD";
+      environmentFiles = [apiEnv.file];
 
       environments = {
         DB_CONNECTION_URI = "postgresql+psycopg://honcho@honcho-db:5432/honcho";
@@ -54,13 +65,16 @@
 
       containers = {
         honcho-db = {
-          serviceConfig = secret;
+          serviceConfig = {
+            inherit (db) ExecStartPre;
+            Restart = "always";
+          };
 
           containerConfig = {
             name = "honcho-db";
             networks = [networks.honcho.ref];
             image = "docker.io/pgvector/pgvector:pg18";
-            secrets = lib.optional (passwordFile != null) "honcho-db-password,type=env,target=POSTGRES_PASSWORD";
+            environmentFiles = [db.file];
             volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
 
             environments = {
@@ -81,7 +95,7 @@
         # Restarts until the database accepts connections. Podman's DNAT
         # skips the host firewall, so publish on loopback only.
         honcho-api = {
-          serviceConfig = secret;
+          serviceConfig = service;
 
           containerConfig =
             api
@@ -92,7 +106,7 @@
         };
 
         honcho-deriver = {
-          serviceConfig = secret;
+          serviceConfig = service;
 
           containerConfig =
             api
@@ -165,18 +179,30 @@
   hosts.yggdrasil = {
     config,
     pkgs,
-    secrets ? {},
+    deepseek-api-key,
+    openrouter-api-key,
     ...
   }: let
     honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
-    envFiles = map (f: secrets.${f}) (lib.filter (f: secrets ? ${f}) ["deepseek-env" "openrouter-env"]);
+    keys = makeEnvFile {
+      inherit pkgs;
+      name = "honcho-models";
+      vars = {
+        DEEPSEEK_API_KEY = deepseek-api-key;
+        LLM_OPENAI_API_KEY = openrouter-api-key;
+      };
+    };
+    container = {
+      serviceConfig = {inherit (keys) ExecStartPre;};
+      containerConfig = models // {environmentFiles = [keys.file];};
+    };
   in {
     # Volumes, not the image store.
     persistence.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 
     virtualisation.quadlet.containers = {
-      honcho-api.containerConfig = models // {environmentFiles = envFiles;};
-      honcho-deriver.containerConfig = models // {environmentFiles = envFiles;};
+      honcho-api = container;
+      honcho-deriver = container;
     };
 
     services.hermes-agent = {

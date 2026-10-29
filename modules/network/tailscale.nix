@@ -1,28 +1,29 @@
 # Tailscale, joined to this flake's headscale; the tailnet interface is
-# trusted.
+# trusted. `tailscale-auth` also logs in with the `ts-authkey` file.
 {config, ...}: let
-  modules.nixos = {
-    config,
-    secrets ? {},
-    ...
-  }: {
+  modules.nixos = {config, ...}: {
     networking.firewall.trustedInterfaces = ["tailscale0"];
 
     services.tailscale = {
       enable = true;
-      # Auth only when the consumer's secrets specialArg names the key; unset, tailscale just stays unauthenticated.
-      authKeyFile = secrets.ts-authkey or null;
       extraUpFlags = ["--login-server=${config.vars.tailnet.loginServer}"];
       extraSetFlags = ["--netfilter-mode=off"];
     };
   };
+
+  modules.nixos-auth = {ts-authkey, ...}: {
+    imports = [modules.nixos];
+
+    services.tailscale.authKeyFile = ts-authkey;
+  };
 in {
   # Flake Modules
   flake.modules.nixos.tailscale = modules.nixos;
+  flake.modules.nixos.tailscale-auth = modules.nixos-auth;
 
   # NixOS Configuration Modules
   flake.nixosModules = {
-    heimdall.imports = [config.flake.modules.nixos.tailscale];
-    yggdrasil.imports = [config.flake.modules.nixos.tailscale];
+    heimdall.imports = [config.flake.modules.nixos.tailscale-auth];
+    yggdrasil.imports = [config.flake.modules.nixos.tailscale-auth];
   };
 }

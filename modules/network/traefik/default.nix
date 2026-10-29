@@ -14,15 +14,14 @@ in let
 
   modules.nixos = {
     config,
-    secrets ? {},
+    cf-dns-api-token,
     ...
   }: let
     inherit (config) vars;
-    cfToken = secrets.cf-dns-api-token or null;
   in {
     networking.firewall.allowedTCPPorts = [80 443];
 
-    systemd.services.traefik.environment = lib.mkIf (cfToken != null) {CF_DNS_API_TOKEN_FILE = cfToken;};
+    systemd.services.traefik.environment.CF_DNS_API_TOKEN_FILE = cf-dns-api-token;
 
     services.traefik = {
       enable = true;
@@ -47,20 +46,18 @@ in let
           websecure = {
             address = ":443";
             asDefault = true;
-            http.tls = lib.mkIf (cfToken != null) {certResolver = "cloudflare";};
+            http.tls.certResolver = "cloudflare";
           };
         };
 
-        certificatesResolvers = lib.mkIf (cfToken != null) {
-          cloudflare.acme = {
-            email = vars.acmeEmail;
-            storage = "${config.services.traefik.dataDir}/acme.json";
+        certificatesResolvers.cloudflare.acme = {
+          email = vars.acmeEmail;
+          storage = "${config.services.traefik.dataDir}/acme.json";
 
-            dnsChallenge = {
-              provider = "cloudflare";
-              # MagicDNS answers SOA for tailnet names with NOTIMP, hiding the Cloudflare zone
-              resolvers = ["1.1.1.1:53"];
-            };
+          dnsChallenge = {
+            provider = "cloudflare";
+            # MagicDNS answers SOA for tailnet names with NOTIMP, hiding the Cloudflare zone
+            resolvers = ["1.1.1.1:53"];
           };
         };
       };

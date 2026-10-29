@@ -51,11 +51,9 @@
       ];
     };
   in let
-    # The consumer's own secrets specialArg, extended with this flake's
-    # deployment keys' destinations (name → path for features' auth gating).
-    secrets = (specialArgs.secrets or {}) // lib.mapAttrs (key: value: (value.destDir or "/run/keys") + "/${key}") (deployment.keys or {});
+    # Each deployment key's file reaches features as the arg named after it.
     # Returned so the colmena hive's nodeSpecialArgs agrees with nixosSystem's.
-    hostSpecialArgs = specialArgs // {inherit secrets;};
+    hostSpecialArgs = specialArgs // lib.mapAttrs (key: value: (value.destDir or "/run/keys") + "/${key}") (deployment.keys or {});
   in
     {
       inherit name system nixosModule tailnetIp;
