@@ -1,59 +1,65 @@
 # pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
 {config, ...}: let
-  mergeJson = import ./_lib/merge-json.nix;
-  mutableSettings = ./_lib/mutable-settings.nix;
-in let
+  plugins = [
+    # Permissions and interaction
+    "@gotgenes/pi-permission-model-judge"
+    "@gotgenes/pi-permission-system"
+    "@juicesharp/rpiv-ask-user-question"
+    "@juicesharp/rpiv-btw"
+    "@juicesharp/rpiv-todo"
+    # Context and cost
+    "@narumitw/pi-usage"
+    "billion-context-pi"
+    "pi-reasonix"
+    # Code quality and goals
+    "pi-goal-x"
+    "pi-lens"
+    "pi-simplify"
+    # Output style and theme
+    "@dietrichgebert/ponytail"
+    "pi-caveman"
+    "pi-everforest"
+  ];
+
   modules.homeManager = {
     config,
+    lib,
     pkgs,
     ...
-  }: {
-    imports = [mutableSettings];
+  }: let
+    cfg = config.programs.pi-coding-agent;
 
+    # Deep-merges Nix's JSON over pi's mutable copy, keeping pi's runtime choices.
+    merge = name: staticSettings:
+      lib.hm.dag.entryAfter ["linkGeneration"] (lib.hm.generators.mkImpureConfigMerger {
+        inherit pkgs staticSettings;
+        format = "json";
+        empty = "{}";
+        jqOperation = "$dynamic * $static";
+        path = "${cfg.configDir}/${name}";
+      });
+  in {
     programs.pi-coding-agent.settings = {
-      packages = [
-        # Permissions and interaction
-        "npm:@gotgenes/pi-permission-model-judge"
-        "npm:@gotgenes/pi-permission-system"
-        "npm:@juicesharp/rpiv-ask-user-question"
-        "npm:@juicesharp/rpiv-btw"
-        "npm:@juicesharp/rpiv-todo"
-        # Context and cost
-        "npm:@narumitw/pi-usage"
-        "npm:billion-context-pi"
-        "npm:pi-reasonix"
-        # Code quality and goals
-        "npm:pi-goal-x"
-        "npm:pi-lens"
-        "npm:pi-simplify"
-        # Output style and theme
-        "npm:@dietrichgebert/ponytail"
-        "npm:pi-caveman"
-        "npm:pi-everforest"
-      ];
-
+      packages = map (name: pkgs.pi-plugins.extensions.${name}) plugins;
       theme = "everforest-light-soft/everforest-dark-soft";
     };
 
-    # Merged so `/mcp` keeps its enabled and exposure choices.
-    home.activation.piMcp = {
-      before = [];
-      after = ["writeBoundary"];
-
-      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
+    home.activation = {
+      piSettings = merge "settings.json" ((pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings);
+      piMcp = merge "mcp.json" config.xdg.configFile."mcp/mcp.json".source;
     };
 
-    home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+    home.file = {
+      # pi rewrites it, so piSettings owns it, not a store symlink.
+      "${cfg.configDir}/settings.json".enable = false;
+      ".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+    };
+
     xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
 
     programs.pi-coding-agent = {
       enable = true;
       package = pkgs.llm-agents.pi;
-
-      extraPackages = with pkgs; [
-        bun
-        nodejs
-      ];
     };
 
     agents.md.coding-agents = [
@@ -61,6 +67,8 @@ in let
     ];
   };
 in {
+  pi = {inherit plugins;};
+
   # Flake Modules
   flake.modules.homeManager.pi = modules.homeManager;
 
