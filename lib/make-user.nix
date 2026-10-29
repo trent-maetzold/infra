@@ -15,7 +15,7 @@
     imports ? [],
     groups ? [],
     shell ? null,
-    publicKey ? null,
+    publicKeys ? [],
     git ? null,
     hosts ? {},
     specialArgs ? {},
@@ -49,7 +49,7 @@
       users.users.${name} = {
         isNormalUser = true;
         extraGroups = groups;
-        openssh.authorizedKeys.keys = lib.optional (publicKey != null) publicKey;
+        openssh.authorizedKeys.keys = publicKeys;
         shell = lib.mkIf (shell != null) pkgs.${shell};
         hashedPassword = lib.mkIf (hashedPassword != null) hashedPassword;
         initialPassword = lib.mkIf (initialPassword != null) initialPassword;

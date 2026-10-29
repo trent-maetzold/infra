@@ -21,7 +21,7 @@ let
     name = "trent";
     groups = ["wheel"];               # everything below `name` is optional
     shell = "zsh";
-    publicKey = "ssh-ed25519 ...";
+    publicKeys = ["ssh-ed25519 ..."];
     git = {name = "Trent"; email = "trent@work.com";};
     hosts = {inherit box;};           # ssh client entries
     specialArgs = vars;
