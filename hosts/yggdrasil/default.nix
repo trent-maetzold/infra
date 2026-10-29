@@ -39,28 +39,24 @@ in {
       targetUser = "tm";
 
       keys = {
-        codeberg-env = {
+        codeberg-token = {
           secret = "${secrets}/hermes-codeberg-token.age";
           destDir = "/var/lib/secrets";
-          env = "CODEBERG_TOKEN";
         };
 
-        deepseek-env = {
+        deepseek-api-key = {
           secret = "${secrets}/deepseek-api-key.age";
           destDir = "/var/lib/secrets";
-          env = "DEEPSEEK_API_KEY";
         };
 
-        hermes-api-server-env = {
+        hermes-api-server-key = {
           secret = "${secrets}/hermes-api-server-key.age";
           destDir = "/var/lib/secrets";
-          env = "API_SERVER_KEY";
         };
 
-        hermes-dashboard-env = {
+        hermes-dashboard-password = {
           secret = "${secrets}/hermes-webui-password.age";
           destDir = "/var/lib/secrets";
-          env = "HERMES_DASHBOARD_BASIC_AUTH_PASSWORD";
         };
 
         honcho-db-password = {
@@ -68,16 +64,14 @@ in {
           destDir = "/var/lib/secrets";
         };
 
-        openrouter-env = {
+        openrouter-api-key = {
           secret = "${secrets}/openrouter-api-key.age";
           destDir = "/var/lib/secrets";
-          env = "LLM_OPENAI_API_KEY";
         };
 
-        opencode-env = {
+        opencode-api-key = {
           secret = "${secrets}/opencode-api-key.age";
           destDir = "/var/lib/secrets";
-          env = "OPENCODE_GO_API_KEY";
         };
 
         ts-authkey.secret = "${secrets}/ts-authkey.age";

@@ -16,7 +16,7 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./hosts ./lib ./modules ./options ./packages ./users])
+        (import-tree [./apps ./hosts ./lib ./modules ./options ./users])
         ./vars.nix
       ];
 

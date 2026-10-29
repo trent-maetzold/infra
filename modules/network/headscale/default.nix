@@ -12,11 +12,10 @@ in let
 
   modules.nixos = {
     config,
-    secrets ? {},
+    headplane-cookie-secret,
     ...
   }: let
     inherit (config) vars;
-    cookieSecret = secrets.headplane-cookie-secret or null;
   in {
     services = {
       headscale = {
@@ -37,11 +36,10 @@ in let
         enable = true;
 
         settings = {
-          server =
-            {
-              base_url = "${vars.tailnet.loginServer}/admin";
-            }
-            // lib.optionalAttrs (cookieSecret != null) {cookie_secret_path = cookieSecret;};
+          server = {
+            base_url = "${vars.tailnet.loginServer}/admin";
+            cookie_secret_path = headplane-cookie-secret;
+          };
 
           headscale.config_path = config.services.headscale.configFile;
         };

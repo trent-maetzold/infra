@@ -88,9 +88,33 @@
 
   hosts.yggdrasil = {
     pkgs,
-    secrets ? {},
+    deepseek-api-key,
+    opencode-api-key,
+    hermes-api-server-key,
+    hermes-dashboard-password,
     ...
-  }: {
+  }: let
+    makeEnvFile = import ../_lib/make-env-file.nix {inherit lib pkgs;};
+    gateway = makeEnvFile "hermes-agent" {
+      DEEPSEEK_API_KEY = deepseek-api-key;
+      OPENCODE_GO_API_KEY = opencode-api-key;
+      API_SERVER_KEY = hermes-api-server-key;
+    };
+    backend = makeEnvFile "hermes-backend" {HERMES_DASHBOARD_BASIC_AUTH_PASSWORD = hermes-dashboard-password;};
+  in {
+    # Process env, which hermes reads beside its .env.
+    systemd.services = {
+      hermes-agent.serviceConfig = {
+        inherit (gateway) ExecStartPre;
+        EnvironmentFile = "-${gateway.file}";
+      };
+
+      hermes-backend.serviceConfig = {
+        inherit (backend) ExecStartPre;
+        EnvironmentFile = "-${backend.file}";
+      };
+    };
+
     services.hermes-agent = {
       backend = {
         host = routes."dash.hermes".endpoint.ip;
@@ -106,7 +130,6 @@
         # Hermex's relay; only its developer holds the APNs key, so it can't be self-hosted
         HERMEX_PUSH_RELAY_URL = "https://hermex-relay.hermex-relay.workers.dev";
       };
-      environmentFiles = map (f: secrets.${f}) (lib.filter (f: secrets ? ${f}) ["codeberg-env" "deepseek-env" "hermes-api-server-env" "hermes-dashboard-env" "opencode-env"]);
 
       # Non-default config.yaml keys
       settings = {

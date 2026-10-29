@@ -51,13 +51,16 @@ in {
 - `modules.{nixos,homeManager}.<feature>`: each feature alone
 
 Features read your values from `config.vars` (`tailnet` needs
-`vars.tailnet.loginServer`).
+`vars.tailnet.loginServer`), and secrets as specialArgs: the path of a file
+holding only the value (`traefik` needs `cf-dns-api-token`, `tailscale-auth`
+needs `ts-authkey`).
 
 ## Functions
 
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`
 - `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
-  `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
+  `colmenaNode` only with `deployment`; each `deployment.keys.<k>` is passed
+  as specialArg `<k>`, its path; `lan.interfaces` bond into `bond0` behind `br0`.
 - `makeDeploymentKey {secret, destDir?, user?, group?}` → colmena key, decrypted
   with rage from an age file on the deploying machine at apply time.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
@@ -85,7 +88,7 @@ Features read your values from `config.vars` (`tailnet` needs
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
   in `_modules/`.
 
-Every `.nix` under `apps hosts lib modules options packages users` (except `_` paths) is loaded by import-tree, plus `vars.nix`. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree, plus `vars.nix`. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 
