@@ -1,7 +1,7 @@
 # en_US.UTF-8 locale and the flake's time zone.
 {config, ...}: let
-  modules.nixos = {config, ...}: {
-    time.timeZone = config.vars.timeZone;
+  modules.nixos = {timeZone, ...}: {
+    time.timeZone = timeZone;
 
     i18n = {
       defaultLocale = "en_US.UTF-8";

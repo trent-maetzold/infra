@@ -1,5 +1,9 @@
 # trent: tm's workstation setup under the new name; features add the rest.
-{config, ...}: let
+{
+  config,
+  inputs,
+  ...
+}: let
   inherit (config.flake) homeModules;
 in {
   flake.users.trent = config.flake.lib.makeUser {
@@ -8,6 +12,7 @@ in {
     shell = "zsh";
     publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZMIGNBlZ+VX528eFfwCmEuN4oQCigRA+FPwADzixds trent-maetzold@id";
     inherit (config.flake) hosts;
+    specialArgs = inputs;
 
     git = {
       name = "Trent Maetzold";
@@ -15,7 +20,6 @@ in {
     };
 
     imports = [
-      homeModules.globals
       homeModules.default
       homeModules.infra
       homeModules.trent

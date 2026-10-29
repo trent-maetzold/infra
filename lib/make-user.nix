@@ -1,7 +1,8 @@
 # A user. `imports` carries the profiles (`asgard.homeModules.*`) and plain
 # home modules. The rest is glue that applies only where a feature already
 # enabled the program; `hosts` (makeHost results) become ssh client entries.
-# An `initialPassword` must be changed at first login.
+# `specialArgs` reach its home modules. An `initialPassword` must be changed at
+# first login.
 {
   config,
   home-manager,
@@ -17,6 +18,7 @@
     publicKey ? null,
     git ? null,
     hosts ? {},
+    specialArgs ? {},
     hashedPassword ? null,
     initialPassword ? null,
   }: let
@@ -36,7 +38,10 @@
     nixosModule = {pkgs, ...}: {
       imports = [home-manager.nixosModules.home-manager];
 
-      home-manager.users.${name} = homeModule;
+      home-manager = {
+        users.${name} = homeModule;
+        extraSpecialArgs = specialArgs;
+      };
 
       # A login shell needs its NixOS module for /etc/shells and the system profile.
       programs = lib.optionalAttrs (shell != null) {${shell}.enable = true;};
@@ -66,6 +71,7 @@
           overlays = lib.attrValues config.flake.overlays;
         };
 
+        extraSpecialArgs = specialArgs;
         modules = [homeModule];
       };
   };

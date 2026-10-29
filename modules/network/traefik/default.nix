@@ -14,11 +14,11 @@ in let
 
   modules.nixos = {
     config,
+    acmeEmail,
+    tailnet,
     cf-dns-api-token,
     ...
-  }: let
-    inherit (config) vars;
-  in {
+  }: {
     networking.firewall.allowedTCPPorts = [80 443];
 
     systemd.services.traefik.environment.CF_DNS_API_TOKEN_FILE = cf-dns-api-token;
@@ -51,7 +51,7 @@ in let
         };
 
         certificatesResolvers.cloudflare.acme = {
-          email = vars.acmeEmail;
+          email = acmeEmail;
           storage = "${config.services.traefik.dataDir}/acme.json";
 
           dnsChallenge = {
@@ -62,7 +62,7 @@ in let
         };
       };
 
-      dynamicConfigOptions.http.middlewares.tailnet.ipAllowList.sourceRange = [vars.tailnet.subnet];
+      dynamicConfigOptions.http.middlewares.tailnet.ipAllowList.sourceRange = [tailnet.subnet];
     };
   };
 

@@ -11,10 +11,11 @@ hosts and users. Rules for editing it are in AGENTS.md.
 ```nix
 let
   inherit (asgard.lib) makeAgentRules makeHost makeUser;
-  # The values features read, shared by everything.
-  globals.vars = {
+  # The values features take as module args, shared by everything.
+  vars = {
     tailnet.loginServer = "https://hs.work.com";
-    flake = "/home/trent/code/infra"; # nh
+    flakePath = "/home/trent/code/infra"; # nh
+    timeZone = "America/Chicago";
   };
   trent = makeUser {
     name = "trent";
@@ -23,14 +24,15 @@ let
     publicKey = "ssh-ed25519 ...";
     git = {name = "Trent"; email = "trent@work.com";};
     hosts = {inherit box;};           # ssh client entries
-    imports = [globals asgard.homeModules.default ./home/trent (makeAgentRules {workflow = "- Open a PR.";})];
+    specialArgs = vars;
+    imports = [asgard.homeModules.default ./home/trent (makeAgentRules {workflow = "- Open a PR.";})];
   };
   box = makeHost {
     name = "box";
     system = "x86_64-linux";
-    imports = [globals asgard.nixosModules.default asgard.modules.nixos.tailscale ./hosts/box];
+    imports = [asgard.nixosModules.default asgard.modules.nixos.tailscale ./hosts/box];
     users = [trent];
-    specialArgs = inputs;             # everything below here is optional
+    specialArgs = inputs // vars;     # everything below here is optional
     address = "box.example.com";      # ssh HostName
     hostId = "deadbeef";
     lan = {address = "10.0.0.2"; prefixLength = 24; gateway = "10.0.0.1"; nameservers = []; interfaces = ["eno1"];};
@@ -50,14 +52,15 @@ in {
 - `homeModules`: `default`, `default-slim`, `desktop`, `kids`, `infra`
 - `modules.{nixos,homeManager}.<feature>`: each feature alone
 
-Features read your values from `config.vars` (`tailnet` needs
-`vars.tailnet.loginServer`), and secrets as specialArgs: the path of a file
-holding only the value (`traefik` needs `cf-dns-api-token`, `tailscale-auth`
+Features take your values as specialArgs without defaults, so a missing one
+fails evaluation (`tailscale` needs `tailnet.loginServer`, `locale` needs
+`timeZone`). Secrets are the path of a file holding only the value (`traefik` needs `cf-dns-api-token`, `tailscale-auth`
 needs `ts-authkey`).
 
 ## Functions
 
-- `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`
+- `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
+  `specialArgs` reach its home modules, standalone or on a host.
 - `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
   `colmenaNode` only with `deployment`; each `deployment.keys.<k>` is passed
   as specialArg `<k>`, its path; `lan.interfaces` bond into `bond0` behind `br0`.
@@ -85,12 +88,13 @@ needs `ts-authkey`).
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
 - `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeEnvFile`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
-- `vars.nix`: data shared by every host and user (`globals`).
+- `vars.nix`: values shared by every host and user, merged into the flake's
+  inputs, which they get as specialArgs.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
   in `_modules/`.
 
-Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree, plus `vars.nix`. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 

@@ -11,7 +11,6 @@ in {
     address = "muninn.ts.trkm.io";
     system = "x86_64-linux";
     imports = [
-      nixosModules.globals
       nixosModules.default
       nixosModules.muninn
       ./_modules/binfmt.nix

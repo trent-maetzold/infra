@@ -1,5 +1,9 @@
 # tm: the workstation user; tm-server is the same user with server tooling only.
-{config, ...}: let
+{
+  config,
+  inputs,
+  ...
+}: let
   inherit (config.flake) homeModules;
 
   tm = imports:
@@ -9,6 +13,7 @@
       shell = "zsh";
       publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZMIGNBlZ+VX528eFfwCmEuN4oQCigRA+FPwADzixds tm@hive";
       inherit (config.flake) hosts;
+      specialArgs = inputs;
 
       git = {
         name = "Trent Maetzold";
@@ -21,14 +26,10 @@ in {
   flake.users = {
     tm = tm [homeModules.tm];
     # Servers: shell, git and nix tooling only.
-    tm-server = tm [
-      homeModules.globals
-      homeModules.default-slim
-    ];
+    tm-server = tm [homeModules.default-slim];
   };
 
   flake.homeModules.tm.imports = [
-    homeModules.globals
     homeModules.default
     homeModules.infra
   ];
