@@ -10,7 +10,7 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./hosts ./lib ./modules ./options ./users])
+        (import-tree [./hosts ./lib ./modules ./options ./users])
       ];
 
       flake.colmenaHive = let
@@ -84,6 +84,21 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     # Infra
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    agenix-rekey = {
+      url = "github:oddlama/agenix-rekey";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-secrets = {
+      url = "git+ssh://git@codeberg.org/trkm/nix-secrets.git";
+      flake = false;
+    };
+
     colmena = {
       url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";

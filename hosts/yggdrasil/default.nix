@@ -5,7 +5,7 @@
   ...
 }: let
   inherit (config.flake) nixosModules users;
-  secrets = "/home/tm/code/nix-secrets/secrets";
+  secrets = "${inputs.nix-secrets}/secrets";
 in {
   flake.hosts.yggdrasil = config.flake.lib.makeHost {
     name = "yggdrasil";
@@ -17,6 +17,7 @@ in {
       nixosModules.yggdrasil
       ./_modules/boot.nix
       ./_modules/disk-config.nix
+      {age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAGtuMW4cQSgwYrDCaeccFMxKuCrCWSMA+050lHDryLE";}
       ./_modules/persistence.nix
       {hardware.facter.reportPath = ./_modules/facter.json;}
     ];
@@ -33,48 +34,20 @@ in {
       nameservers = ["10.10.20.1" "1.1.1.1"];
     };
 
+    secrets = {
+      codeberg-token.rekeyFile = "${secrets}/codeberg-token.age";
+      deepseek-api-key.rekeyFile = "${secrets}/deepseek-api-key.age";
+      hermes-api-server-key.rekeyFile = "${secrets}/hermes-api-server-key.age";
+      hermes-dashboard-password.rekeyFile = "${secrets}/hermes-dashboard-password.age";
+      honcho-db-password.rekeyFile = "${secrets}/honcho-db-password.age";
+      openrouter-api-key.rekeyFile = "${secrets}/openrouter-api-key.age";
+      opencode-api-key.rekeyFile = "${secrets}/opencode-api-key.age";
+      ts-authkey.rekeyFile = "${secrets}/ts-authkey.age";
+    };
+
     deployment = {
       targetHost = "100.64.0.2";
       targetUser = "tm";
-
-      keys = {
-        codeberg-token = {
-          secret = "${secrets}/hermes-codeberg-token.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        deepseek-api-key = {
-          secret = "${secrets}/deepseek-api-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        hermes-api-server-key = {
-          secret = "${secrets}/hermes-api-server-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        hermes-dashboard-password = {
-          secret = "${secrets}/hermes-webui-password.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        honcho-db-password = {
-          secret = "${secrets}/honcho-db-password.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        openrouter-api-key = {
-          secret = "${secrets}/openrouter-api-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        opencode-api-key = {
-          secret = "${secrets}/opencode-api-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        ts-authkey.secret = "${secrets}/ts-authkey.age";
-      };
     };
   };
 
