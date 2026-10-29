@@ -58,8 +58,7 @@ in let
       dns.extra_records = makeTailnetDNS heimdall.ips.tailnet routes;
 
       # tm reaches every node, and Tailscale SSH takes tm into each as tm or
-      # trent; heimdall is `tag:edge` (`headscale nodes tag`), so SSH is
-      # never from it.
+      # trent; heimdall is `tag:edge`, so SSH is never from it.
       policy.path = pkgs.writeText "policy.json" (builtins.toJSON {
         tagOwners."tag:edge" = ["tm@"];
 
@@ -87,6 +86,10 @@ in let
         ];
       });
     };
+
+    # Applies when heimdall registers; tag an already registered heimdall
+    # with `headscale nodes tag`.
+    services.tailscale.extraUpFlags = ["--advertise-tags=tag:edge"];
 
     services.traefik.dynamicConfigOptions.http = {
       # Clients never ask for /, which headscale answers with an empty page.
