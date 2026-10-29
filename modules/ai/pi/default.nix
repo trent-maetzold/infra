@@ -1,5 +1,26 @@
 # pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
 {config, ...}: let
+  plugins = [
+    # Permissions and interaction
+    "@gotgenes/pi-permission-model-judge"
+    "@gotgenes/pi-permission-system"
+    "@juicesharp/rpiv-ask-user-question"
+    "@juicesharp/rpiv-btw"
+    "@juicesharp/rpiv-todo"
+    # Context and cost
+    "@narumitw/pi-usage"
+    "billion-context-pi"
+    "pi-reasonix"
+    # Code quality and goals
+    "pi-goal-x"
+    "pi-lens"
+    "pi-simplify"
+    # Output style and theme
+    "@dietrichgebert/ponytail"
+    "pi-caveman"
+    "pi-everforest"
+  ];
+
   modules.homeManager = {
     config,
     lib,
@@ -19,7 +40,7 @@
       });
   in {
     programs.pi-coding-agent.settings = {
-      packages = pkgs.pi-plugins.extensions;
+      packages = map (name: pkgs.pi-plugins.extensions.${name}) plugins;
       theme = "everforest-light-soft/everforest-dark-soft";
     };
 
@@ -46,6 +67,8 @@
     ];
   };
 in {
+  pi = {inherit plugins;};
+
   # Flake Modules
   flake.modules.homeManager.pi = modules.homeManager;
 

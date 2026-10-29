@@ -1,20 +1,28 @@
-# pi extensions from npm, pinned in package-lock.json; `just pi-plugins` updates it.
-{
+# pi extensions from npm, pinned in package-lock.json; `just pi-plugins` relocks it.
+{config, ...}: {
   flake.overlays.pi-plugins = final: _: {
     pi-plugins = final.callPackage ({
       lib,
       stdenv,
       nodejs,
       importNpmLock,
-      # A consumer's own package.json and package-lock.json, to change the set.
-      npmRoot ? ./.,
-    }:
+      writeTextDir,
+      # A consumer's own set needs its own lock, from `npm install --package-lock-only`.
+      plugins ? config.pi.plugins,
+      packageLock ? lib.importJSON ./package-lock.json,
+    }: let
+      package = {
+        name = "pi-plugins";
+        dependencies = lib.genAttrs plugins (_: "*");
+      };
+    in
       stdenv.mkDerivation (finalAttrs: {
         pname = "pi-plugins";
         version = "0";
-        src = npmRoot;
+        # npmConfigHook swaps this package.json for npmDeps' own.
+        src = writeTextDir "package.json" (builtins.toJSON package);
 
-        npmDeps = importNpmLock {inherit npmRoot;};
+        npmDeps = importNpmLock {inherit package packageLock;};
         # pi provides its own packages to extensions, so peers stay uninstalled, as with `pi install`.
         npmFlags = ["--legacy-peer-deps"];
 
@@ -22,7 +30,14 @@
         dontBuild = true;
         installPhase = "mkdir $out && cp -R node_modules $out";
 
-        passthru.extensions = map (name: "${finalAttrs.finalPackage}/node_modules/${name}") (lib.attrNames (lib.importJSON (npmRoot + "/package.json")).dependencies);
+        passthru = {
+          inherit package;
+          extensions = lib.genAttrs plugins (name: "${finalAttrs.finalPackage}/node_modules/${name}");
+        };
       })) {};
+  };
+
+  perSystem = {pkgs, ...}: {
+    packages = {inherit (pkgs) pi-plugins;};
   };
 }

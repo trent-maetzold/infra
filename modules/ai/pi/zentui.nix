@@ -1,7 +1,9 @@
 # pi's zentui theme: minimalist editor and starship-style footer.
 {config, ...}: let
-  modules.homeManager = {...}: {
+  modules.homeManager = {pkgs, ...}: {
     config = {
+      programs.pi-coding-agent.settings.packages = [pkgs.pi-plugins.extensions.pi-zentui];
+
       home.file.".pi/agent/zentui.json".text = builtins.toJSON {
         components = {
           editor = {
@@ -60,6 +62,8 @@
     };
   };
 in {
+  pi.plugins = ["pi-zentui"];
+
   # Flake Modules
   flake.modules.homeManager.pi-zentui = modules.homeManager;
 
