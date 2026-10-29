@@ -1,7 +1,7 @@
 # Honcho memory server: API, deriver, PostgreSQL (pgvector) and Valkey on the
 # `honcho` network, reaching each other by container name; only the API is
-# published, on the host's loopback. The secret
-# /var/lib/secrets/honcho-db-password holds the database password.
+# published, on the host's loopback; the `honcho-db-password` secret holds the
+# database password.
 #
 # On yggdrasil it is hermes' memory. Generation runs on DeepSeek V4.1 Flash via
 # the DeepSeek API; embeddings on OpenRouter (the openai transport's
@@ -17,12 +17,17 @@
     port = 8000;
   };
 
-  modules.nixos = {config, ...}: let
+  modules.nixos = {
+    config,
+    secrets ? {},
+    ...
+  }: let
     inherit (config.virtualisation.quadlet) networks volumes;
 
     # Podman hands the secret to the containers as env.
-    secret = {
-      ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password /var/lib/secrets/honcho-db-password";
+    passwordFile = secrets.honcho-db-password or null;
+    secret = lib.optionalAttrs (passwordFile != null) {
+      ExecStartPre = "${config.virtualisation.podman.package}/bin/podman secret create --replace honcho-db-password ${passwordFile}";
       Restart = "always";
     };
 
@@ -30,7 +35,7 @@
       name = "honcho-api";
       networks = [networks.honcho.ref];
       image = "ghcr.io/plastic-labs/honcho:latest";
-      secrets = ["honcho-db-password,type=env,target=PGPASSWORD"];
+      secrets = lib.optional (passwordFile != null) "honcho-db-password,type=env,target=PGPASSWORD";
 
       environments = {
         DB_CONNECTION_URI = "postgresql+psycopg://honcho@honcho-db:5432/honcho";
@@ -55,7 +60,7 @@
             name = "honcho-db";
             networks = [networks.honcho.ref];
             image = "docker.io/pgvector/pgvector:pg18";
-            secrets = ["honcho-db-password,type=env,target=POSTGRES_PASSWORD"];
+            secrets = lib.optional (passwordFile != null) "honcho-db-password,type=env,target=POSTGRES_PASSWORD";
             volumes = ["${volumes.honcho_pgdata.ref}:/var/lib/postgresql"];
 
             environments = {
@@ -103,8 +108,6 @@
   user = config.flake.users.tm.name;
 
   models = {
-    environmentFiles = ["/var/lib/secrets/deepseek-env" "/var/lib/secrets/openrouter-env"];
-
     environments = {
       DERIVER_MODEL_CONFIG__TRANSPORT = "openai";
       DERIVER_MODEL_CONFIG__MODEL = "deepseek-flash";
@@ -162,16 +165,18 @@
   hosts.yggdrasil = {
     config,
     pkgs,
+    secrets ? {},
     ...
   }: let
     honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
+    envFiles = map (f: secrets.${f}) (lib.filter (f: secrets ? ${f}) ["deepseek-env" "openrouter-env"]);
   in {
     # Volumes, not the image store.
     persistence.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 
     virtualisation.quadlet.containers = {
-      honcho-api.containerConfig = models;
-      honcho-deriver.containerConfig = models;
+      honcho-api.containerConfig = models // {environmentFiles = envFiles;};
+      honcho-deriver.containerConfig = models // {environmentFiles = envFiles;};
     };
 
     services.hermes-agent = {

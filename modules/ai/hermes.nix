@@ -86,7 +86,11 @@
   user = config.flake.users.tm.name;
   dashboard = "https://${routes."dash.hermes".hostname}";
 
-  hosts.yggdrasil = {pkgs, ...}: {
+  hosts.yggdrasil = {
+    pkgs,
+    secrets ? {},
+    ...
+  }: {
     services.hermes-agent = {
       backend = {
         host = routes."dash.hermes".endpoint.ip;
@@ -102,7 +106,7 @@
         # Hermex's relay; only its developer holds the APNs key, so it can't be self-hosted
         HERMEX_PUSH_RELAY_URL = "https://hermex-relay.hermex-relay.workers.dev";
       };
-      environmentFiles = map (f: "/var/lib/secrets/${f}") ["codeberg-env" "deepseek-env" "hermes-api-server-env" "hermes-dashboard-env" "opencode-env"];
+      environmentFiles = map (f: secrets.${f}) (lib.filter (f: secrets ? ${f}) ["codeberg-env" "deepseek-env" "hermes-api-server-env" "hermes-dashboard-env" "opencode-env"]);
 
       # Non-default config.yaml keys
       settings = {

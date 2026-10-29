@@ -12,12 +12,17 @@ in let
     port = 8081;
   };
 
-  modules.nixos = {config, ...}: let
+  modules.nixos = {
+    config,
+    secrets ? {},
+    ...
+  }: let
     inherit (config) vars;
+    cfToken = secrets.cf-dns-api-token or null;
   in {
     networking.firewall.allowedTCPPorts = [80 443];
 
-    systemd.services.traefik.environment.CF_DNS_API_TOKEN_FILE = "/var/lib/secrets/cf-dns-api-token";
+    systemd.services.traefik.environment = lib.mkIf (cfToken != null) {CF_DNS_API_TOKEN_FILE = cfToken;};
 
     services.traefik = {
       enable = true;
@@ -42,18 +47,20 @@ in let
           websecure = {
             address = ":443";
             asDefault = true;
-            http.tls.certResolver = "cloudflare";
+            http.tls = lib.mkIf (cfToken != null) {certResolver = "cloudflare";};
           };
         };
 
-        certificatesResolvers.cloudflare.acme = {
-          email = vars.acmeEmail;
-          storage = "${config.services.traefik.dataDir}/acme.json";
+        certificatesResolvers = lib.mkIf (cfToken != null) {
+          cloudflare.acme = {
+            email = vars.acmeEmail;
+            storage = "${config.services.traefik.dataDir}/acme.json";
 
-          dnsChallenge = {
-            provider = "cloudflare";
-            # MagicDNS answers SOA for tailnet names with NOTIMP, hiding the Cloudflare zone
-            resolvers = ["1.1.1.1:53"];
+            dnsChallenge = {
+              provider = "cloudflare";
+              # MagicDNS answers SOA for tailnet names with NOTIMP, hiding the Cloudflare zone
+              resolvers = ["1.1.1.1:53"];
+            };
           };
         };
       };
