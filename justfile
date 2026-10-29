@@ -82,3 +82,7 @@ install target='yggdrasil' host='yggdrasil-iso':
 diff host='yggdrasil':
     @if [ "$(hostname)" = {{ host }} ]; then nh os build . --hostname {{ host }} --diff always; \
     else nh os build . --hostname {{ host }} --build-host {{ host }} --target-host {{ host }} --diff always; fi
+
+# Adds pi extensions to the pi-plugins lockfile; with none, bumps them all.
+pi-plugins *pkgs:
+    cd modules/ai/pi/pkgs && nix shell nixpkgs#nodejs -c npm {{ if pkgs == "" { "update" } else { "install " + pkgs } }} --package-lock-only --legacy-peer-deps
