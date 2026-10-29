@@ -30,7 +30,8 @@ secrets. Commands are in README.md.
   overlays in the same places' `pkgs/` (`nix/nix/pkgs/nx.nix`); features use
   `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
-- `vars.nix`: `{homeModules,nixosModules}.globals`, the data every host and user shares (domain, tailnet, time zone, flake path).
+- `vars.nix`: `vars`, the values every host and user shares (domain, tailnet,
+  time zone, flake path), passed to them as specialArgs.
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
   module added to `flake.nixosModules.<h>`, the feature itself added to
   `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
@@ -76,10 +77,10 @@ in {
 - Features never import other features; profiles wire them. Upstream modules
   (`home-manager`, `nix-index-database`) are imported by the feature using them.
 - Package lists are `pkgs-<name>` features in `<domain>/packages.nix`.
-- Read consumer values from module-level `config.vars`. Never take a `user`
-  specialArg or host identity.
-- A secret is a module arg with no default, the path of a file holding only its
-  value (`{cf-dns-api-token, ...}:`), so a missing one fails evaluation. How the
+- Consumer values are module args with no default (`{tailnet, ...}:`), so a
+  missing one fails evaluation. Never take a `user` arg or host identity.
+- A secret is such an arg too: the path of a file holding only its value
+  (`{cf-dns-api-token, ...}:`). How the
   file gets onto the host is the consumer's business, never the feature's. Take
   it only in the module that reads it. A secret a feature can run without goes
   in a `<feature>-<part>` module importing the base (`tailscale-auth`). Build

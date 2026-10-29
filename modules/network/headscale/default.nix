@@ -12,21 +12,20 @@ in let
 
   modules.nixos = {
     config,
+    tailnet,
     headplane-cookie-secret,
     ...
-  }: let
-    inherit (config) vars;
-  in {
+  }: {
     services = {
       headscale = {
         enable = true;
 
         settings = {
-          server_url = vars.tailnet.loginServer;
+          server_url = tailnet.loginServer;
 
           dns = {
             magic_dns = true;
-            base_domain = vars.tailnet.domain;
+            base_domain = tailnet.domain;
             nameservers.global = ["1.1.1.1" "9.9.9.9"];
           };
         };
@@ -37,7 +36,7 @@ in let
 
         settings = {
           server = {
-            base_url = "${vars.tailnet.loginServer}/admin";
+            base_url = "${tailnet.loginServer}/admin";
             cookie_secret_path = headplane-cookie-secret;
           };
 

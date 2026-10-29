@@ -13,14 +13,13 @@ in {
     address = "heimdall.ts.trkm.io";
     tailnetIp = "100.64.0.6";
     imports = [
-      nixosModules.globals
       nixosModules.default
       nixosModules.heimdall
       ./_modules/boot.nix
       ./_modules/disk-config.nix
     ];
     users = [users.tm-server];
-    specialArgs = inputs;
+    specialArgs = inputs // config.vars;
 
     deployment = {
       targetHost = "hs.trkm.io";

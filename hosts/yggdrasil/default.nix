@@ -13,7 +13,6 @@ in {
     address = "yggdrasil.ts.trkm.io";
     tailnetIp = "100.64.0.2";
     imports = [
-      nixosModules.globals
       nixosModules.default
       nixosModules.yggdrasil
       ./_modules/boot.nix
@@ -24,7 +23,7 @@ in {
     users = [users.tm];
     hostId = "6d8a7c3f";
 
-    specialArgs = inputs;
+    specialArgs = inputs // config.vars;
 
     lan = {
       address = "10.10.20.10";

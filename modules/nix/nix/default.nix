@@ -33,6 +33,7 @@
     config,
     lib,
     pkgs,
+    flakePath,
     ...
   }: {
     imports = [nix-index-database.homeModules.nix-index];
@@ -45,7 +46,7 @@
     programs = {
       nh = {
         enable = true;
-        flake = config.vars.flake;
+        flake = flakePath;
       };
 
       nix-index-database.comma.enable = true;

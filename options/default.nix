@@ -3,7 +3,7 @@
     vars = lib.mkOption {
       type = lib.types.lazyAttrsOf lib.types.raw;
       default = {};
-      description = "This flake's shared data, such as the `globals` module.";
+      description = "This flake's shared values, passed to its hosts and users as module args.";
     };
 
     flake = {
