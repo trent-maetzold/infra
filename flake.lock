@@ -676,11 +676,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1793311027,
-        "narHash": "sha256-cuf77Um3dC5BuGhux8AT4XN/9bKRntJR5+AeoJShr/Y=",
+        "lastModified": 1793311885,
+        "narHash": "sha256-MUIhMhOYNel1mBdIf8m9xiwdBlfUuppfePWGD8g5iRI=",
         "ref": "agenix-rekey",
-        "rev": "d975befb7f2681cc03a2a8c34c74928c24738be6",
-        "revCount": 11,
+        "rev": "30a2fd5a7b5629a0c78cd9bc9505d608d9e0f338",
+        "revCount": 12,
         "type": "git",
         "url": "ssh://git@codeberg.org/trkm/nix-secrets.git"
       },
