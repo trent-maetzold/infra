@@ -7,6 +7,8 @@
   modules.homeManager = {pkgs, ...}: {
     imports = [lazyvim.homeManagerModules.default];
 
+    programs.neovim.defaultEditor = true;
+
     programs.lazyvim = {
       enable = true;
       configFiles = ./config;
