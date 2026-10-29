@@ -46,11 +46,47 @@ in let
     };
   };
 
-  hosts.heimdall = {config, ...}: let
+  hosts.heimdall = {
+    config,
+    pkgs,
+    ...
+  }: let
     inherit (config.services.headscale.settings) server_url;
     loginHost = lib.removePrefix "https://" server_url;
   in {
-    services.headscale.settings.dns.extra_records = makeTailnetDNS heimdall.ips.tailnet routes;
+    services.headscale.settings = {
+      dns.extra_records = makeTailnetDNS heimdall.ips.tailnet routes;
+
+      # tm reaches every node, and Tailscale SSH takes tm into each as tm or
+      # trent; heimdall is `tag:edge` (`headscale nodes tag`), so SSH is
+      # never from it.
+      policy.path = pkgs.writeText "policy.json" (builtins.toJSON {
+        tagOwners."tag:edge" = ["tm@"];
+
+        acls = [
+          {
+            action = "accept";
+            src = ["*"];
+            dst = ["*:*"];
+          }
+        ];
+
+        ssh = [
+          {
+            action = "accept";
+            src = ["autogroup:member"];
+            dst = ["autogroup:self"];
+            users = ["tm" "trent"];
+          }
+          {
+            action = "accept";
+            src = ["autogroup:member"];
+            dst = ["tag:edge"];
+            users = ["tm"];
+          }
+        ];
+      });
+    };
 
     services.traefik.dynamicConfigOptions.http = {
       # Clients never ask for /, which headscale answers with an empty page.

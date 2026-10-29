@@ -1,5 +1,6 @@
 # Tailscale, joined to this flake's headscale; the tailnet interface is
-# trusted. `tailscale-auth` also logs in with the `ts-authkey` file.
+# trusted, and it serves Tailscale SSH. `tailscale-auth` also logs in with the
+# `ts-authkey` file.
 {config, ...}: let
   modules.nixos = {tailnet, ...}: {
     networking.firewall.trustedInterfaces = ["tailscale0"];
@@ -7,7 +8,7 @@
     services.tailscale = {
       enable = true;
       extraUpFlags = ["--login-server=${tailnet.loginServer}"];
-      extraSetFlags = ["--netfilter-mode=off"];
+      extraSetFlags = ["--netfilter-mode=off" "--ssh"];
     };
   };
 
