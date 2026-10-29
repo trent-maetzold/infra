@@ -1,14 +1,8 @@
 {
-  outputs = inputs @ {
-    nixpkgs,
-    home-manager,
-    flake-parts,
-    import-tree,
-    colmena,
-    llm-agents,
-    revdiff,
-    ...
-  }:
+  outputs = flakeInputs: let
+    inputs = flakeInputs // import ./vars.nix;
+    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena llm-agents revdiff;
+  in
     flake-parts.lib.mkFlake {
       inherit inputs;
       specialArgs = inputs;
@@ -17,7 +11,6 @@
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
         (import-tree [./apps ./hosts ./lib ./modules ./options ./users])
-        ./vars.nix
       ];
 
       flake.colmenaHive = let

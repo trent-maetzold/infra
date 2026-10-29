@@ -1,11 +1,5 @@
 {lib, ...}: {
   options = {
-    vars = lib.mkOption {
-      type = lib.types.lazyAttrsOf lib.types.raw;
-      default = {};
-      description = "This flake's shared values, passed to its hosts and users as module args.";
-    };
-
     flake = {
       hosts = lib.mkOption {
         type = lib.types.lazyAttrsOf lib.types.raw;

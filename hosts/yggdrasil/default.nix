@@ -23,7 +23,7 @@ in {
     users = [users.tm];
     hostId = "6d8a7c3f";
 
-    specialArgs = inputs // config.vars;
+    specialArgs = inputs;
 
     lan = {
       address = "10.10.20.10";

@@ -30,8 +30,9 @@ secrets. Commands are in README.md.
   overlays in the same places' `pkgs/` (`nix/nix/pkgs/nx.nix`); features use
   `pkgs.<name>`.
 - `options/`: global flake-parts options and the empty profile registry.
-- `vars.nix`: `vars`, the values every host and user shares (domain, tailnet,
-  time zone, flake path), passed to them as specialArgs.
+- `vars.nix`: the values every host and user shares (domain, tailnet, time
+  zone, flake path), merged into the flake's inputs, which hosts and users pass
+  as specialArgs.
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
   module added to `flake.nixosModules.<h>`, the feature itself added to
   `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
@@ -48,7 +49,7 @@ secrets. Commands are in README.md.
   requests that break this.
 
 `flake.nix` loads `apps hosts lib modules options users` with
-import-tree, plus `vars.nix`. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
+import-tree, with `vars.nix` merged into its inputs. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
 through `config.flake.*`.
 
 ## Writing a feature

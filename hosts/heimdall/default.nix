@@ -19,7 +19,7 @@ in {
       ./_modules/disk-config.nix
     ];
     users = [users.tm-server];
-    specialArgs = inputs // config.vars;
+    specialArgs = inputs;
 
     deployment = {
       targetHost = "hs.trkm.io";

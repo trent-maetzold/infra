@@ -17,7 +17,7 @@ in {
     ];
     users = [users.tm];
     lan.address = "10.10.10.125";
-    specialArgs = inputs // config.vars;
+    specialArgs = inputs;
   };
 
   flake.nixosConfigurations.muninn = config.flake.hosts.muninn.nixosConfiguration;

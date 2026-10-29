@@ -1,5 +1,9 @@
 # tm: the workstation user; tm-server is the same user with server tooling only.
-{config, ...}: let
+{
+  config,
+  inputs,
+  ...
+}: let
   inherit (config.flake) homeModules;
 
   tm = imports:
@@ -9,7 +13,7 @@
       shell = "zsh";
       publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMZMIGNBlZ+VX528eFfwCmEuN4oQCigRA+FPwADzixds tm@hive";
       inherit (config.flake) hosts;
-      specialArgs = config.vars;
+      specialArgs = inputs;
 
       git = {
         name = "Trent Maetzold";
