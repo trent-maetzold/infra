@@ -1,15 +1,23 @@
 # pi coding agent with its extension packages; its built-in MCP loads the shared MCP servers.
 {config, ...}: let
-  mergeJson = import ./_lib/merge-json.nix;
-  mutableSettings = ./_lib/mutable-settings.nix;
-in let
   modules.homeManager = {
     config,
+    lib,
     pkgs,
     ...
-  }: {
-    imports = [mutableSettings];
+  }: let
+    cfg = config.programs.pi-coding-agent;
 
+    # Deep-merges Nix's JSON over pi's mutable copy, keeping pi's runtime choices.
+    merge = name: staticSettings:
+      lib.hm.dag.entryAfter ["linkGeneration"] (lib.hm.generators.mkImpureConfigMerger {
+        inherit pkgs staticSettings;
+        format = "json";
+        empty = "{}";
+        jqOperation = "$dynamic * $static";
+        path = "${cfg.configDir}/${name}";
+      });
+  in {
     programs.pi-coding-agent.settings = {
       packages = [
         # Permissions and interaction
@@ -35,15 +43,25 @@ in let
       theme = "everforest-light-soft/everforest-dark-soft";
     };
 
-    # Merged so `/mcp` keeps its enabled and exposure choices.
-    home.activation.piMcp = {
-      before = [];
-      after = ["writeBoundary"];
+    home.activation = {
+      piSettings = merge "settings.json" ((pkgs.formats.json {}).generate "pi-coding-agent-settings.json" cfg.settings);
+      piMcp = merge "mcp.json" config.xdg.configFile."mcp/mcp.json".source;
 
-      data = mergeJson pkgs "${config.programs.pi-coding-agent.configDir}/mcp.json" config.xdg.configFile."mcp/mcp.json".source;
+      # Offline, pi installs them on its next start instead.
+      piPackages = lib.hm.dag.entryAfter ["piSettings"] ''
+        PATH="${lib.makeBinPath (cfg.extraPackages ++ [pkgs.git])}:$PATH" \
+          run ${cfg.package}/bin/pi update --extensions || warnEcho "pi: package install failed"
+      '';
     };
 
-    home.file.".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+    home.file = {
+      # pi rewrites it, so piSettings owns it, not a store symlink.
+      "${cfg.configDir}/settings.json".enable = false;
+      # npm 12 blocks lifecycle scripts (pi-reasonix's build) unless the root package allows them.
+      "${cfg.configDir}/npm/.npmrc".text = "dangerously-allow-all-scripts=true\n";
+      ".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+    };
+
     xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
 
     programs.pi-coding-agent = {
