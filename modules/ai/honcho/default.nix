@@ -12,6 +12,8 @@
   quadlet-nix,
   ...
 }: let
+  inherit (config.flake.lib) makeEnvFile;
+
   endpoint = {
     host = "127.0.0.1";
     port = 8000;
@@ -24,10 +26,17 @@
     ...
   }: let
     inherit (config.virtualisation.quadlet) networks volumes;
-    makeEnvFile = import ../_lib/make-env-file.nix {inherit lib pkgs;};
 
-    db = makeEnvFile "honcho-db" {POSTGRES_PASSWORD = honcho-db-password;};
-    apiEnv = makeEnvFile "honcho-api" {PGPASSWORD = honcho-db-password;};
+    db = makeEnvFile {
+      inherit pkgs;
+      name = "honcho-db";
+      vars.POSTGRES_PASSWORD = honcho-db-password;
+    };
+    apiEnv = makeEnvFile {
+      inherit pkgs;
+      name = "honcho-api";
+      vars.PGPASSWORD = honcho-db-password;
+    };
     service = {
       inherit (apiEnv) ExecStartPre;
       Restart = "always";
@@ -175,10 +184,13 @@
     ...
   }: let
     honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
-    makeEnvFile = import ../_lib/make-env-file.nix {inherit lib pkgs;};
-    keys = makeEnvFile "honcho-models" {
-      DEEPSEEK_API_KEY = deepseek-api-key;
-      LLM_OPENAI_API_KEY = openrouter-api-key;
+    keys = makeEnvFile {
+      inherit pkgs;
+      name = "honcho-models";
+      vars = {
+        DEEPSEEK_API_KEY = deepseek-api-key;
+        LLM_OPENAI_API_KEY = openrouter-api-key;
+      };
     };
     container = {
       serviceConfig = {inherit (keys) ExecStartPre;};

@@ -63,6 +63,8 @@ needs `ts-authkey`).
   as specialArg `<k>`, its path; `lan.interfaces` bond into `bond0` behind `br0`.
 - `makeDeploymentKey {secret, destDir?, user?, group?}` → colmena key, decrypted
   with rage from an age file on the deploying machine at apply time.
+- `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
+  written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
   script as `bin/<name>`, run on a Nix Python with its dependencies (pyproject-nix).
 - `nix run .#set-secret -- <name>` → prompts twice, encrypts to `~/.ssh/id_ed25519.pub`
@@ -81,7 +83,7 @@ needs `ts-authkey`).
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeCli`.
+- `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeEnvFile`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: data shared by every host and user (`globals`).
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling

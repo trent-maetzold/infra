@@ -18,13 +18,14 @@ secrets. Commands are in README.md.
   `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
-- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`).
+- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`,
+  `makeEnvFile`).
 - A feature with options is a dir: `options.nix` declares them (and its consumer
   functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
   config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
 - Modules are pure config. Any computation is a named `make<Thing>` in its
   feature's `_lib/` (`network/traefik/_lib/make-traefik-http.nix`), or the
-  domain's if features share it (`ai/_lib/make-env-file.nix`); import-tree skips
+  domain's if features share it (`ai/agents/_lib`); import-tree skips
   `/_` paths, so the feature imports them itself. Packages and scripts are
   overlays in the same places' `pkgs/` (`nix/nix/pkgs/nx.nix`); features use
   `pkgs.<name>`.
@@ -82,7 +83,7 @@ in {
   file gets onto the host is the consumer's business, never the feature's. Take
   it only in the module that reads it. A secret a feature can run without goes
   in a `<feature>-<part>` module importing the base (`tailscale-auth`). Build
-  env files from them (`make-env-file.nix`).
+  env files from them (`makeEnvFile`).
 - Every file opens with a one-line description.
 - stateVersion is set once, in `nix/state-version.nix`.
 

@@ -8,6 +8,8 @@
   hermes-webui,
   ...
 }: let
+  inherit (config.flake.lib) makeEnvFile;
+
   ports = {
     dashboard = 9119;
     gateway = 8642;
@@ -94,13 +96,20 @@
     hermes-dashboard-password,
     ...
   }: let
-    makeEnvFile = import ../_lib/make-env-file.nix {inherit lib pkgs;};
-    gateway = makeEnvFile "hermes-agent" {
-      DEEPSEEK_API_KEY = deepseek-api-key;
-      OPENCODE_GO_API_KEY = opencode-api-key;
-      API_SERVER_KEY = hermes-api-server-key;
+    gateway = makeEnvFile {
+      inherit pkgs;
+      name = "hermes-agent";
+      vars = {
+        DEEPSEEK_API_KEY = deepseek-api-key;
+        OPENCODE_GO_API_KEY = opencode-api-key;
+        API_SERVER_KEY = hermes-api-server-key;
+      };
     };
-    backend = makeEnvFile "hermes-backend" {HERMES_DASHBOARD_BASIC_AUTH_PASSWORD = hermes-dashboard-password;};
+    backend = makeEnvFile {
+      inherit pkgs;
+      name = "hermes-backend";
+      vars.HERMES_DASHBOARD_BASIC_AUTH_PASSWORD = hermes-dashboard-password;
+    };
   in {
     # Process env, which hermes reads beside its .env.
     systemd.services = {
