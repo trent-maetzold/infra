@@ -26,9 +26,14 @@ in {
   };
 
   # NixOS Configuration Modules
-  flake.nixosModules = {
-    heimdall.imports = [config.flake.modules.nixos.sops];
-    yggdrasil.imports = [config.flake.modules.nixos.sops];
+  flake.nixosModules = let
+    sops = {
+      imports = [config.flake.modules.nixos.sops];
+      sops.defaultSopsFile = ../../secrets.yaml;
+    };
+  in {
+    heimdall.imports = [sops];
+    yggdrasil.imports = [sops];
   };
 
   # Home Configuration Modules

@@ -16,7 +16,6 @@ in {
       nixosModules.yggdrasil
       ./_modules/boot.nix
       ./_modules/disk-config.nix
-      {sops.defaultSopsFile = ../../secrets.yaml;}
       ./_modules/persistence.nix
       {hardware.facter.reportPath = ./_modules/facter.json;}
     ];

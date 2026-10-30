@@ -1,7 +1,7 @@
-# Deploy and secrets tools: colmena, nixos-anywhere, rage.
+# Deploy tools: colmena, nixos-anywhere.
 {config, ...}: let
   modules.homeManager = {pkgs, ...}: {
-    home.packages = with pkgs; [colmena nixos-anywhere rage];
+    home.packages = with pkgs; [colmena nixos-anywhere];
   };
 in {
   # Flake Modules
