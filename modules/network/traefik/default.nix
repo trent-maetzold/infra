@@ -5,8 +5,10 @@
   ...
 }: let
   makeTraefikHttp = import ./_lib/make-traefik-http.nix {inherit lib;};
+  makeTraefikTcp = import ./_lib/make-traefik-tcp.nix {inherit lib;};
 in let
   inherit (config) routes;
+  tcp = makeTraefikTcp routes;
 
   # `api.insecure` serves the dashboard here; it is routed like any service.
   dashboard = {
@@ -37,20 +39,23 @@ in let
         log.level = "INFO";
         accessLog = {};
 
-        entryPoints = {
-          web = {
-            address = ":80";
-            http.redirections.entryPoint.to = "websecure";
-          };
+        entryPoints =
+          {
+            web = {
+              address = ":80";
+              http.redirections.entryPoint.to = "websecure";
+            };
 
-          traefik.address = "${dashboard.ip}:${toString dashboard.port}";
+            traefik.address = "${dashboard.ip}:${toString dashboard.port}";
 
-          websecure = {
-            address = ":443";
-            asDefault = true;
-            http.tls.certResolver = "cloudflare";
-          };
-        };
+            websecure = {
+              address = ":443";
+              asDefault = true;
+              http.tls.certResolver = "cloudflare";
+            };
+          }
+          # Reached only over the tailnet: heimdall's firewall trusts just tailscale0.
+          // tcp.entryPoints;
 
         certificatesResolvers.cloudflare.acme = {
           email = acmeEmail;
@@ -63,6 +68,8 @@ in let
           };
         };
       };
+
+      dynamicConfigOptions.tcp = {inherit (tcp) routers services;};
 
       dynamicConfigOptions.http.middlewares.tailnet.ipAllowList.sourceRange = [tailnet.subnet];
     };

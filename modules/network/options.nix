@@ -25,9 +25,9 @@
             port = lib.mkOption {type = lib.types.port;};
 
             scheme = lib.mkOption {
-              type = lib.types.enum ["http" "https"];
+              type = lib.types.enum ["http" "https" "tcp"];
               default = "http";
-              description = "`https` endpoints are trusted on the tailnet, so their certificate is not verified.";
+              description = "`https` endpoints are trusted on the tailnet, so their certificate is not verified; `tcp` passes raw TCP through traefik on its own entrypoint at `port`.";
             };
           };
         };

@@ -42,6 +42,7 @@
     hostname = "paseo.ts.trkm.io";
     ip = config.hosts.yggdrasil.ips.tailnet;
     inherit port;
+    scheme = "tcp";
   };
 
   hosts.yggdrasil = {
