@@ -17,7 +17,7 @@ in {
       nixosModules.heimdall
       ./_modules/boot.nix
       ./_modules/disk-config.nix
-      {age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILlukTGcHNI6LjpDa8pXT69rhiaWP0XQUVF2Y4TaS7ZP";}
+      {age.rekey.hostPubkey = "age1zzu6y3p69y2dhtn3xmvmlvk43lyuspzluef78t8szazzk4xyzyyq03aglp";}
     ];
     users = [users.tm-server];
     specialArgs = inputs;

@@ -17,7 +17,7 @@ in {
       nixosModules.yggdrasil
       ./_modules/boot.nix
       ./_modules/disk-config.nix
-      {age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAGtuMW4cQSgwYrDCaeccFMxKuCrCWSMA+050lHDryLE";}
+      {age.rekey.hostPubkey = "age1202c4ztpucmfws9n6jd9xk4va8ychfm273w8wrf9uwku7fuqjfaq5pljpv";}
       ./_modules/persistence.nix
       {hardware.facter.reportPath = ./_modules/facter.json;}
     ];

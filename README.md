@@ -60,7 +60,7 @@ needs `ts-authkey`).
 
 ## Secrets
 
-Hosts decrypt their secrets with their SSH host key
+Hosts decrypt their secrets with their own age key, `/var/lib/age/key.txt`
 ([agenix-rekey](https://github.com/oddlama/agenix-rekey)). Edit in a nix-secrets
 checkout: `rbw unlock`, then `nix run .#agenix -- edit secrets/<n>.age` or
 `-- rekey -a`; the master key exists only in `$XDG_RUNTIME_DIR` meanwhile. Commit,

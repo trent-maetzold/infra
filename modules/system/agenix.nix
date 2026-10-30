@@ -1,4 +1,4 @@
-# Secrets: agenix decrypts with the host's SSH key; agenix-rekey rekeys them
+# Secrets: agenix decrypts with the host's age key; agenix-rekey rekeys them
 # from nix-secrets, whose `agenix` app edits them with the master key.
 {config, ...}: let
   modules.nixos = {
@@ -14,6 +14,8 @@
     imports = [agenix.nixosModules.default agenix-rekey.nixosModules.default];
 
     age.ageBin = lib.getExe pkgs.rage;
+
+    age.identityPaths = ["/var/lib/age/key.txt"];
 
     age.rekey = {
       storageMode = "local";
