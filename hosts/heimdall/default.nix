@@ -5,7 +5,6 @@
   ...
 }: let
   inherit (config.flake) nixosModules users;
-  secrets = "/home/tm/code/nix-secrets/secrets";
 in {
   flake.hosts.heimdall = config.flake.lib.makeHost {
     name = "heimdall";
@@ -25,24 +24,6 @@ in {
       targetHost = "hs.trkm.io";
       targetUser = "tm";
       buildOnTarget = true;
-
-      keys = {
-        cf-dns-api-token = {
-          secret = "${secrets}/cf-dns-api-token.age";
-          destDir = "/var/lib/secrets";
-          user = "traefik";
-          group = "traefik";
-        };
-
-        headplane-cookie-secret = {
-          secret = "${secrets}/headplane-cookie-secret.age";
-          destDir = "/var/lib/secrets";
-          user = "headscale";
-          group = "headscale";
-        };
-
-        ts-authkey.secret = "${secrets}/ts-authkey.age";
-      };
     };
   };
 

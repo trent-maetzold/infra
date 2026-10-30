@@ -1,9 +1,8 @@
 # A NixOS host. `imports` carries the profiles (`asgard.nixosModules.*`) and
 # plain host modules.
-# `users` takes makeUser results. Returns the module, the nixosConfiguration and,
-# when `deployment` is set, a colmena node.
+# `users` takes makeUser results. Returns the module, the nixosConfiguration
+# and, when `deployment` is set, a colmena node.
 {
-  config,
   lib,
   nixpkgs,
   ...
@@ -50,17 +49,12 @@
         (lib.optionalAttrs (options ? wsl && users != []) {wsl.defaultUser = (lib.head users).name;})
       ];
     };
-  in let
-    # Each deployment key's file reaches features as the arg named after it.
-    # Returned so the colmena hive's nodeSpecialArgs agrees with nixosSystem's.
-    hostSpecialArgs = specialArgs // lib.mapAttrs (key: value: (value.destDir or "/run/keys") + "/${key}") (deployment.keys or {});
   in
     {
-      inherit name system nixosModule tailnetIp;
-      specialArgs = hostSpecialArgs;
+      inherit name system nixosModule tailnetIp specialArgs;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
-        specialArgs = hostSpecialArgs;
+        inherit specialArgs;
         modules = [nixosModule];
       };
 
@@ -69,7 +63,7 @@
     // lib.optionalAttrs (deployment != null) {
       colmenaNode = {
         imports = [nixosModule];
-        deployment = deployment // {keys = lib.mapAttrs (_: config.flake.lib.makeDeploymentKey) deployment.keys or {};};
+        inherit deployment;
       };
     };
 }

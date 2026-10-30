@@ -50,6 +50,13 @@ in let
     inherit (config.services.headscale.settings) server_url;
     loginHost = lib.removePrefix "https://" server_url;
   in {
+    sops.secrets.headplane-cookie-secret = {
+      sopsFile = ./secrets.yaml;
+      owner = "headscale";
+    };
+
+    _module.args.headplane-cookie-secret = config.sops.secrets.headplane-cookie-secret.path;
+
     services.headscale.settings.dns.extra_records = makeTailnetDNS heimdall.ips.tailnet routes;
 
     services.traefik.dynamicConfigOptions.http = {

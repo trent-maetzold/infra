@@ -22,3 +22,8 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.keymap.set("t", "jk", "<C-\\><C-n>", { buffer = buf, desc = "jk escape (terminal)" })
   end,
 })
+
+-- sops edit the current file in a terminal, unlocking rbw (the master key) first.
+vim.keymap.set("n", "<leader>fS", function()
+  Snacks.terminal({ "sh", "-c", 'rbw unlock && sops edit "$1"', "sops", vim.fn.expand("%") })
+end, { desc = "Edit with sops" })

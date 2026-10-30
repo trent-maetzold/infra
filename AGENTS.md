@@ -18,8 +18,7 @@ secrets. Commands are in README.md.
   `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
-- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeDeploymentKey`,
-  `makeEnvFile`).
+- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeEnvFile`).
 - A feature with options is a dir: `options.nix` declares them (and its consumer
   functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
   config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
@@ -81,8 +80,10 @@ in {
 - Consumer values are module args with no default (`{tailnet, ...}:`), so a
   missing one fails evaluation. Never take a `user` arg or host identity.
 - A secret is such an arg too: the path of a file holding only its value
-  (`{cf-dns-api-token, ...}:`). How the
-  file gets onto the host is the consumer's business, never the feature's. Take
+  (`{cf-dns-api-token, ...}:`). How the file gets onto the host is the
+  consumer's business, never the feature's; this flake's instance declares its
+  `sops.secrets.<n>` from the `secrets.yaml` beside it (or the root `secrets`)
+  and passes the path as `_module.args.<n>`. Take
   it only in the module that reads it. A secret a feature can run without goes
   in a `<feature>-<part>` module importing the base (`tailscale-auth`). Build
   env files from them (`makeEnvFile`).

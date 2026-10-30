@@ -1,6 +1,6 @@
 {
   outputs = flakeInputs: let
-    inputs = flakeInputs // import ./vars.nix;
+    inputs = flakeInputs // import ./vars.nix // {secrets = ./secrets.yaml;};
     inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena llm-agents revdiff;
   in
     flake-parts.lib.mkFlake {
@@ -10,7 +10,7 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./apps ./hosts ./lib ./modules ./options ./users])
+        (import-tree [./hosts ./lib ./modules ./options ./users])
       ];
 
       flake.colmenaHive = let
@@ -84,6 +84,11 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     # Infra
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     colmena = {
       url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";

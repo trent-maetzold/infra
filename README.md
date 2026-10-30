@@ -36,7 +36,7 @@ let
     address = "box.example.com";      # ssh HostName
     hostId = "deadbeef";
     lan = {address = "10.0.0.2"; prefixLength = 24; gateway = "10.0.0.1"; nameservers = []; interfaces = ["eno1"];};
-    deployment = {targetHost = "10.0.0.2"; keys.x.secret = "/path/to/x.age";};
+    deployment.targetHost = "10.0.0.2";
   };
 in {
   nixosConfigurations.box = box.nixosConfiguration;
@@ -57,22 +57,26 @@ fails evaluation (`tailscale` needs `tailnet.loginServer`, `locale` needs
 `timeZone`). Secrets are the path of a file holding only the value (`traefik` needs `cf-dns-api-token`, `tailscale-auth`
 needs `ts-authkey`).
 
+## Secrets
+
+[sops-nix](https://github.com/Mic92/sops-nix) files: a feature's own secrets
+sit in `secrets.yaml` beside it; shared ones in the root `secrets.yaml`, which
+modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
+`.sops.yaml` encrypts every `secrets.yaml` to the age master key (Bitwarden item
+`age-master`) and every host's `/var/lib/age/key.txt`. `rbw unlock`, then
+`sops edit <file>` (`<leader>fS` in nvim); after changing a recipient,
+`sops updatekeys <file>`.
+
 ## Functions
 
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
   `specialArgs` reach its home modules, standalone or on a host.
 - `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
-  `colmenaNode` only with `deployment`; each `deployment.keys.<k>` is passed
-  as specialArg `<k>`, its path; `lan.interfaces` bond into `bond0` behind `br0`.
-- `makeDeploymentKey {secret, destDir?, user?, group?}` → colmena key, decrypted
-  with rage from an age file on the deploying machine at apply time.
+  `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
 - `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
   written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
   script as `bin/<name>`, run on a Nix Python with its dependencies (pyproject-nix).
-- `nix run .#set-secret -- <name>` → prompts twice, encrypts to `~/.ssh/id_ed25519.pub`
-  as `secrets/<name>.age` on branch `secret/<name>` of `$NIX_SECRETS` (`~/code/nix-secrets`),
-  pushes and opens a PR.
 - `makeAgentRules {context boundaries workflow style commands tools}` → home
   module adding lines to those `~/.agents/AGENTS.md` sections (`agents.md.<section>`).
 - `makeAgentSkill {name, description, text, scripts?, references?}` → home
@@ -86,7 +90,7 @@ needs `ts-authkey`).
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `makeUser`, `makeHost`, `makeDeploymentKey`, `makeEnvFile`, `makeCli`.
+- `lib/`: `makeUser`, `makeHost`, `makeEnvFile`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: values shared by every host and user, merged into the flake's
   inputs, which they get as specialArgs.

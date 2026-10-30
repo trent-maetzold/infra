@@ -5,7 +5,6 @@
   ...
 }: let
   inherit (config.flake) nixosModules users;
-  secrets = "/home/tm/code/nix-secrets/secrets";
 in {
   flake.hosts.yggdrasil = config.flake.lib.makeHost {
     name = "yggdrasil";
@@ -36,45 +35,6 @@ in {
     deployment = {
       targetHost = "100.64.0.2";
       targetUser = "tm";
-
-      keys = {
-        codeberg-token = {
-          secret = "${secrets}/hermes-codeberg-token.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        deepseek-api-key = {
-          secret = "${secrets}/deepseek-api-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        hermes-api-server-key = {
-          secret = "${secrets}/hermes-api-server-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        hermes-dashboard-password = {
-          secret = "${secrets}/hermes-webui-password.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        honcho-db-password = {
-          secret = "${secrets}/honcho-db-password.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        openrouter-api-key = {
-          secret = "${secrets}/openrouter-api-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        opencode-api-key = {
-          secret = "${secrets}/opencode-api-key.age";
-          destDir = "/var/lib/secrets";
-        };
-
-        ts-authkey.secret = "${secrets}/ts-authkey.age";
-      };
     };
   };
 
