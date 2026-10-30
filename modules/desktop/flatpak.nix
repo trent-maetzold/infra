@@ -7,7 +7,10 @@
 }: {
   # Flake Modules
   flake.modules = {
-    nixos.flatpak.services.flatpak.enable = true;
+    nixos.flatpak = {
+      services.flatpak.enable = true;
+      persistence.dirs."/var/lib/flatpak" = {};
+    };
 
     homeManager.flatpak = {pkgs, ...}: {
       imports = [nix-flatpak.homeManagerModules.nix-flatpak];
