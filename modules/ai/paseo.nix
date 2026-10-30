@@ -42,7 +42,9 @@
     };
   };
 
-  hosts.yggdrasil = {
+  hosts.yggdrasil = {pkgs, ...}: {
+    environment.systemPackages = [pkgs.llm-agents.prime-agent pkgs.autolith];
+
     # As tm, agents get its CLIs on PATH and their logins in its home.
     services.paseo = {
       user = "tm";
@@ -50,6 +52,43 @@
       hostnames = [route.hostname];
       listenAddress = route.endpoint.ip;
       inherit (route.endpoint) port;
+
+      settings = {
+        version = 1;
+        daemon = {
+          cors.allowedOrigins = ["https://app.paseo.sh"];
+          relay.enabled = false;
+        };
+
+        app.baseUrl = "https://app.paseo.sh";
+        agents.providers = {
+          hermes = {
+            extends = "acp";
+            label = "Hermes";
+            description = "Nous Research self-improving AI agent";
+            command = ["hermes" "acp"];
+          };
+
+          prime-agent = {
+            extends = "acp";
+            label = "Prime Agent";
+            description = "Prime Intellect self-improving RLM agent";
+            command = ["prime-agent" "--mode" "acp"];
+          };
+
+          autolith = {
+            extends = "acp";
+            label = "Autolith";
+            description = "Live, self-modifying Common Lisp agent";
+            command = ["autolith" "acp"];
+          };
+
+          muse.enabled = false;
+          antigravity.enabled = false;
+          opencode.enabled = false;
+          copilot.enabled = false;
+        };
+      };
     };
   };
 in {
