@@ -80,6 +80,10 @@ diff host='yggdrasil':
     @if [ "$(hostname)" = {{ host }} ]; then nh os build . --hostname {{ host }} --diff always; \
     else nh os build . --hostname {{ host }} --build-host {{ host }} --target-host {{ host }} --diff always; fi
 
+# A fresh reusable tailnet key from heimdall's headscale, stored as `ts-authkey`.
+ts-authkey expiration='8760h':
+    @ssh heimdall 'sudo headscale preauthkeys create --reusable -u 1 -e {{ expiration }}' | tail -1 | nix run nixpkgs#jq -- -R . | sops set --value-stdin modules/network/tailscale/secrets.yaml '["ts-authkey"]'
+
 # Locks the pi.plugins extensions into pi-plugins; `update` bumps them all.
 pi-plugins cmd='install':
     cd modules/ai/pi/pkgs && trap 'rm -f package.json' EXIT && nix eval --json .#pi-plugins.package > package.json && nix shell nixpkgs#nodejs -c npm {{ cmd }} --package-lock-only --legacy-peer-deps
