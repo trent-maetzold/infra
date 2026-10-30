@@ -16,10 +16,6 @@
       enable = true;
       listenAddress = lib.mkDefault "127.0.0.1";
       inherit port;
-
-      user = "paseo";
-      group = "paseo";
-      dataDir = "/var/lib/paseo";
       openFirewall = false;
       hostnames = [];
 
@@ -32,7 +28,6 @@
         publicUseTls = null;
       };
 
-      inheritUserEnvironment = false;
       environment = {};
       settings = {};
     };
@@ -48,7 +43,10 @@
   };
 
   hosts.yggdrasil = {
+    # As tm, agents get its CLIs on PATH and their logins in its home.
     services.paseo = {
+      user = "tm";
+      group = "users";
       hostnames = [route.hostname];
       listenAddress = route.endpoint.ip;
       inherit (route.endpoint) port;
