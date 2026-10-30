@@ -1,5 +1,9 @@
 # The global agent rules, rendered to ~/.agents/AGENTS.md.
-{config, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
   # Flake Modules
   flake.modules.homeManager."AGENTS.md".agents.md = {
     context = ["- I over-explain. Distill my requests to the facts; answer the same way."];
@@ -11,6 +15,14 @@
         - Suggest tools that would help but are out of scope; don't add them, or any scope, without my approval.
         - One feature or issue per branch and PR, small enough to review in one sitting.
       ''
+    ];
+
+    # mkBefore: other features append their tools after these steps.
+    tools = lib.mkBefore [
+      "- Check if tool exists in `bin`."
+      "- If not, check if official CLI exists. If so, download it and add it to AGENTS.md"
+      "- If not, check official MCP exists. If so, use clihub `go run github.com/thellimist/clihub@latest <server>` (see `--help`). to create a CLI and move the executable to bin folder. Then add it to AGENTS.md"
+      "- If both failed, give suggestions to create a CLI using official docs and https://clig.dev/"
     ];
 
     style = [
