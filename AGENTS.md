@@ -18,7 +18,7 @@ secrets. Commands are in README.md.
   `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
-- `lib/`: the consumer contract only (`makeUser`, `makeHost`, `makeEnvFile`).
+- `lib/`: the consumer contract only (`makeUser`, `makeMachine`, `makeHost`, `makeEnvFile`).
 - A feature with options is a dir: `options.nix` declares them (and its consumer
   functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
   config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
@@ -42,12 +42,13 @@ secrets. Commands are in README.md.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
   identity (emails, addresses, hostIds, secrets) live there. Their plain modules
-  live in `_modules/` beside them. A VM is its own host (`yggdrasil-mimir`); a
-  non-NixOS one gets no `nixosConfiguration`. They import profiles, never a single
+  live in `_modules/` beside them. A VM is its own host. Machines this flake
+  doesn't build (`yggdrasil-mimir`, `yggdrasil-bmc`) sit in
+  `hosts-unmanaged/<h>/`, calling `makeMachine`. They import profiles, never a single
   feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 
-`flake.nix` loads `apps hosts lib modules options users` with
+`flake.nix` loads `apps hosts hosts-unmanaged lib modules options users` with
 import-tree, with `vars.nix` merged into its inputs. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
 through `config.flake.*`.
 

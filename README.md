@@ -71,7 +71,9 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
   `specialArgs` reach its home modules, standalone or on a host.
-- `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
+- `makeMachine` → `{name, tailnetIp, lan, ssh}`: a machine hosts reach, NixOS or
+  not (`ssh` entries for `address` and `lan.address`).
+- `makeHost` → `makeMachine` + `{system, specialArgs, nixosModule, nixosConfiguration, colmenaNode?}`;
   `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
 - `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
   written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
@@ -90,15 +92,16 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `makeUser`, `makeHost`, `makeEnvFile`, `makeCli`.
+- `lib/`: `makeUser`, `makeMachine`, `makeHost`, `makeEnvFile`, `makeCli`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: values shared by every host and user, merged into the flake's
   inputs, which they get as specialArgs.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
-  in `_modules/`.
+  in `_modules/`. `hosts-unmanaged/<h>/`: machines this flake doesn't build,
+  calling `makeMachine`.
 
-Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+Every `.nix` under `apps hosts hosts-unmanaged lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 

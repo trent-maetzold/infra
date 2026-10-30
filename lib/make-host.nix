@@ -1,8 +1,9 @@
-# A NixOS host. `imports` carries the profiles (`asgard.nixosModules.*`) and
-# plain host modules.
+# A NixOS host: a `makeMachine` plus its system. `imports` carries the profiles
+# (`asgard.nixosModules.*`) and plain host modules.
 # `users` takes makeUser results. Returns the module, the nixosConfiguration
 # and, when `deployment` is set, a colmena node.
 {
+  config,
   lib,
   nixpkgs,
   ...
@@ -50,15 +51,14 @@
       ];
     };
   in
-    {
-      inherit name system nixosModule tailnetIp specialArgs;
+    config.flake.lib.makeMachine {inherit name address tailnetIp lan ssh;}
+    // {
+      inherit system nixosModule specialArgs;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
         inherit specialArgs;
         modules = [nixosModule];
       };
-
-      ssh = lib.recursiveUpdate ({${name}.HostName = address;} // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}) ssh;
     }
     // lib.optionalAttrs (deployment != null) {
       colmenaNode = {

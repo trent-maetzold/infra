@@ -10,7 +10,7 @@
       imports = [
         flake-parts.flakeModules.modules
         home-manager.flakeModules.home-manager
-        (import-tree [./hosts ./lib ./modules ./options ./users])
+        (import-tree [./hosts ./hosts-unmanaged ./lib ./modules ./options ./users])
       ];
 
       flake.colmenaHive = let

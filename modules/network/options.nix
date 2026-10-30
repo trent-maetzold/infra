@@ -29,6 +29,17 @@
           endpoint = {
             ip = lib.mkOption {type = lib.types.str;};
             port = lib.mkOption {type = lib.types.port;};
+
+            scheme = lib.mkOption {
+              type = lib.types.enum ["http" "https"];
+              default = "http";
+            };
+
+            insecureSkipVerify = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Accept the endpoint's self-signed certificate.";
+            };
           };
         };
       });
