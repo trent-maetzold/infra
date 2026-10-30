@@ -35,7 +35,11 @@
   in {
     inherit name homeModule;
 
-    nixosModule = {pkgs, ...}: {
+    nixosModule = {
+      config,
+      pkgs,
+      ...
+    }: {
       imports = [home-manager.nixosModules.home-manager];
 
       home-manager = {
@@ -60,7 +64,8 @@
         wantedBy = ["multi-user.target"];
         unitConfig.ConditionPathExists = "!/var/lib/nixos/expired-${name}";
         serviceConfig.Type = "oneshot";
-        script = "${pkgs.shadow}/bin/chage -d 0 ${name} && touch /var/lib/nixos/expired-${name}";
+        # shadow won't follow /etc/passwd when userborn links it elsewhere.
+        script = "${pkgs.shadow}/bin/chage -P ${dirOf config.services.userborn.passwordFilesLocation} -d 0 ${name} && touch /var/lib/nixos/expired-${name}";
       };
     };
 
