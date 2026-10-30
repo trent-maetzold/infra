@@ -16,7 +16,7 @@ in {
       nixosModules.heimdall
       ./_modules/boot.nix
       ./_modules/disk-config.nix
-      {sops.defaultSopsFile = ./secrets.yaml;}
+      {sops.defaultSopsFile = ../../secrets.yaml;}
     ];
     users = [users.tm-server];
     specialArgs = inputs;

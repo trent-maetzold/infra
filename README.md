@@ -60,11 +60,12 @@ needs `ts-authkey`).
 
 ## Secrets
 
-Each host's secrets are `hosts/<h>/secrets.yaml`
+All secrets are in one file, `secrets.yaml`
 ([sops-nix](https://github.com/Mic92/sops-nix)), encrypted to the age master key
-(Bitwarden item `age-master`) and the host's own age key, `/var/lib/age/key.txt`.
-`.sops.yaml` lists the recipients. `rbw unlock`, then `sops hosts/<h>/secrets.yaml`
-to edit; after changing a recipient, `sops updatekeys hosts/<h>/secrets.yaml`.
+(Bitwarden item `age-master`) and every host's age key, `/var/lib/age/key.txt`;
+each host gets only the secrets it declares. `.sops.yaml` lists the recipients.
+`rbw unlock`, then `sops edit secrets.yaml`; after changing a recipient,
+`sops updatekeys secrets.yaml`.
 
 ## Functions
 

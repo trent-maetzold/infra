@@ -1,4 +1,4 @@
-# Secrets: sops-nix decrypts each host's `secrets.yaml` with the host's own age
+# Secrets: sops-nix decrypts the flake's `secrets.yaml` with the host's own age
 # key; you edit them with the age master key from Bitwarden.
 {config, ...}: let
   modules.nixos = {sops-nix, ...}: {
