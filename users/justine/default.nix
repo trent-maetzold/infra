@@ -1,4 +1,4 @@
-# justine: family desktop with Flatpak and Chrome; sets her own password at first login.
+# justine: family desktop with Flatpak, Chrome and LibreOffice; sets her own password at first login.
 {config, ...}: let
   inherit (config.flake) homeModules;
 in {
