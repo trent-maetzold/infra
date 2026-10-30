@@ -1,34 +1,7 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-unraid_appdata := "/mnt/user/appdata"
-unraid_stacks := "/mnt/user/stacks"
-oci := "nix run nixpkgs#opentofu -- -chdir=terraform/oci/trkm"
-oci_test := "-state=test.tfstate -var instance_name=heimdall-test -var prevent_destroy=false"
-
 default:
     @just --list
-
-# Copies each stack's config/ to its appdata dir, then the stacks themselves.
-sync host='unraid':
-    for dir in stacks/*/config; do s=$(basename "$(dirname "$dir")"); tar -C "$dir" -cf - . | ssh {{ host }} "mkdir -p {{ unraid_appdata }}/$s && tar -C {{ unraid_appdata }}/$s -xf -"; done
-    rsync -av --delete stacks/ {{ host }}:{{ unraid_stacks }}/
-
-# A throwaway heimdall on its own state file; the A1 free tier fits one.
-oci-test cmd='plan' *args:
-    {{ oci }}/heimdall {{ cmd }} {{ oci_test }} {{ args }}
-
-# The network stack, then heimdall, which reads its subnet.
-oci cmd='plan' *args:
-    {{ oci }} {{ cmd }} {{ args }}
-    {{ oci }}/heimdall {{ cmd }} {{ args }}
-
-# heimdall first: the network it reads must outlive it.
-oci-destroy *args:
-    {{ oci }}/heimdall destroy -var prevent_destroy=false {{ args }}
-    {{ oci }} destroy {{ args }}
-
-oci-output *args:
-    {{ oci }}/heimdall output {{ args }}
 
 # Wipes `target` and installs `host`; `extra` holds persist/var/lib/age/key.txt.
 install host target extra:
