@@ -49,7 +49,9 @@ in {
 
   # NixOS Configuration Modules
   flake.nixosModules = {
+    frigg.imports = [config.flake.modules.nixos.tailscale-auth authkey];
     heimdall.imports = [config.flake.modules.nixos.tailscale-auth authkey];
+    thor.imports = [config.flake.modules.nixos.tailscale-auth authkey];
     yggdrasil.imports = [
       config.flake.modules.nixos.tailscale-auth
       authkey

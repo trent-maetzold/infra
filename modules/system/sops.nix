@@ -12,6 +12,8 @@
 
       gnupg.sshKeyPaths = [];
     };
+
+    persistence.files."/var/lib/age/key.txt".mode = "0400";
   };
 
   modules.homeManager = {pkgs, ...}: {
@@ -27,7 +29,9 @@ in {
 
   # NixOS Configuration Modules
   flake.nixosModules = {
+    frigg.imports = [config.flake.modules.nixos.sops];
     heimdall.imports = [config.flake.modules.nixos.sops];
+    thor.imports = [config.flake.modules.nixos.sops];
     yggdrasil.imports = [config.flake.modules.nixos.sops];
   };
 

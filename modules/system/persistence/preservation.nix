@@ -61,4 +61,10 @@ in let
 in {
   # Flake Modules
   flake.modules.nixos.preservation = modules.nixos;
+
+  # NixOS Configuration Modules
+  flake.nixosModules = {
+    frigg.imports = [config.flake.modules.nixos.preservation];
+    thor.imports = [config.flake.modules.nixos.preservation];
+  };
 }
