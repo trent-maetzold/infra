@@ -1,8 +1,7 @@
 # A NixOS host. `imports` carries the profiles (`asgard.nixosModules.*`) and
 # plain host modules.
-# `users` takes makeUser results. `secrets` are its `sops.secrets`, each passed
-# to features as the arg named after it. Returns the module, the
-# nixosConfiguration and, when `deployment` is set, a colmena node.
+# `users` takes makeUser results. Returns the module, the nixosConfiguration
+# and, when `deployment` is set, a colmena node.
 {
   lib,
   nixpkgs,
@@ -19,7 +18,6 @@
     tailnetIp ? null,
     lan ? {},
     ssh ? {},
-    secrets ? {},
     deployment ? null,
   }: let
     # The interfaces bond into bond0 behind br0, which holds the address.
@@ -48,21 +46,15 @@
               bridges.br0.interfaces = ["bond0"];
             };
         })
-        (lib.optionalAttrs (secrets != {}) {sops.secrets = secrets;})
         (lib.optionalAttrs (options ? wsl && users != []) {wsl.defaultUser = (lib.head users).name;})
       ];
     };
-  in let
-    # sops-nix's default path for each secret. Returned so the colmena hive's
-    # nodeSpecialArgs agrees with nixosSystem's.
-    hostSpecialArgs = specialArgs // lib.mapAttrs (name: _: "/run/secrets/${name}") secrets;
   in
     {
-      inherit name system nixosModule tailnetIp;
-      specialArgs = hostSpecialArgs;
+      inherit name system nixosModule tailnetIp specialArgs;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
-        specialArgs = hostSpecialArgs;
+        inherit specialArgs;
         modules = [nixosModule];
       };
 

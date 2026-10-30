@@ -4,5 +4,5 @@ keys:
   - &yggdrasil age1202c4ztpucmfws9n6jd9xk4va8ychfm273w8wrf9uwku7fuqjfaq5pljpv
 
 creation_rules:
-  - path_regex: ^secrets\.yaml$
+  - path_regex: (^|/)secrets\.yaml$
     age: [*master, *heimdall, *yggdrasil]

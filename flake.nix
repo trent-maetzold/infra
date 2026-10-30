@@ -1,6 +1,6 @@
 {
   outputs = flakeInputs: let
-    inputs = flakeInputs // import ./vars.nix;
+    inputs = flakeInputs // import ./vars.nix // {secrets = ./secrets.yaml;};
     inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena llm-agents revdiff;
   in
     flake-parts.lib.mkFlake {

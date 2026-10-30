@@ -179,8 +179,7 @@
   hosts.yggdrasil = {
     config,
     pkgs,
-    deepseek-api-key,
-    openrouter-api-key,
+    secrets,
     ...
   }: let
     honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
@@ -188,8 +187,8 @@
       inherit pkgs;
       name = "honcho-models";
       vars = {
-        DEEPSEEK_API_KEY = deepseek-api-key;
-        LLM_OPENAI_API_KEY = openrouter-api-key;
+        DEEPSEEK_API_KEY = config.sops.secrets.deepseek-api-key.path;
+        LLM_OPENAI_API_KEY = config.sops.secrets.openrouter-api-key.path;
       };
     };
     container = {
@@ -197,6 +196,14 @@
       containerConfig = models // {environmentFiles = [keys.file];};
     };
   in {
+    sops.secrets = {
+      deepseek-api-key.sopsFile = secrets;
+      honcho-db-password.sopsFile = ./secrets.yaml;
+      openrouter-api-key.sopsFile = ./secrets.yaml;
+    };
+
+    _module.args.honcho-db-password = config.sops.secrets.honcho-db-password.path;
+
     # Volumes, not the image store.
     persistence.dirs."/var/lib/containers/storage/volumes".snapshots = true;
 

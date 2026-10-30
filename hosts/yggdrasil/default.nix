@@ -32,17 +32,6 @@ in {
       nameservers = ["10.10.20.1" "1.1.1.1"];
     };
 
-    secrets = {
-      codeberg-token = {};
-      deepseek-api-key = {};
-      hermes-api-server-key = {};
-      hermes-dashboard-password = {};
-      honcho-db-password = {};
-      openrouter-api-key = {};
-      opencode-api-key = {};
-      ts-authkey = {};
-    };
-
     deployment = {
       targetHost = "100.64.0.2";
       targetUser = "tm";

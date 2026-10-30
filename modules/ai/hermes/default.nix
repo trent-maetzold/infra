@@ -89,28 +89,34 @@
   dashboard = "https://${routes."dash.hermes".hostname}";
 
   hosts.yggdrasil = {
+    config,
     pkgs,
-    deepseek-api-key,
-    opencode-api-key,
-    hermes-api-server-key,
-    hermes-dashboard-password,
+    secrets,
     ...
   }: let
+    inherit (config.sops.secrets) deepseek-api-key opencode-api-key hermes-api-server-key hermes-dashboard-password;
     gateway = makeEnvFile {
       inherit pkgs;
       name = "hermes-agent";
       vars = {
-        DEEPSEEK_API_KEY = deepseek-api-key;
-        OPENCODE_GO_API_KEY = opencode-api-key;
-        API_SERVER_KEY = hermes-api-server-key;
+        DEEPSEEK_API_KEY = deepseek-api-key.path;
+        OPENCODE_GO_API_KEY = opencode-api-key.path;
+        API_SERVER_KEY = hermes-api-server-key.path;
       };
     };
     backend = makeEnvFile {
       inherit pkgs;
       name = "hermes-backend";
-      vars.HERMES_DASHBOARD_BASIC_AUTH_PASSWORD = hermes-dashboard-password;
+      vars.HERMES_DASHBOARD_BASIC_AUTH_PASSWORD = hermes-dashboard-password.path;
     };
   in {
+    sops.secrets = {
+      deepseek-api-key.sopsFile = secrets;
+      hermes-api-server-key.sopsFile = ./secrets.yaml;
+      hermes-dashboard-password.sopsFile = ./secrets.yaml;
+      opencode-api-key.sopsFile = ./secrets.yaml;
+    };
+
     # Process env, which hermes reads beside its .env.
     systemd.services = {
       hermes-agent.serviceConfig = {

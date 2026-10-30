@@ -36,7 +36,6 @@ let
     address = "box.example.com";      # ssh HostName
     hostId = "deadbeef";
     lan = {address = "10.0.0.2"; prefixLength = 24; gateway = "10.0.0.1"; nameservers = []; interfaces = ["eno1"];};
-    secrets.x = {};                     # sops.secrets.x; passed as arg `x`
     deployment.targetHost = "10.0.0.2";
   };
 in {
@@ -60,20 +59,20 @@ needs `ts-authkey`).
 
 ## Secrets
 
-All secrets are in one file, `secrets.yaml`
-([sops-nix](https://github.com/Mic92/sops-nix)), encrypted to the age master key
-(Bitwarden item `age-master`) and every host's age key, `/var/lib/age/key.txt`;
-each host gets only the secrets it declares. `.sops.yaml` lists the recipients.
-`rbw unlock`, then `sops edit secrets.yaml`; after changing a recipient,
-`sops updatekeys secrets.yaml`.
+[sops-nix](https://github.com/Mic92/sops-nix) files: a feature's own secrets
+sit in `secrets.yaml` beside it; shared ones in the root `secrets.yaml`, which
+modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
+`.sops.yaml` encrypts every `secrets.yaml` to the age master key (Bitwarden item
+`age-master`) and every host's `/var/lib/age/key.txt`. `rbw unlock`, then
+`sops edit <file>` (`<leader>fS` in nvim); after changing a recipient,
+`sops updatekeys <file>`.
 
 ## Functions
 
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
   `specialArgs` reach its home modules, standalone or on a host.
 - `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
-  `colmenaNode` only with `deployment`; each `secrets.<n>` becomes `sops.secrets.<n>`
-  and is passed as specialArg `<n>`, its path; `lan.interfaces` bond into `bond0` behind `br0`.
+  `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
 - `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
   written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)

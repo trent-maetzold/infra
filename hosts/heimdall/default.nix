@@ -20,12 +20,6 @@ in {
     users = [users.tm-server];
     specialArgs = inputs;
 
-    secrets = {
-      cf-dns-api-token.owner = "traefik";
-      headplane-cookie-secret.owner = "headscale";
-      ts-authkey = {};
-    };
-
     deployment = {
       targetHost = "hs.trkm.io";
       targetUser = "tm";

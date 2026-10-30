@@ -1,5 +1,5 @@
-# Secrets: sops-nix decrypts the flake's `secrets.yaml` with the host's own age
-# key; you edit them with the age master key from Bitwarden.
+# Secrets: sops-nix decrypts `secrets.yaml` files with the host's own age key;
+# you edit them with the age master key from Bitwarden.
 {config, ...}: let
   modules.nixos = {sops-nix, ...}: {
     imports = [sops-nix.nixosModules.sops];
@@ -26,14 +26,9 @@ in {
   };
 
   # NixOS Configuration Modules
-  flake.nixosModules = let
-    sops = {
-      imports = [config.flake.modules.nixos.sops];
-      sops.defaultSopsFile = ../../secrets.yaml;
-    };
-  in {
-    heimdall.imports = [sops];
-    yggdrasil.imports = [sops];
+  flake.nixosModules = {
+    heimdall.imports = [config.flake.modules.nixos.sops];
+    yggdrasil.imports = [config.flake.modules.nixos.sops];
   };
 
   # Home Configuration Modules

@@ -6,6 +6,8 @@
 }: let
   makeTraefikHttp = import ./_lib/make-traefik-http.nix {inherit lib;};
 in let
+  inherit (config) routes;
+
   # `api.insecure` serves the dashboard here; it is routed like any service.
   dashboard = {
     ip = "127.0.0.1";
@@ -71,9 +73,16 @@ in let
     endpoint = dashboard;
   };
 
-  hosts.heimdall = {
+  hosts.heimdall = {config, ...}: {
+    sops.secrets.cf-dns-api-token = {
+      sopsFile = ./secrets.yaml;
+      owner = "traefik";
+    };
+
+    _module.args.cf-dns-api-token = config.sops.secrets.cf-dns-api-token.path;
+
     services.traefik.dynamicConfigOptions.http = lib.mkMerge [
-      (makeTraefikHttp config.routes)
+      (makeTraefikHttp routes)
 
       # The dashboard's assets are relative, so it only works under /dashboard/.
       {
