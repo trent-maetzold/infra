@@ -31,8 +31,9 @@
             port = lib.mkOption {type = lib.types.port;};
 
             scheme = lib.mkOption {
-              type = lib.types.enum ["http" "https"];
+              type = lib.types.enum ["http" "https" "tcp"];
               default = "http";
+              description = "`tcp` passes raw TCP through traefik on its own entrypoint at `port`.";
             };
 
             insecureSkipVerify = lib.mkOption {

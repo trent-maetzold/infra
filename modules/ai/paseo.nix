@@ -43,6 +43,7 @@
     endpoint = {
       ip = config.hosts.yggdrasil.ips.tailnet;
       inherit port;
+      scheme = "tcp";
     };
   };
 
