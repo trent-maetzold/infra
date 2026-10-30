@@ -5,6 +5,7 @@
   acmeEmail = "tkm89@proton.me";
   timeZone = "America/Chicago";
   flakePath = "/home/tm/code/asgard";
+  bitwardenEmail = "trent@maetzold.co";
 
   tailnet = {
     loginServer = "https://hs.trkm.io";

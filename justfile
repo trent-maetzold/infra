@@ -26,9 +26,6 @@ sync-stacks host='unraid':
 gen-password:
     @openssl rand -hex 24
 
-# Encrypts a prompted secret, or a generated one of `length`, into nix-secrets.
-secret name length='':
-    @nix run ~/code/nix-secrets#new-secret -- {{ name }} {{ length }}
 
 # A throwaway instance beside the live one: its own state file, so nothing it
 # plans can touch heimdall itself. It attaches to the same subnet (the network
