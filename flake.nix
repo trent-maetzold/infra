@@ -1,7 +1,7 @@
 {
   outputs = flakeInputs: let
     inputs = flakeInputs // import ./vars.nix // {secrets = ./secrets.yaml;};
-    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena llm-agents revdiff;
+    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena llm-agents revdiff autolith;
   in
     flake-parts.lib.mkFlake {
       inherit inputs;
@@ -31,6 +31,8 @@
         colmena = colmena.overlays.default;
         llm-agents = llm-agents.overlays.shared-nixpkgs;
         revdiff = final: _: {revdiff = revdiff.packages.${final.stdenv.hostPlatform.system}.default;};
+        # llm-agents' autolith predates ACP.
+        autolith = final: _: {autolith = autolith.packages.${final.stdenv.hostPlatform.system}.default;};
       };
 
       perSystem = {
@@ -125,6 +127,9 @@
       url = "github:umputun/revdiff";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Pins its own nixpkgs to match its SBCL.
+    autolith.url = "github:lambda-symbolics/autolith";
 
     agent-skills = {
       url = "github:Kyure-A/agent-skills-nix";
