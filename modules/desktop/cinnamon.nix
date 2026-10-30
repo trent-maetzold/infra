@@ -7,6 +7,8 @@
     };
 
     security.rtkit.enable = true;
+    # AccountsService keeps each user's session, language and picture.
+    persistence.dirs."/var/lib/AccountsService" = {};
     # Users with an empty password log in without one.
     security.pam.services.lightdm.allowNullPassword = true;
   };

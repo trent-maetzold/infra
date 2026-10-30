@@ -5,6 +5,7 @@ in {
   flake.users.june = config.flake.lib.makeUser {
     name = "june";
     hashedPassword = "";
+    groups = ["kids"];
     imports = [
       homeModules.june
       homeModules.kids

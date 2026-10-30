@@ -1,22 +1,27 @@
-# Per-user Flatpak with Flathub and GNOME Software as the app store.
+# Flatpak with Flathub; users with the home part install their own apps,
+# declared or from GNOME Software.
 {
   config,
   nix-flatpak,
   ...
 }: {
   # Flake Modules
-  flake.modules.homeManager.flatpak = {
-    config,
-    pkgs,
-    ...
-  }: {
-    imports = [nix-flatpak.homeManagerModules.nix-flatpak];
+  flake.modules = {
+    nixos.flatpak = {
+      services.flatpak.enable = true;
+      persistence.dirs."/var/lib/flatpak" = {};
+    };
 
-    services.flatpak.enable = true;
-    home.packages = [pkgs.flatpak pkgs.gnome-software];
-    # Without system Flatpak, nothing else puts user apps in the menu.
-    xdg.systemDirs.data = ["${config.xdg.dataHome}/flatpak/exports/share"];
+    homeManager.flatpak = {pkgs, ...}: {
+      imports = [nix-flatpak.homeManagerModules.nix-flatpak];
+
+      services.flatpak.enable = true;
+      home.packages = [pkgs.gnome-software];
+    };
   };
+
+  # NixOS Configuration Modules
+  flake.nixosModules.desktop.imports = [config.flake.modules.nixos.flatpak];
 
   # Home Configuration Modules
   flake.homeModules = {
