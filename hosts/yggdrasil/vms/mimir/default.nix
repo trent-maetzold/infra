@@ -17,6 +17,6 @@
     };
   };
 
-  # The VM itself, declared on yggdrasil.
+  # The domain on yggdrasil that runs it.
   flake.nixosModules.yggdrasil.imports = [./_modules/libvirt.nix];
 }

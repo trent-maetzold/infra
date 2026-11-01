@@ -42,10 +42,11 @@ secrets. Commands are in README.md.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
   identity (emails, addresses, hostIds, secrets) live there. Their plain modules
-  live in `_modules/` beside them, and a VM is its own host in `vms/`
-  (`hosts/yggdrasil/vms/mimir.nix`), its definition in `vms/_modules/`.
-  Machines this flake reaches but doesn't build are a map in
-  `hosts/unmanaged.nix`, calling `makeMachine`. Hosts import profiles, never a
+  live in `_modules/` beside them. A VM is its own host (a dir, so it can
+  own modules) under the host that runs it:
+  `hosts/yggdrasil/vms/mimir/{default.nix,_modules/}`. Machines this flake
+  reaches but doesn't build are a map in `hosts/unmanaged.nix`, calling
+  `makeMachine`. Hosts import profiles, never a
   single feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 
