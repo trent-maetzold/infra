@@ -98,10 +98,11 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
   inputs, which they get as specialArgs.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
-  in `_modules/`. `hosts-unmanaged/<h>/`: machines this flake doesn't build,
-  calling `makeMachine`.
+  in `_modules/`. `hosts/<h>/vms/`: a VM its host runs, its definition in
+  `vms/_modules/`. `hosts/unmanaged.nix`:
+  a map of machines this flake doesn't build, calling `makeMachine`.
 
-Every `.nix` under `apps hosts hosts-unmanaged lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
 ## Commands
 
