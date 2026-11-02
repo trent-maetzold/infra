@@ -1,18 +1,23 @@
-# Machines we reach but don't build, and what reaching them takes: an address,
-# an ssh entry, and the routes that get the tailnet to them.
+# Machines we reach but don't build: what they are, and what reaching them
+# takes.
 {config, ...}: let
-  # Out of band: HTTPS only, with a certificate of its own.
+  inherit (config.flake.lib) makeMachine;
+
+  # Out of band, with a certificate of its own.
   bmc = {
     address = "10.10.20.154";
-    hostname = "bmc.yggdrasil.ts.trkm.io";
+    domain = "bmc.yggdrasil.ts.trkm.io";
   };
-
-  inherit (config.flake.lib) makeMachine;
 in {
-  # Unmanaged Hosts
   flake.hosts.yggdrasil-bmc = makeMachine {
     name = "yggdrasil-bmc";
-    inherit (bmc) address;
+    inherit (bmc) address domain;
+
+    endpoint = {
+      port = 443;
+      scheme = "https";
+      insecureSkipVerify = true;
+    };
 
     # Through yggdrasil; the BMC needs no route back.
     ssh.yggdrasil-bmc = {
@@ -21,40 +26,8 @@ in {
     };
   };
 
-  # Routes
-  routes.bmc = {
-    inherit (bmc) hostname;
-
-    endpoint = {
-      ip = bmc.address;
-      port = 443;
-      scheme = "https";
-      insecureSkipVerify = true;
-    };
-  };
-
-  # NixOS Configuration Modules
+  # The tailnet reaches it through yggdrasil.
   flake.nixosModules.yggdrasil.imports = [
-    {
-      services.tailscale = {
-        useRoutingFeatures = "server";
-        extraSetFlags = ["--advertise-routes=${bmc.address}/32"];
-      };
-
-      networking.nat = {
-        enable = true;
-        internalInterfaces = ["tailscale0"];
-        externalInterface = "br0";
-      };
-    }
-  ];
-
-  flake.nixosModules.heimdall.imports = [
-    {
-      services.tailscale = {
-        useRoutingFeatures = "client";
-        extraSetFlags = ["--accept-routes"];
-      };
-    }
+    {services.tailscale.extraSetFlags = ["--advertise-routes=${bmc.address}/32"];}
   ];
 }

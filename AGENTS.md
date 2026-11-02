@@ -37,7 +37,9 @@ secrets. Commands are in README.md.
   `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
   that get it, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
-  traefik and headscale turn routes into routers and DNS records.
+  traefik and headscale turn routes into routers and DNS records;
+  `makeMachine`'s `domain` and `endpoint` args give a machine we don't build
+  its route the same way.
 - Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra

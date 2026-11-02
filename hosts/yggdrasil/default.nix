@@ -17,6 +17,7 @@ in {
       ./_modules/boot.nix
       ./_modules/disk-config.nix
       ./_modules/persistence.nix
+      ./_modules/subnet-router.nix
       {hardware.facter.reportPath = ./_modules/facter.json;}
     ];
     users = [users.tm];
