@@ -92,8 +92,8 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `makeUser`, `makeHost`, `makeEnvFile`, `makeCli` (exported), and
-  `_helpers/`: `makeTraefikHttp`, `makeTailnetDNS`, `makePreserved`.
+- `lib/`: `makeUser`, `makeHost`, `makeEnvFile`, `makeCli` (exported as `flake.lib`)
+  and `flake.helpers`: `makeTraefikHttp`, `makeTailnetDNS`, `makePreserved`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: values shared by every host and user, merged into the flake's
   inputs, which they get as specialArgs.

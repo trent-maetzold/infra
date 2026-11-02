@@ -1,11 +1,11 @@
 # Keeps `persistence` state on /persist with preservation, for hosts whose `/`
 # is a tmpfs.
 {
-  lib,
+  config,
   preservation,
   ...
 }: let
-  makePreserved = import ../../../lib/_helpers/make-preserved.nix {inherit lib;};
+  inherit (config.flake.helpers) makePreserved;
 in let
   modules.nixos = {config, ...}: {
     imports = [preservation.nixosModules.default];

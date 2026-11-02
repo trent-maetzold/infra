@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  makeTraefikHttp = import ../../../lib/_helpers/make-traefik-http.nix {inherit lib;};
+  inherit (config.flake.helpers) makeTraefikHttp;
 in let
   inherit (config) routes;
 
