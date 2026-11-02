@@ -13,6 +13,7 @@ in {
     imports = [
       nixosModules.default
       nixosModules.desktop
+      nixosModules.nvidia
       nixosModules.frigg
       {disko.devices.disk.main.device = "/dev/nvme0n1";}
       {hardware.facter.reportPath = ./_modules/facter.json;}
