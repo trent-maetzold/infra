@@ -71,10 +71,10 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
   `specialArgs` reach its home modules, standalone or on a host.
-- `makeMachine` → `{name, tailnetIp, lan, ssh}`: a machine hosts reach, NixOS or
-  not (`ssh` entries for `address` and `lan.address`).
-- `makeHost` → `makeMachine` + `{system, specialArgs, nixosModule, nixosConfiguration, colmenaNode?}`;
-  `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
+- `makeHost` → `{name, tailnetIp, lan, ssh, route?, system?, nixosModule?, nixosConfiguration?, colmenaNode?}`:
+  any machine this flake knows: `ssh` entries for `address` and `lan.address`,
+  `route` from `domain`/`endpoint`, NixOS parts and `colmenaNode` only when
+  `system`/`deployment` are given. `lan.interfaces` bond into `bond0` behind `br0`.
 - `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
   written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
@@ -92,7 +92,8 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `makeUser`, `makeMachine`, `makeHost`, `makeEnvFile`, `makeCli`.
+- `lib/`: `makeUser`, `makeHost`, `makeEnvFile`, `makeCli` (exported), and
+  `_helpers/`: `makeTraefikHttp`, `makeTailnetDNS`, `makePreserved`.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: values shared by every host and user, merged into the flake's
   inputs, which they get as specialArgs.
@@ -100,7 +101,7 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
   in `_modules/`. `hosts/<h>/vms/<vm>/`: a VM its host runs, which owns its
   own `_modules/`. `hosts/unmanaged.nix`: a map of machines this flake doesn't
-  build, calling `makeMachine`.
+  build, calling `makeHost` without `system`.
 
 Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 

@@ -18,7 +18,9 @@ secrets. Commands are in README.md.
   `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
-- `lib/`: the consumer contract only (`makeUser`, `makeMachine`, `makeHost`, `makeEnvFile`).
+- `lib/`: the consumer contract (`makeUser`, `makeHost`, `makeEnvFile`, `makeCli`,
+  exported as `flake.lib`) and `_helpers/`: shape-mapping functions modules import
+  directly, used across features, never exported.
 - A feature with options is a dir: `options.nix` declares them (and its consumer
   functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
   config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
@@ -38,7 +40,7 @@ secrets. Commands are in README.md.
   that get it, and its `routes.<n>`
   (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
   traefik and headscale turn routes into routers and DNS records;
-  `makeMachine`'s `domain` and `endpoint` args give a machine we don't build
+  `makeHost`'s `domain` and `endpoint` args give a machine we don't build
   its route the same way.
 - Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
@@ -48,12 +50,12 @@ secrets. Commands are in README.md.
   own modules) under the host that runs it:
   `hosts/yggdrasil/vms/mimir/{default.nix,_modules/}`. Machines this flake
   reaches but doesn't build are a map in `hosts/unmanaged.nix`, calling
-  `makeMachine`. Hosts import profiles, never a
+  `makeHost` without `system`. Hosts import profiles, never a
   single feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 
 `flake.nix` loads `apps hosts lib modules options users` with
-import-tree, with `vars.nix` merged into its inputs. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
+import-tree, with `vars.nix` merged into its inputs. No relative imports except data paths, `_lib/`, `_modules/` and `lib/_helpers/`: reach other files
 through `config.flake.*`.
 
 ## Writing a feature

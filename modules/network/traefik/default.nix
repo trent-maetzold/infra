@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  makeTraefikHttp = import ./_lib/make-traefik-http.nix {inherit lib;};
+  makeTraefikHttp = import ../../../lib/_helpers/make-traefik-http.nix {inherit lib;};
 in let
   inherit (config) routes;
 

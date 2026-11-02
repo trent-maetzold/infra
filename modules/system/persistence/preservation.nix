@@ -5,7 +5,7 @@
   preservation,
   ...
 }: let
-  makePreserved = import ./_lib/make-preserved.nix {inherit lib;};
+  makePreserved = import ../../../lib/_helpers/make-preserved.nix {inherit lib;};
 in let
   modules.nixos = {config, ...}: {
     imports = [preservation.nixosModules.default];

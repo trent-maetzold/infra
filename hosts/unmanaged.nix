@@ -1,7 +1,7 @@
 # Machines we reach but don't build: what they are, and what reaching them
 # takes.
 {config, ...}: let
-  inherit (config.flake.lib) makeMachine;
+  inherit (config.flake.lib) makeHost;
 
   # Out of band, with a certificate of its own.
   bmc = {
@@ -9,7 +9,7 @@
     domain = "bmc.yggdrasil.ts.trkm.io";
   };
 in {
-  flake.hosts.yggdrasil-bmc = makeMachine {
+  flake.hosts.yggdrasil-bmc = makeHost {
     name = "yggdrasil-bmc";
     inherit (bmc) address domain;
 

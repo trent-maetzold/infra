@@ -1,7 +1,5 @@
-# A NixOS host: a `makeMachine` plus its system. `imports` carries the profiles
-# (`asgard.nixosModules.*`) and plain host modules.
-# `users` takes makeUser results. Returns the module, the nixosConfiguration
-# and, when `deployment` is set, a colmena node.
+# A machine this flake knows: its addresses, ssh entries and, when it serves
+# one, the route to it. Pass `system` and it also gets its NixOS parts.
 {
   config,
   lib,
@@ -10,7 +8,7 @@
 }: {
   flake.lib.makeHost = {
     name,
-    system,
+    system ? null,
     imports ? [],
     users ? [],
     specialArgs ? {},
@@ -19,6 +17,8 @@
     tailnetIp ? null,
     lan ? {},
     ssh ? {},
+    domain ? null,
+    endpoint ? {},
     deployment ? null,
   }: let
     # The interfaces bond into bond0 behind br0, which holds the address.
@@ -26,6 +26,7 @@
       if lan.interfaces or [] == []
       then "eth0"
       else "br0";
+
     nixosModule = {options, ...}: {
       imports = imports ++ map (u: u.nixosModule) users;
 
@@ -51,8 +52,18 @@
       ];
     };
   in
-    config.flake.lib.makeMachine {inherit name address tailnetIp lan ssh;}
-    // {
+    {
+      inherit name tailnetIp lan;
+
+      ssh = lib.recursiveUpdate ({${name}.HostName = address;} // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}) ssh;
+    }
+    // lib.optionalAttrs (domain != null) {
+      route = {
+        hostname = domain;
+        endpoint = {ip = address;} // endpoint;
+      };
+    }
+    // lib.optionalAttrs (system != null) {
       inherit system nixosModule specialArgs;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
