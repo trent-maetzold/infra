@@ -1,33 +1,21 @@
-# Machines we reach but don't build: what they are, and what reaching them
-# takes.
+# Machines we reach but don't build, each adding itself to the host it is
+# reached through.
 {config, ...}: let
-  inherit (config.flake.lib) makeHost;
+  inherit (config.flake.lib) makeSubnetRoute;
 
   # Out of band, with a certificate of its own.
-  bmc = {
+  bmc = makeSubnetRoute {
+    name = "yggdrasil-bmc";
+    via = "yggdrasil";
     address = "10.10.20.154";
-    domain = "bmc.yggdrasil.ts.trkm.io";
+    hostname = "bmc.yggdrasil.ts.trkm.io";
+    port = 443;
+    scheme = "https";
+    insecureSkipVerify = true;
+    ssh.User = "root";
   };
 in {
-  flake.hosts.yggdrasil-bmc = makeHost {
-    name = "yggdrasil-bmc";
-    inherit (bmc) address domain;
-
-    endpoint = {
-      port = 443;
-      scheme = "https";
-      insecureSkipVerify = true;
-    };
-
-    # Through yggdrasil; the BMC needs no route back.
-    ssh.yggdrasil-bmc = {
-      User = "root";
-      ProxyJump = "yggdrasil";
-    };
-  };
-
-  # The tailnet reaches it through yggdrasil.
-  flake.nixosModules.yggdrasil.imports = [
-    {services.tailscale.extraSetFlags = ["--advertise-routes=${bmc.address}/32"];}
-  ];
+  flake.hosts.yggdrasil-bmc = bmc.host;
+  routes.yggdrasil-bmc = bmc.route;
+  flake.nixosModules.yggdrasil.imports = [bmc.nixosModule];
 }

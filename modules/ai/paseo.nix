@@ -38,12 +38,10 @@
     };
   };
 
-  route = {
+  route = config.flake.lib.makeServiceRoute {
     hostname = "paseo.ts.trkm.io";
-    endpoint = {
-      ip = config.hosts.yggdrasil.ips.tailnet;
-      inherit port;
-    };
+    ip = config.hosts.yggdrasil.ips.tailnet;
+    inherit port;
   };
 
   hosts.yggdrasil = {

@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  inherit (config.flake.helpers) makeTraefikHttp;
+  makeTraefikHttp = import ./_lib/make-traefik-http.nix {inherit lib;};
 in let
   inherit (config) routes;
 
@@ -68,10 +68,7 @@ in let
     };
   };
 
-  route = {
-    hostname = "traefik.ts.trkm.io";
-    endpoint = dashboard;
-  };
+  route = config.flake.lib.makeServiceRoute ({hostname = "traefik.ts.trkm.io";} // dashboard);
 
   hosts.heimdall = {config, ...}: {
     sops.secrets.cf-dns-api-token = {

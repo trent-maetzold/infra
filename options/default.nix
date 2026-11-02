@@ -1,12 +1,6 @@
 {lib, ...}: {
   options = {
     flake = {
-      helpers = lib.mkOption {
-        type = lib.types.lazyAttrsOf lib.types.raw;
-        default = {};
-        description = "Functions shared across features, outside `flake.lib`.";
-      };
-
       hosts = lib.mkOption {
         type = lib.types.lazyAttrsOf lib.types.raw;
         default = {};

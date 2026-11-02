@@ -2,10 +2,11 @@
 # is a tmpfs.
 {
   config,
+  lib,
   preservation,
   ...
 }: let
-  inherit (config.flake.helpers) makePreserved;
+  makePreserved = import ./_lib/make-preserved.nix {inherit lib;};
 in let
   modules.nixos = {config, ...}: {
     imports = [preservation.nixosModules.default];

@@ -5,7 +5,7 @@
   lib,
   ...
 }: let
-  inherit (config.flake.helpers) makeTailnetDNS;
+  makeTailnetDNS = import ./_lib/make-tailnet-dns.nix {inherit lib;};
 in let
   inherit (config) routes;
   inherit (config.hosts) heimdall;

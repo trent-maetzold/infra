@@ -18,9 +18,9 @@ secrets. Commands are in README.md.
   `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
   flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
   or user.
-- `lib/`: the consumer contract (`makeUser`, `makeHost`, `makeEnvFile`, `makeCli`,
-  exported as `flake.lib`) and `flake.helpers`: functions several features use
-  (`makeTraefikHttp`, `makeTailnetDNS`, `makePreserved`), outside the contract.
+- `lib/`: `flake.lib`, every function used outside the module defining it
+  (`makeUser`, `makeHost`, `makeServiceRoute`, `makeSubnetRoute`, `makeEnvFile`).
+  A function only its own feature calls stays in that feature's `_lib/`.
 - A feature with options is a dir: `options.nix` declares them (and its consumer
   functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
   config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
@@ -37,20 +37,17 @@ secrets. Commands are in README.md.
 - This flake's instance of a feature sits in the same file: a `hosts.<h>`
   module added to `flake.nixosModules.<h>`, the feature itself added to
   `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
-  that get it, and its `routes.<n>`
-  (`{hostname; public; dns = tailnet|cloudflare; endpoint = {ip; port};}`).
-  traefik and headscale turn routes into routers and DNS records;
-  `makeHost`'s `domain` and `endpoint` args give a machine we don't build
-  its route the same way.
+  that get it, and its `routes.<n> = makeServiceRoute {...}`. traefik routes
+  every route; headscale gives `dns = "tailnet"` ones their records.
 - Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
   identity (emails, addresses, hostIds, secrets) live there. Their plain modules
-  live in `_modules/` beside them. A VM is its own host (a dir, so it can
-  own modules) under the host that runs it:
-  `hosts/yggdrasil/vms/mimir/{default.nix,_modules/}`. Machines this flake
-  reaches but doesn't build are a map in `hosts/unmanaged.nix`, calling
-  `makeHost` without `system`. Hosts import profiles, never a
+  live in `_modules/` beside them. A machine adds itself to the host it runs
+  on or is reached through, via `flake.nixosModules.<parent>`; its config never
+  goes in the parent's `_modules/`. A VM is its own host under the one that
+  runs it (`hosts/yggdrasil/vms/mimir/`); machines we reach but don't build are
+  `makeSubnetRoute` calls in `hosts/unmanaged.nix`. Hosts import profiles, never a
   single feature, so deleting a feature can't break them silently. Push back on
   requests that break this.
 

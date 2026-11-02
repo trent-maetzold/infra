@@ -1,7 +1,6 @@
-# A machine this flake knows: its addresses, ssh entries and, when it serves
-# one, the route to it. Pass `system` and it also gets its NixOS parts.
+# A machine this flake knows: its addresses and ssh entries. Pass `system` and
+# it also gets its NixOS parts.
 {
-  config,
   lib,
   nixpkgs,
   ...
@@ -17,8 +16,6 @@
     tailnetIp ? null,
     lan ? {},
     ssh ? {},
-    domain ? null,
-    endpoint ? {},
     deployment ? null,
   }: let
     # The interfaces bond into bond0 behind br0, which holds the address.
@@ -56,12 +53,6 @@
       inherit name tailnetIp lan;
 
       ssh = lib.recursiveUpdate ({${name}.HostName = address;} // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}) ssh;
-    }
-    // lib.optionalAttrs (domain != null) {
-      route = {
-        hostname = domain;
-        endpoint = {ip = address;} // endpoint;
-      };
     }
     // lib.optionalAttrs (system != null) {
       inherit system nixosModule specialArgs;
