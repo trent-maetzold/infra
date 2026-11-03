@@ -84,7 +84,6 @@
   hosts.yggdrasil = {
     config,
     pkgs,
-    secrets,
     ...
   }: let
     inherit (config.sops.secrets) deepseek-api-key opencode-api-key hermes-api-server-key hermes-dashboard-password;
@@ -104,10 +103,10 @@
     };
   in {
     sops.secrets = {
-      deepseek-api-key.sopsFile = secrets;
-      hermes-api-server-key.sopsFile = ./secrets.yaml;
-      hermes-dashboard-password.sopsFile = ./secrets.yaml;
-      opencode-api-key.sopsFile = ./secrets.yaml;
+      deepseek-api-key.key = "shared/deepseek-api-key";
+      hermes-api-server-key.key = "hermes/hermes-api-server-key";
+      hermes-dashboard-password.key = "hermes/hermes-dashboard-password";
+      opencode-api-key.key = "hermes/opencode-api-key";
     };
 
     # Process env, which hermes reads beside its .env.

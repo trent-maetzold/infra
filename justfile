@@ -9,7 +9,7 @@ install host target extra:
 
 # A reusable tailnet key from heimdall's headscale, stored as `ts-authkey`.
 ts-authkey expiration='72h':
-    ssh heimdall 'sudo headscale preauthkeys create --reusable -u 1 -e {{ expiration }}' | tail -1 | nix run nixpkgs#jq -- -R . | sops set --value-stdin modules/network/tailscale/secrets.yaml '["ts-authkey"]'
+    ssh heimdall 'sudo headscale preauthkeys create --reusable -u 1 -e {{ expiration }}' | tail -1 | nix run nixpkgs#jq -- -R . | sops set --value-stdin secrets.yaml '["tailscale"]["ts-authkey"]'
 
 # Package diff of a host's running system against this flake.
 diff host='yggdrasil':

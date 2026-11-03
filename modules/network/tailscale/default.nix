@@ -38,7 +38,7 @@
 
   # This flake's tailnet key.
   authkey = {config, ...}: {
-    sops.secrets.ts-authkey.sopsFile = ./secrets.yaml;
+    sops.secrets.ts-authkey.key = "tailscale/ts-authkey";
     _module.args.ts-authkey = config.sops.secrets.ts-authkey.path;
   };
 in {

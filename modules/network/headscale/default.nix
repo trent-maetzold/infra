@@ -51,7 +51,7 @@ in let
     loginHost = lib.removePrefix "https://" server_url;
   in {
     sops.secrets.headplane-cookie-secret = {
-      sopsFile = ./secrets.yaml;
+      key = "headscale/headplane-cookie-secret";
       owner = "headscale";
     };
 

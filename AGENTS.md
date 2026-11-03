@@ -86,8 +86,8 @@ in {
 - A secret is such an arg too: the path of a file holding only its value
   (`{cf-dns-api-token, ...}:`). How the file gets onto the host is the
   consumer's business, never the feature's; this flake's instance declares its
-  `sops.secrets.<n>` from the `secrets.yaml` beside it (or the root `secrets`)
-  and passes the path as `_module.args.<n>`. Take
+  `sops.secrets.<n>` with `key = "<feature>/<n>"` in the root `secrets.yaml`
+  (`shared/<n>` when features share it) and passes the path as `_module.args.<n>`. Take
   it only in the module that reads it. A secret a feature can run without goes
   in a `<feature>-<part>` module importing the base (`tailscale-auth`). Build
   env files from them (`makeEnvFile`).
