@@ -38,7 +38,7 @@
 
   # This flake's tailnet key.
   authkey = {config, ...}: {
-    sops.secrets.ts-authkey.sopsFile = ./secrets.yaml;
+    sops.secrets.ts-authkey.key = "tailscale/ts-authkey";
     _module.args.ts-authkey = config.sops.secrets.ts-authkey.path;
   };
 in {
@@ -49,7 +49,9 @@ in {
 
   # NixOS Configuration Modules
   flake.nixosModules = {
+    frigg.imports = [config.flake.modules.nixos.tailscale-auth authkey];
     heimdall.imports = [config.flake.modules.nixos.tailscale-auth authkey];
+    thor.imports = [config.flake.modules.nixos.tailscale-auth authkey];
     yggdrasil.imports = [
       config.flake.modules.nixos.tailscale-auth
       authkey

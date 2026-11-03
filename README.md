@@ -59,13 +59,13 @@ needs `ts-authkey`).
 
 ## Secrets
 
-[sops-nix](https://github.com/Mic92/sops-nix) files: a feature's own secrets
-sit in `secrets.yaml` beside it; shared ones in the root `secrets.yaml`, which
-modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
-`.sops.yaml` encrypts every `secrets.yaml` to the age master key (Bitwarden item
-`age-master`) and every host's `/var/lib/age/key.txt`. `rbw unlock`, then
-`sops edit <file>` (`<leader>fS` in nvim); after changing a recipient,
-`sops updatekeys <file>`.
+[sops-nix](https://github.com/Mic92/sops-nix): every secret is in the root
+`secrets.yaml` (the `secrets` arg, sops' default file), under its feature's
+name, or `shared` (`sops.secrets.<n>.key = "traefik/cf-dns-api-token";`).
+`.sops.yaml` encrypts it to the age master key (Bitwarden item `age-master`) and
+every host's `/var/lib/age/key.txt`. `rbw unlock`, then `sops edit secrets.yaml`
+(`<leader>fS` in nvim); after changing a recipient, `sops updatekeys
+secrets.yaml`.
 
 ## Functions
 

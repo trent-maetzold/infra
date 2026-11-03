@@ -179,7 +179,6 @@
   hosts.yggdrasil = {
     config,
     pkgs,
-    secrets,
     ...
   }: let
     honcho-ai = config.services.hermes-agent.package.python.pkgs.callPackage ./_lib/honcho-ai.nix {inherit (pkgs) fetchPypi;};
@@ -197,9 +196,9 @@
     };
   in {
     sops.secrets = {
-      deepseek-api-key.sopsFile = secrets;
-      honcho-db-password.sopsFile = ./secrets.yaml;
-      openrouter-api-key.sopsFile = ./secrets.yaml;
+      deepseek-api-key.key = "shared/deepseek-api-key";
+      honcho-db-password.key = "honcho/honcho-db-password";
+      openrouter-api-key.key = "honcho/openrouter-api-key";
     };
 
     _module.args.honcho-db-password = config.sops.secrets.honcho-db-password.path;

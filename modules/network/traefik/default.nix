@@ -75,7 +75,7 @@ in let
 
   hosts.heimdall = {config, ...}: {
     sops.secrets.cf-dns-api-token = {
-      sopsFile = ./secrets.yaml;
+      key = "traefik/cf-dns-api-token";
       owner = "traefik";
     };
 
