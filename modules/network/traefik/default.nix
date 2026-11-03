@@ -5,8 +5,11 @@
   ...
 }: let
   makeTraefikHttp = import ./_lib/make-traefik-http.nix {inherit lib;};
+  makeTraefikTcp = import ./_lib/make-traefik-tcp.nix {inherit lib;};
 in let
   inherit (config) routes;
+  # Bound to heimdall's tailnet address, so nothing listens on its public one.
+  tcp = makeTraefikTcp config.hosts.heimdall.ips.tailnet routes;
 
   # `api.insecure` serves the dashboard here; it is routed like any service.
   dashboard = {
@@ -77,6 +80,9 @@ in let
     };
 
     _module.args.cf-dns-api-token = config.sops.secrets.cf-dns-api-token.path;
+
+    services.traefik.staticConfigOptions.entryPoints = tcp.entryPoints;
+    services.traefik.dynamicConfigOptions.tcp = {inherit (tcp) routers services;};
 
     services.traefik.dynamicConfigOptions.http = lib.mkMerge [
       (makeTraefikHttp routes)
