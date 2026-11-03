@@ -75,9 +75,9 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
   any machine this flake knows: `ssh` entries for `address` and `lan.address`,
   NixOS parts and `colmenaNode` only when `system`/`deployment` are given.
   `lan.interfaces` bond into `bond0` behind `br0`.
-- `makeServiceRoute {hostname, ip, port, scheme?, public?, dns?}`
-  → a `routes.<n>` value; traefik routes it, `dns` (`tailnet`|`cloudflare`)
-  says where its record lives.
+- `makeServiceRoute {hostname, ip, port, scheme?, public?}`
+  → a `routes.<n>` value; traefik routes it and headscale gives it a
+  tailnet record (public ones too, for split DNS).
 - `makeSubnetRoute {name, via, address, ssh?, ...}` → `{route, host, nixosModule}`
   for a machine we don't build behind `via`'s `tailscale-subnet-router`:
   `routes.<n>`, `flake.hosts.<name>` (ssh through `via`) and the module for

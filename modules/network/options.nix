@@ -20,12 +20,6 @@
             description = "Reachable from the internet, not only the tailnet.";
           };
 
-          dns = lib.mkOption {
-            type = lib.types.enum ["tailnet" "cloudflare"];
-            default = "tailnet";
-            description = "Where the hostname's record lives.";
-          };
-
           endpoint = {
             ip = lib.mkOption {type = lib.types.str;};
             port = lib.mkOption {type = lib.types.port;};

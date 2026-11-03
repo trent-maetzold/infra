@@ -1,5 +1,4 @@
-# A `routes.<n>` value: traefik sends `hostname` to `ip:port`; `dns` says where
-# its record lives.
+# A `routes.<n>` value: traefik sends `hostname` to `ip:port`.
 {
   flake.lib.makeServiceRoute = {
     hostname,
@@ -7,9 +6,8 @@
     port,
     scheme ? "http",
     public ? false,
-    dns ? "tailnet",
   }: {
-    inherit hostname public dns;
+    inherit hostname public;
     endpoint = {inherit ip port scheme;};
   };
 }

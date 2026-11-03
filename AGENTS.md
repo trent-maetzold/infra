@@ -38,7 +38,7 @@ secrets. Commands are in README.md.
   module added to `flake.nixosModules.<h>`, the feature itself added to
   `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
   that get it, and its `routes.<n> = makeServiceRoute {...}`. traefik routes
-  every route; headscale gives `dns = "tailnet"` ones their records.
+  every route; headscale gives every route its tailnet record.
 - Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
