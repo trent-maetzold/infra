@@ -68,10 +68,7 @@ in let
     };
   };
 
-  route = {
-    hostname = "traefik.ts.trkm.io";
-    endpoint = dashboard;
-  };
+  route = config.flake.lib.makeServiceRoute ({hostname = "traefik.ts.trkm.io";} // dashboard);
 
   hosts.heimdall = {config, ...}: {
     sops.secrets.cf-dns-api-token = {

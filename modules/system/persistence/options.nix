@@ -1,4 +1,5 @@
-# `persistence`: what state features need kept, and how the host keeps it.
+# `persistence`: what state features need kept, and how the host keeps it;
+# `persistence.zfs.pool` for `persistence-zfs`.
 {
   flake.modules.nixos.persistence = {lib, ...}: let
     inherit (lib) mkOption types;
@@ -68,6 +69,13 @@
         });
         default = {};
       };
+    };
+  };
+
+  flake.modules.nixos.persistence-zfs = {lib, ...}: {
+    options.persistence.zfs.pool = lib.mkOption {
+      type = lib.types.str;
+      description = "The pool snapshotted dirs get datasets on.";
     };
   };
 }

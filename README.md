@@ -71,8 +71,18 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 
 - `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
   `specialArgs` reach its home modules, standalone or on a host.
-- `makeHost` → `{name, system, specialArgs, nixosModule, nixosConfiguration, ssh, colmenaNode?}`;
-  `colmenaNode` only with `deployment`; `lan.interfaces` bond into `bond0` behind `br0`.
+- `makeHost` → `{name, tailnetIp, lan, ssh, system?, nixosModule?, nixosConfiguration?, colmenaNode?}`:
+  any machine this flake knows: `ssh` entries for `address` and `lan.address`,
+  NixOS parts and `colmenaNode` only when `system`/`deployment` are given.
+  `lan.interfaces` bond into `bond0` behind `br0`.
+- `makeServiceRoute {hostname, ip, port, scheme?, public?}`
+  → a `routes.<n>` value; traefik routes it and headscale gives it a
+  tailnet record (public ones too, for split DNS).
+- `makeSubnetRoute {name, via, address, ssh?, ...}` → `{route, host, nixosModule}`
+  for a machine we don't build behind `via`'s `tailscale-subnet-router`:
+  `routes.<n>`, `flake.hosts.<name>` (ssh through `via`) and the module for
+  `flake.nixosModules.<via>` advertising `address/32`. Other args go to
+  `makeServiceRoute`.
 - `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
   written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
@@ -90,13 +100,15 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
 - `modules/<domain>/`: features, joined into profiles, with this flake's
   instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
   Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `makeUser`, `makeHost`, `makeEnvFile`, `makeCli`.
+- `lib/`: `flake.lib`, the functions used outside their own module.
 - `options/`: global flake-parts options and the profile registry.
 - `vars.nix`: values shared by every host and user, merged into the flake's
   inputs, which they get as specialArgs.
 - `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
   `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
-  in `_modules/`.
+  in `_modules/`. `hosts/<h>/vms/<vm>/`: a VM its host runs, which owns its
+  own `_modules/`. `hosts/unmanaged.nix`: machines this flake doesn't
+  build, each a `makeSubnetRoute`.
 
 Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 

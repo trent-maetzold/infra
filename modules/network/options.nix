@@ -20,15 +20,15 @@
             description = "Reachable from the internet, not only the tailnet.";
           };
 
-          dns = lib.mkOption {
-            type = lib.types.enum ["tailnet" "cloudflare"];
-            default = "tailnet";
-            description = "Where the hostname's record lives.";
-          };
-
           endpoint = {
             ip = lib.mkOption {type = lib.types.str;};
             port = lib.mkOption {type = lib.types.port;};
+
+            scheme = lib.mkOption {
+              type = lib.types.enum ["http" "https"];
+              default = "http";
+              description = "`https` endpoints are trusted on the tailnet, so their certificate is not verified.";
+            };
           };
         };
       });

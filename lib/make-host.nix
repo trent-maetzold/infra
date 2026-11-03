@@ -1,7 +1,5 @@
-# A NixOS host. `imports` carries the profiles (`asgard.nixosModules.*`) and
-# plain host modules.
-# `users` takes makeUser results. Returns the module, the nixosConfiguration
-# and, when `deployment` is set, a colmena node.
+# A machine this flake knows: its addresses and ssh entries. Pass `system` and
+# it also gets its NixOS parts.
 {
   lib,
   nixpkgs,
@@ -9,7 +7,7 @@
 }: {
   flake.lib.makeHost = {
     name,
-    system,
+    system ? null,
     imports ? [],
     users ? [],
     specialArgs ? {},
@@ -25,6 +23,7 @@
       if lan.interfaces or [] == []
       then "eth0"
       else "br0";
+
     nixosModule = {options, ...}: {
       imports = imports ++ map (u: u.nixosModule) users;
 
@@ -51,14 +50,17 @@
     };
   in
     {
-      inherit name system nixosModule tailnetIp specialArgs;
+      inherit name tailnetIp lan;
+
+      ssh = lib.recursiveUpdate ({${name}.HostName = address;} // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}) ssh;
+    }
+    // lib.optionalAttrs (system != null) {
+      inherit system nixosModule specialArgs;
 
       nixosConfiguration = nixpkgs.lib.nixosSystem {
         inherit specialArgs;
         modules = [nixosModule];
       };
-
-      ssh = lib.recursiveUpdate ({${name}.HostName = address;} // lib.optionalAttrs (lan ? address) {"${name}-lan".HostName = lan.address;}) ssh;
     }
     // lib.optionalAttrs (deployment != null) {
       colmenaNode = {

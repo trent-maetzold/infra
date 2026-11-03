@@ -1,9 +1,8 @@
 # yggdrasil-mimir: the Unraid VM on yggdrasil, with its HBA passed through.
-# Not NixOS: it is in the catalog for its address, with no nixosConfiguration.
+# Not NixOS: it is its own host for its address, with no nixosConfiguration.
 {config, ...}: {
   flake.hosts.yggdrasil-mimir = config.flake.lib.makeHost {
     name = "yggdrasil-mimir";
-    system = "x86_64-linux";
     address = "mimir.ts.trkm.io";
 
     ssh = {
@@ -18,6 +17,6 @@
     };
   };
 
-  # The VM itself, declared on yggdrasil.
+  # The domain on yggdrasil that runs it.
   flake.nixosModules.yggdrasil.imports = [./_modules/libvirt.nix];
 }

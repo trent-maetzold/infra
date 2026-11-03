@@ -1,6 +1,7 @@
 # Keeps `persistence` state on /persist with preservation, for hosts whose `/`
 # is a tmpfs.
 {
+  config,
   lib,
   preservation,
   ...

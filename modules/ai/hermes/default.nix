@@ -8,7 +8,7 @@
   hermes-webui,
   ...
 }: let
-  inherit (config.flake.lib) makeEnvFile;
+  inherit (config.flake.lib) makeEnvFile makeServiceRoute;
 
   ports = {
     dashboard = 9119;
@@ -56,32 +56,25 @@
     };
   };
 
+  ip = config.hosts.yggdrasil.ips.tailnet;
+
   routes = {
-    hermes = {
+    hermes = makeServiceRoute {
       hostname = "hermes.ts.trkm.io";
-
-      endpoint = {
-        ip = config.hosts.yggdrasil.ips.tailnet;
-        port = ports.webui;
-      };
+      inherit ip;
+      port = ports.webui;
     };
 
-    "dash.hermes" = {
+    "dash.hermes" = makeServiceRoute {
       hostname = "dash.hermes.ts.trkm.io";
-
-      endpoint = {
-        ip = config.hosts.yggdrasil.ips.tailnet;
-        port = ports.dashboard;
-      };
+      inherit ip;
+      port = ports.dashboard;
     };
 
-    "gw.hermes" = {
+    "gw.hermes" = makeServiceRoute {
       hostname = "gw.hermes.ts.trkm.io";
-
-      endpoint = {
-        ip = config.hosts.yggdrasil.ips.tailnet;
-        port = ports.gateway;
-      };
+      inherit ip;
+      port = ports.gateway;
     };
   };
 
