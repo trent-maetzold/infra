@@ -60,13 +60,6 @@
 
         app.baseUrl = "https://app.paseo.sh";
         agents.providers = {
-          hermes = {
-            extends = "acp";
-            label = "Hermes";
-            description = "Nous Research self-improving AI agent";
-            command = ["hermes" "acp"];
-          };
-
           prime-agent = {
             extends = "acp";
             label = "Prime Agent";
