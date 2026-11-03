@@ -1,8 +1,8 @@
-# Headscale A records pointing every route at one ip, public ones too (split DNS).
+# Headscale A records pointing every route's hostname at one ip, public ones too
+# (split DNS); routes sharing a hostname (http and tcp) get one record.
 {lib}: ip: routes:
-lib.mapAttrsToList (_: route: {
-  name = route.hostname;
+map (name: {
+  inherit name;
   type = "A";
   value = ip;
-})
-routes
+}) (lib.unique (lib.mapAttrsToList (_: route: route.hostname) routes))
