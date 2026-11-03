@@ -31,8 +31,9 @@
     virtualisation.quadlet = {
       volumes.magpie = {};
 
-      # The page's port answers the gateway's /v1 routes too; callers through
-      # the router need a gateway key (Gateway → Gateway keys).
+      # The page's port answers the gateway's /v1 routes too, so the gateway's
+      # own port (the image's MAGPIE_ADDR, 0.0.0.0:3425) stays unpublished;
+      # callers through the router need a gateway key (Gateway → Gateway keys).
       containers.magpie = {
         serviceConfig = {
           inherit (env) ExecStartPre;
@@ -43,7 +44,6 @@
           name = "magpie";
           image = lib.mkDefault "ghcr.io/yetone/magpie:latest";
           environmentFiles = [env.file];
-          environments.MAGPIE_ADDR = "0.0.0.0:3425";
           volumes = ["${config.virtualisation.quadlet.volumes.magpie.ref}:/config"];
           exec = "web --addr 0.0.0.0:${toString port} --no-open";
           # Podman's DNAT skips the host firewall: publish on one address only.
