@@ -12,9 +12,9 @@
     lib.mapAttrs (name: route: {
       loadBalancer =
         {servers = [{url = "${route.endpoint.scheme}://${route.endpoint.ip}:${toString route.endpoint.port}";}];}
-        // lib.optionalAttrs route.endpoint.insecureSkipVerify {serversTransport = name;};
+        // lib.optionalAttrs (route.endpoint.scheme == "https") {serversTransport = name;};
     })
     routes;
 
-  serversTransports = lib.mapAttrs (_: _: {insecureSkipVerify = true;}) (lib.filterAttrs (_: route: route.endpoint.insecureSkipVerify) routes);
+  serversTransports = lib.mapAttrs (_: _: {insecureSkipVerify = true;}) (lib.filterAttrs (_: route: route.endpoint.scheme == "https") routes);
 }

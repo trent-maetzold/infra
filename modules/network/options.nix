@@ -33,12 +33,7 @@
             scheme = lib.mkOption {
               type = lib.types.enum ["http" "https"];
               default = "http";
-            };
-
-            insecureSkipVerify = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-              description = "Accept the endpoint's self-signed certificate.";
+              description = "`https` endpoints are trusted on the tailnet, so their certificate is not verified.";
             };
           };
         };

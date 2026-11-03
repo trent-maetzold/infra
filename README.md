@@ -75,7 +75,7 @@ modules get as the `secrets` arg (`sops.secrets.<n>.sopsFile = secrets;`).
   any machine this flake knows: `ssh` entries for `address` and `lan.address`,
   NixOS parts and `colmenaNode` only when `system`/`deployment` are given.
   `lan.interfaces` bond into `bond0` behind `br0`.
-- `makeServiceRoute {hostname, ip, port, scheme?, insecureSkipVerify?, public?, dns?}`
+- `makeServiceRoute {hostname, ip, port, scheme?, public?, dns?}`
   → a `routes.<n>` value; traefik routes it, `dns` (`tailnet`|`cloudflare`)
   says where its record lives.
 - `makeSubnetRoute {name, via, address, ssh?, ...}` → `{route, host, nixosModule}`

@@ -6,11 +6,10 @@
     ip,
     port,
     scheme ? "http",
-    insecureSkipVerify ? false,
     public ? false,
     dns ? "tailnet",
   }: {
     inherit hostname public dns;
-    endpoint = {inherit ip port scheme insecureSkipVerify;};
+    endpoint = {inherit ip port scheme;};
   };
 }

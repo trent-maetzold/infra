@@ -11,7 +11,6 @@
     hostname = "bmc.yggdrasil.ts.trkm.io";
     port = 443;
     scheme = "https";
-    insecureSkipVerify = true;
     ssh.User = "root";
   };
 in {
