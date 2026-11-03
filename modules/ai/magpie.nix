@@ -31,9 +31,6 @@
     virtualisation.quadlet = {
       volumes.magpie = {};
 
-      # The page's port answers the gateway's /v1 routes too, so the gateway's
-      # own port (the image's MAGPIE_ADDR, 0.0.0.0:3425) stays unpublished;
-      # callers through the router need a gateway key (Gateway → Gateway keys).
       containers.magpie = {
         serviceConfig = {
           inherit (env) ExecStartPre;
