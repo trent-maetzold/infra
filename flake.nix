@@ -1,7 +1,7 @@
 {
   outputs = flakeInputs: let
     inputs = flakeInputs // import ./vars.nix // {secrets = ./secrets.yaml;};
-    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena llm-agents revdiff autolith;
+    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena;
   in
     flake-parts.lib.mkFlake {
       inherit inputs;
@@ -26,14 +26,6 @@
           // builtins.mapAttrs (_: h: h.colmenaNode) hosts);
 
       systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
-
-      flake.overlays = {
-        colmena = colmena.overlays.default;
-        llm-agents = llm-agents.overlays.shared-nixpkgs;
-        revdiff = final: _: {revdiff = revdiff.packages.${final.stdenv.hostPlatform.system}.default;};
-        # llm-agents' autolith predates ACP.
-        autolith = final: _: {autolith = autolith.packages.${final.stdenv.hostPlatform.system}.default;};
-      };
 
       perSystem = {
         pkgs,
