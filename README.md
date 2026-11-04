@@ -85,6 +85,12 @@ secrets.yaml`.
   `makeServiceRoute`.
 - `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
   written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
+- `makePiModel`, `makePrimeModel`, `makeAutolithModel` take
+  `{id, contextWindow, maxTokens?, input?, reasoning?}`. Pi and Prime return JSON
+  model entries; Autolith returns a Lisp property list with its supported context
+  and reasoning metadata. Magpie's shared catalog lives in `modules/ai/_lib/`;
+  `just magpie-models` refreshes it from the gateway. Credentials stay in each
+  harness's private auth store (pi and Prime also accept `MAGPIE_GATEWAY_KEY`).
 - `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
   script as `bin/<name>`, run on a Nix Python with its dependencies (pyproject-nix).
 - `makeAgentRules {context boundaries workflow style commands tools}` → home

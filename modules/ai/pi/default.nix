@@ -21,11 +21,7 @@
     "pi-everforest"
   ];
 
-  # magpie's models, as its /v1/models lists them.
-  gateway = import ./_lib/make-magpie-provider.nix {
-    baseUrl = "https://magpie.ts.trkm.io/v1";
-    models = import ./_lib/magpie-models.nix;
-  };
+  magpie = import ../_lib/magpie.nix;
 
   # Unattended agents: everything is allowed but what destroys work or exposes keys.
   permissions = {
@@ -82,7 +78,6 @@
       # pi rewrites it, so piSettings owns it, not a store symlink.
       "${cfg.configDir}/settings.json".enable = false;
       ".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
-      ".pi/agent/models.json".text = builtins.toJSON {providers.magpie = gateway;};
       ".pi/agent/extensions/pi-permission-system/config.json".text = builtins.toJSON permissions;
     };
 
@@ -104,5 +99,17 @@ in {
   flake.modules.homeManager.pi = modules.homeManager;
 
   # Home Configuration Modules
-  flake.homeModules.default.imports = [config.flake.modules.homeManager.pi];
+  flake.homeModules.default.imports = [
+    config.flake.modules.homeManager.pi
+    {
+      home.file.".pi/agent/models.json".text = builtins.toJSON {
+        providers.magpie = {
+          inherit (magpie) name baseUrl;
+          api = "openai-completions";
+          apiKey = "$${magpie.apiKeyEnv}";
+          models = magpie.makeModels config.flake.lib.makePiModel;
+        };
+      };
+    }
+  ];
 }
