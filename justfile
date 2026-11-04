@@ -19,3 +19,10 @@ diff host='yggdrasil':
 # Locks the pi.plugins extensions into pi-plugins; `update` bumps them all.
 pi-plugins cmd='install':
     cd modules/ai/pi/pkgs && trap 'rm -f package.json' EXIT && nix eval --json .#pi-plugins.package > package.json && nix shell nixpkgs#nodejs -c npm {{ cmd }} --package-lock-only --legacy-peer-deps
+
+# Writes magpie's model table from the gateway, through _lib/magpie-models.jq.
+magpie-models:
+    @key=$(sops -d --extract '["magpie"]["gateway-key"]' secrets.yaml); \
+    curl -sf -m 30 -H "Authorization: Bearer $key" https://magpie.ts.trkm.io/v1/models \
+    | nix run nixpkgs#jq -- -rf modules/ai/pi/_lib/magpie-models.jq > modules/ai/pi/_lib/magpie-models.nix
+    @nix fmt modules/ai/pi/_lib/magpie-models.nix
