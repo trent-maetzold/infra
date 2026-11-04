@@ -12,7 +12,9 @@
       "+${pkgs.writeShellScript "${name}-env" ''
         umask 077
         {
-          ${lib.concatStringsSep "\n" (lib.mapAttrsToList (var: file: ''printf '%s=%s\n' ${var} "$(<${file})"'') vars)}
+          ${lib.concatStringsSep "\n" (lib.mapAttrsToList (var: file: ''          [ -s ${file} ] || { echo "empty secret: ${file}" >&2; exit 1; }
+                      printf '%s=%s\n' ${var} "$(<${file})"'')
+        vars)}
         } > /run/${name}.env
       ''}"
     ];

@@ -112,6 +112,8 @@ secrets.yaml`.
 
 Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
 
+Dagu, Kaneo, and Artifact Server deployment and MCP setup: [service guide](docs/services.md).
+
 ## Commands
 
 ```sh
