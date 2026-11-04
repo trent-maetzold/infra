@@ -29,12 +29,5 @@ in {
     tm-server = tm [homeModules.default-slim];
   };
 
-  flake.homeModules.tm.imports = [
-    homeModules.default
-    homeModules.infra
-  ];
-
-  perSystem = {system, ...}: {
-    legacyPackages.homeConfigurations.tm = config.flake.users.tm.homeConfiguration system;
-  };
+  flake.homeModules.tm = {};
 }

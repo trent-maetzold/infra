@@ -15,7 +15,7 @@ in {
       nixosModules.muninn
       ./_modules/binfmt.nix
     ];
-    users = [users.tm];
+    users = [users.tm users.trent];
     lan.address = "10.10.10.125";
     specialArgs = inputs;
   };
