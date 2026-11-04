@@ -21,82 +21,10 @@
     "pi-everforest"
   ];
 
-  # magpie's routing groups, as its gateway lists them.
+  # magpie's models, as its /v1/models lists them.
   gateway = import ./_lib/make-magpie-provider.nix {
     baseUrl = "https://magpie.ts.trkm.io/v1";
-
-    models = [
-      {
-        id = "group/smart";
-        name = "Smart";
-        contextWindow = 272000;
-      }
-      {
-        id = "group/coding";
-        name = "Coding";
-        contextWindow = 272000;
-      }
-      {
-        id = "group/strong-coding";
-        name = "Strong coding";
-        contextWindow = 500000;
-      }
-      {
-        id = "group/deepseek-flash";
-        name = "DeepSeek flash";
-        contextWindow = 1000000;
-      }
-      {
-        id = "group/deepseek-pro";
-        name = "DeepSeek pro";
-        contextWindow = 1000000;
-      }
-      {
-        id = "group/gpt-6-astra";
-        name = "GPT-6 Astra";
-        contextWindow = 272000;
-      }
-      {
-        id = "group/gpt-6-luna";
-        name = "GPT-6 Luna";
-        contextWindow = 272000;
-      }
-      {
-        id = "group/gpt-6.1-sol";
-        name = "GPT-6.1 Sol";
-        contextWindow = 500000;
-      }
-      {
-        id = "group/gpt-6.1-terra";
-        name = "GPT-6.1 Terra";
-        contextWindow = 500000;
-      }
-      {
-        id = "group/claude-opus-5.5";
-        name = "Claude Opus 5.5";
-        contextWindow = 1000000;
-      }
-      {
-        id = "group/claude-sonnet-5.5";
-        name = "Claude Sonnet 5.5";
-        contextWindow = 1000000;
-      }
-      {
-        id = "group/claude-haiku-5.5";
-        name = "Claude Haiku 5.5";
-        contextWindow = 1000000;
-      }
-      {
-        id = "group/claude-fable-5-1";
-        name = "Claude Fable 5.1";
-        contextWindow = 1000000;
-      }
-      {
-        id = "group/codestral-2508";
-        name = "Codestral";
-        contextWindow = 256000;
-      }
-    ];
+    models = import ./_lib/magpie-models.nix;
   };
 
   # Unattended agents: everything is allowed but what destroys work or exposes keys.
