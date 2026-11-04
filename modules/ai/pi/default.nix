@@ -21,6 +21,107 @@
     "pi-everforest"
   ];
 
+  # magpie's routing groups, as its gateway lists them.
+  gateway = import ./_lib/make-magpie-provider.nix {
+    baseUrl = "https://magpie.ts.trkm.io/v1";
+
+    models = [
+      {
+        id = "group/smart";
+        name = "Smart";
+        contextWindow = 272000;
+      }
+      {
+        id = "group/coding";
+        name = "Coding";
+        contextWindow = 272000;
+      }
+      {
+        id = "group/strong-coding";
+        name = "Strong coding";
+        contextWindow = 500000;
+      }
+      {
+        id = "group/deepseek-flash";
+        name = "DeepSeek flash";
+        contextWindow = 1000000;
+      }
+      {
+        id = "group/deepseek-pro";
+        name = "DeepSeek pro";
+        contextWindow = 1000000;
+      }
+      {
+        id = "group/gpt-6-astra";
+        name = "GPT-6 Astra";
+        contextWindow = 272000;
+      }
+      {
+        id = "group/gpt-6-luna";
+        name = "GPT-6 Luna";
+        contextWindow = 272000;
+      }
+      {
+        id = "group/gpt-6.1-sol";
+        name = "GPT-6.1 Sol";
+        contextWindow = 500000;
+      }
+      {
+        id = "group/gpt-6.1-terra";
+        name = "GPT-6.1 Terra";
+        contextWindow = 500000;
+      }
+      {
+        id = "group/claude-opus-5.5";
+        name = "Claude Opus 5.5";
+        contextWindow = 1000000;
+      }
+      {
+        id = "group/claude-sonnet-5.5";
+        name = "Claude Sonnet 5.5";
+        contextWindow = 1000000;
+      }
+      {
+        id = "group/claude-haiku-5.5";
+        name = "Claude Haiku 5.5";
+        contextWindow = 1000000;
+      }
+      {
+        id = "group/claude-fable-5-1";
+        name = "Claude Fable 5.1";
+        contextWindow = 1000000;
+      }
+      {
+        id = "group/codestral-2508";
+        name = "Codestral";
+        contextWindow = 256000;
+      }
+    ];
+  };
+
+  # Unattended agents: everything is allowed but what destroys work or exposes keys.
+  permissions = {
+    permission = {
+      "*" = "allow";
+
+      path = {
+        "*" = "allow";
+        "*.env" = "deny";
+        "*.env.*" = "deny";
+        "*.env.example" = "allow";
+        "~/.ssh/*" = "deny";
+      };
+
+      bash = {
+        "*" = "allow";
+        "rm -rf *" = "deny";
+        "sudo *" = "deny";
+      };
+
+      external_directory."*" = "allow";
+    };
+  };
+
   modules.homeManager = {
     config,
     lib,
@@ -53,6 +154,8 @@
       # pi rewrites it, so piSettings owns it, not a store symlink.
       "${cfg.configDir}/settings.json".enable = false;
       ".pi/agent/caveman.json".text = builtins.toJSON {defaultLevel = "lite";};
+      ".pi/agent/models.json".text = builtins.toJSON {providers.magpie = gateway;};
+      ".pi/agent/extensions/pi-permission-system/config.json".text = builtins.toJSON permissions;
     };
 
     xdg.configFile."ponytail/config.json".text = builtins.toJSON {defaultMode = "ultra";};
