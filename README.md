@@ -202,16 +202,20 @@ direnv.
 
 ### Checkouts and worktrees
 
-I own my checkouts (`~/Projects`, `~/Work`, and this repo's live checkout).
-Agents own `~/.worktrees` and edit code only there, at
-`~/.worktrees/<repo>/<branch>`. Every tool that creates worktrees is
-configured to use that directory, either natively or through a hook:
+I own my checkouts in `~/Projects` and `~/Work`. This repo's live checkout is
+`~/Work/nix-config`. Agents own `~/.worktrees` and edit code only there:
 
-- herdr: `<repo>/<branch>`.
-- Claude Code (`WorktreeCreate`/`WorktreeRemove` hooks): `<repo>/<branch>`.
-- cursor-agent (`CURSOR_WORKTREES_ROOT`): `<repo>/<branch>`.
-- Codex and Paseo: the layout is fixed by the tool, so they get dot-prefixed
-  roots, `.codex/` and `.paseo/`, that can't collide with a repo name.
+- **By hand:** `~/.worktrees/<repo>/<branch>`. `<repo>` is the repository
+  name from `origin` (`nix-config`), or the directory name without one.
+- **By a tool:** each tool that creates worktrees owns
+  `~/.worktrees/.<tool>/`, and the layout inside is the tool's own. The dot
+  keeps the tool directories from colliding with a repo name.
+  - herdr: `.herdr/<repo>/<branch>`, via `[worktrees] directory`.
+  - Claude Code: `.claude/<repo>/<name>`, via `WorktreeCreate`/`WorktreeRemove`
+    hooks.
+  - cursor-agent: `.cursor/<repo>/<name>`, via `CURSOR_WORKTREES_ROOT`.
+  - Codex: `.codex/<bucket>/<repo>`, via `[desktop] git-worktree-root`.
+  - Paseo: `.paseo/<hash>/<slug>`, via `worktrees.root`.
 
 The global agent rules are one file, `~/.agents/AGENTS.md`, linked into every
 harness that reads a global file (Claude Code, Codex, pi, opencode). It
