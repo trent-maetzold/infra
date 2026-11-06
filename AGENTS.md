@@ -1,110 +1,177 @@
 # AGENTS.md
 
-Asgard: reusable NixOS + home-manager features. Consumers bring hosts, users and
-secrets. Commands are in README.md.
+nix-config: my machines and homes, plus reusable NixOS and Home Manager
+modules. README.md is the spec. It describes the repo as it should be, and it
+comes before code.
 
-## Before you edit
+## Workflow
 
-1. Run `gitnexus analyze`, then `query`/`context`/`impact` to find code. No
-   hand-kept tree.
-2. Read the file you are changing and one neighbour; copy their shape.
-3. After editing: `nix fmt`, evaluate every `nixosConfigurations.<h>` and
-   `legacyPackages.x86_64-linux.homeConfigurations.tm`, then
-   `nix flake check --no-build`.
+Work only in a worktree at `~/.worktrees/<repo>/<branch>`, never in the live
+checkout. The live checkout is the running config: the out-of-store links
+point into it, so an edit or branch switch there changes the live system.
 
-## Where things go
+Every change goes in this order:
 
-- `modules/<domain>/<feature>.nix`: one feature, exported as
-  `flake.modules.{nixos,homeManager}.<feature>`; dirs only organize, names are
-  flat (subfeatures use dashes: `pi-zentui`). Generic parts never name a host
-  or user.
-- `lib/`: `flake.lib`, every function used outside the module defining it
-  (`makeUser`, `makeHost`, `makeServiceRoute`, `makeSubnetRoute`, `makeEnvFile`).
-  A function only its own feature calls stays in that feature's `_lib/`.
-- A feature with options is a dir: `options.nix` declares them (and its consumer
-  functions) on the same `flake.modules.<class>.<feature>`, `default.nix` sets
-  config: `ai/agents/rules/options.nix` declares `agents.md` and `makeAgentRules`.
-- Modules are pure config. Any computation is a named `make<Thing>` in its
-  feature's `_lib/` (`network/traefik/_lib/make-traefik-http.nix`), or the
-  domain's if features share it (`ai/agents/_lib`); import-tree skips
-  `/_` paths, so the feature imports them itself. Packages and scripts are
-  overlays in the same places' `pkgs/` (`nix/nix/pkgs/nx.nix`); features use
-  `pkgs.<name>`.
-- `options/`: global flake-parts options and the empty profile registry.
-- `vars.nix`: the values every host and user shares (domain, tailnet, time
-  zone, flake path), merged into the flake's inputs, which hosts and users pass
-  as specialArgs.
-- This flake's instance of a feature sits in the same file: a `hosts.<h>`
-  module added to `flake.nixosModules.<h>`, the feature itself added to
-  `flake.nixosModules.<h>`/`flake.homeModules.<u>` for the hosts and users
-  that get it, and its `routes.<n> = makeServiceRoute {...}`. traefik routes
-  every route; headscale gives every route its tailnet record.
-- Hosts and users import their own `nixosModules.<h>`/`homeModules.<u>`.
-- `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
-  `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their PII and infra
-  identity (emails, addresses, hostIds, secrets) live there. Their plain modules
-  live in `_modules/` beside them. A machine adds itself to the host it runs
-  on or is reached through, via `flake.nixosModules.<parent>`; its config never
-  goes in the parent's `_modules/`. A VM is its own host under the one that
-  runs it (`hosts/yggdrasil/vms/mimir/`); machines we reach but don't build are
-  `makeSubnetRoute` calls in `hosts/unmanaged.nix`. Hosts import profiles, never a
-  single feature, so deleting a feature can't break them silently. Push back on
-  requests that break this.
+1. **Spec.** If the change alters what the repo looks like (layout, a rule, a
+   machine, a user, a service, the public API), edit README.md first. If a request
+   contradicts README.md, say so and settle it before touching code.
+2. **Checks.** Make `checks/` express the new spec, so they fail on the
+   current code and will pass on the change.
+3. **Code.** Change code until the checks pass.
+4. **Verify.** Run `nix fmt`, then `nix flake check --no-build`. Report
+   failures as they are.
 
-`flake.nix` loads `apps hosts lib modules options users` with
-import-tree, with `vars.nix` merged into its inputs. No relative imports except data paths, `_lib/` and `_modules/`: reach other files
-through `config.flake.*`.
+Where the code and README.md disagree, README.md is right and the code is the
+work left. Never edit the spec to match the code. If you're asked to ("just
+update the README to match"), push back. Name the rule the code breaks and
+ask whether the design is really changing. If it is, the spec changes as a
+design decision, on its merits, and the code then follows it. It never
+changes because the code drifted.
 
-## Writing a feature
+## Checks
+
+`checks/` holds flake-parts modules that set `perSystem.checks`:
+
+- They evaluate every `nixosConfigurations.<host>` and every
+  `homeConfigurations.<home>`.
+- They enforce the README's structural rules. Examples: a module file sets
+  exactly one `flake.modules.<class>.<name>`, and its class matches
+  `modules/nixos` or `modules/home`. No module mentions a host, user, domain
+  or address from `infra`. Every host, user and service directory is imported
+  in `flake.nix`. `nixosModules` names are unique across users and services.
+  Every helper file opens with its contract. The flake has no `lib` output.
+- They inspect evaluated config, not source, so values set indirectly or by
+  upstream modules are caught too. On every NixOS host,
+  `home-manager.backupFileExtension` and `home-manager.backupCommand` are
+  null. In every home (each `home-manager.users.<user>` and each
+  `homeConfigurations.<home>`), no `home.file.<n>.force` is set; `xdg.*File`
+  feed into `home.file`, so that covers them. An upstream module that sets
+  `force` is either worked around or listed in the check's allowlist, with
+  the reason.
+
+Checks fail at evaluation (`assert`/`throw`), so `--no-build` runs them all.
+A rule worth writing down is worth a check.
+
+## Modules
 
 ```nix
-# Git and forgejo-cli.
-{config, ...}: let
-  modules.homeManager = {pkgs, ...}: {
+# Git, lazygit and gh. Args: none.
+{
+  flake.modules.homeManager.git = {pkgs, ...}: {
     programs.git.enable = true;
-    home.packages = [pkgs.forgejo-cli];
+    programs.lazygit.enable = true;
+    home.packages = [pkgs.gh];
   };
-in {
-  # Flake Modules
-  flake.modules.homeManager.git = modules.homeManager;
-
-  # Home Configuration Modules
-  flake.homeModules.default.imports = [config.flake.modules.homeManager.git];
 }
 ```
 
-- Importing a feature enables it: features have no `enable` option, no gates, no `mkAfter`.
-  A part inside a feature may get `<feature>.<part>.enable` only if all hold:
-  it runs on its own (a gateway, a web UI), consumers disagree on it, and
-  splitting it into its own feature would duplicate the shared config.
-  `mkDefault` only on values consumers tune (images, packages, models).
-- Features never import other features; profiles wire them. Upstream modules
-  (`home-manager`, `nix-index-database`) are imported by the feature using them.
-- Package lists are `pkgs-<name>` features in `<domain>/packages.nix`.
-- Consumer values are module args with no default (`{tailnet, ...}:`), so a
-  missing one fails evaluation. Never take a `user` arg or host identity.
-- A secret is such an arg too: the path of a file holding only its value
-  (`{cf-dns-api-token, ...}:`). How the file gets onto the host is the
-  consumer's business, never the feature's; this flake's instance declares its
-  `sops.secrets.<n>` with `key = "<feature>/<n>"` in the root `secrets.yaml`
-  (`shared/<n>` when features share it) and passes the path as `_module.args.<n>`. Take
-  it only in the module that reads it. A secret a feature can run without goes
-  in a `<feature>-<part>` module importing the base (`tailscale-auth`). Build
-  env files from them (`makeEnvFile`).
-- Every file opens with a one-line description.
-- stateVersion is set once, in `nix/state-version.nix`.
+- One file, one `flake.modules.<class>.<name>`, set directly. No wrapping
+  `let`, no `config.flake.*` plumbing, no lines adding it to a host or user.
+- Independent of where it runs. A module never names a user, host, domain,
+  address or secret, and never reads `infra`. A value that changes between
+  consumers is a module arg with no default (`{tailnet, ...}:`), named on the
+  first line. The consumer passes it via `specialArgs`/`extraSpecialArgs`.
+- Prefer the upstream option to a new arg. If NixOS or Home Manager already
+  has an option for the value, the host or user sets it directly.
+- Importing enables it. No `enable` options, no `mkIf` gates. Use
+  `mkDefault` only on values consumers tune (packages, images, models).
+- Modules never import each other. They may import the upstream module they
+  wrap (`inputs.sops-nix.nixosModules.sops`). An upstream module that several
+  modules need (like Home Manager's NixOS module) gets its own module, which
+  hosts import once.
+- Packages that nixpkgs lacks go in `packages/<name>.nix` (or
+  `<name>/package.nix`) as plain derivations. They're loaded by
+  `lib.filesystem.packagesFromDirectoryRecursive`. Modules use them as
+  `self.packages.${pkgs.stdenv.hostPlatform.system}.<name>`. Never call
+  `callPackage` outside that one loader.
+- Don't reinvent the wheel. Before writing anything, look for an upstream
+  option, module, nixpkgs function or mature flake that already does it
+  (`sops.templates` for env files, `pkgs.writers` for scripts).
+- Code should read as config. Computation that would clutter a file becomes a
+  helper in its own file (see below). Helpers are never defined inline.
 
-Domains: `nix` (Nix and flake plumbing), `system` (host OS behaviour), `shell`
-(the interactive terminal), `dev` (writing and running code), `ai` (agents,
-models, memory), `network` (tailnet and routing), `infra` (deploying and
-running fleets), `desktop` (graphical sessions and their apps).
+## Helpers
+
+```nix
+# mergeJson: a JSON file's contents with an attrset merged over them.
+#   file   path to a JSON file
+#   attrs  values that win over the file's, merged recursively
+# Returns the merged attrset.
+#   mergeJson ./settings.json {theme = "dark";}
+{lib, ...}: {
+  _module.args.mergeJson = file: attrs: lib.recursiveUpdate (lib.importJSON file) attrs;
+}
+```
+
+- Before writing a helper, check that upstream doesn't already do it.
+- Make one only when it makes the calling code read as config, or removes
+  real repetition. If the name needs "and", it is two helpers.
+- Local by default: `_lib/<name>.nix` beside its one caller. It's a plain
+  function that takes what it needs (`{lib}: ...`) and is imported by relative
+  path.
+- Shared when more than one file calls it, or it's general-purpose (like
+  `mergeJson`): `lib/<name>.nix` sets `_module.args.<name>`, and flake-parts
+  files take it as an arg. Move a local helper here when it gains a second
+  caller.
+- The contract on top is mandatory: every arg, the return value, and one
+  example call. A reader should never need to open the body.
+- Never `flake.lib`. The API is modules, plus the `packages` they use.
+  Exporting a helper is a design decision for when it would help downstream
+  use, and it starts in README.md.
+- Helpers never name a host, user or domain; the example call in the
+  contract may.
+
+## Hosts, users and services
+
+- Hosts, users and services are where everything specific lives: names,
+  addresses, emails, hostIds, keys, `stateVersion`, `sops.secrets`, routes,
+  and which modules they use. They read `infra` and build the args their
+  modules take.
+- `hosts/<host>/default.nix` sets `flake.nixosConfigurations.<host>` with
+  `nixpkgs.lib.nixosSystem`. Its imports list every module, every
+  `nixosModules.<user>` and every `nixosModules.<service>` on the machine.
+- `services/<service>/default.nix` sets `flake.nixosModules.<service>`: the
+  service's reusable module from `modules/nixos/services/`, plus this
+  deployment's values, secrets and data files. The host running it imports
+  it.
+- The test for a service: copying `modules/nixos/services/<x>.nix` into
+  another flake must work unchanged. Anything that would break that belongs
+  in `services/<x>/`.
+- `users/<user>/default.nix` sets `flake.homeModules.<user>` (and variants),
+  the matching `flake.nixosModules.<user>` for NixOS hosts (Home Manager as a
+  NixOS module, never standalone there), and
+  `flake.homeConfigurations."<user>@<host>"` for non-NixOS machines.
+- Configs that change often are files in `users/<user>/config/<app>/`, linked
+  with `mkOutOfStoreSymlink`. Configs set once are Home Manager options.
+- To adopt an Omarchy-managed config, move it (`mv`, never copy) into
+  `users/<user>/config/<app>/`, then link it. Never manage an Omarchy config
+  that hasn't been adopted this way.
+- Home Manager must fail, not clobber, when a file is in its way. Never set
+  `backupFileExtension`, pass `-b`, or use `force`. The checks catch the
+  options; `-b` is a CLI flag, so it's on you.
+- A new host, user or service is listed in `flake.nix` imports. A new host or
+  user also gets a row in the README's Machines table.
+
+## Secrets
+
+Every secret lives in the root `secrets.yaml` (sops-nix) under
+`<group>/<name>`. Hosts, users and services declare `sops.secrets` and pass
+paths. Modules never do. Adding a host or standalone home adds its age key to `.sops.yaml`,
+followed by `sops updatekeys secrets.yaml`. Never print or commit a decrypted
+value.
 
 ## Style
 
 - Fewest lines. Re-read every edit and collapse what fits on one line.
-- Nix over config files; only what Nix can't express (skills) stays as files.
-- Plain attrsets over functions. A mature flake or library beats hand-rolled
-  code, even as a new dependency.
-- Comments only where a reader would stumble. Why goes in the commit message.
-- Alejandra formats. Blank lines between attrsets, never inside a list. Dotted
-  keys for one value, nesting for several.
+- Every file opens with a one-line description; module descriptions end with
+  their args.
+- Plain attrsets over functions. When a function earns its place, it is a
+  `lib/` helper with a contract.
+- A mature upstream module or flake beats hand-rolled code, even as a new
+  input.
+- Comments only where a reader would stumble. The why goes in the commit
+  message.
+- Alejandra formats. Blank lines between attrsets, never inside a list. Use
+  dotted keys for one value, nesting for several.
+- Packages come from Nix only. Never add mise, global npm/pip installs or AUR
+  packages to solve a problem here.

@@ -1,123 +1,261 @@
-# Asgard
+# nix-config
 
-NixOS + home-manager defaults as importable profiles, plus this flake's own
-hosts and users. Rules for editing it are in AGENTS.md.
+My machines and homes, declared in one flake, plus the reusable NixOS and
+Home Manager modules they're built from. Nix installs every package. Configs I
+edit often are out-of-store symlinks into this checkout, so I change them in
+place, commit, push, and pull on the next machine.
 
-## Use it
+This README is the spec: it describes the repo as it should be, and the code
+follows it. Rules for changing it are in AGENTS.md.
 
-1. Add the input: `inputs.asgard.url = "git+https://codeberg.org/trkm/asgard";`
-2. Build users and hosts with `asgard.lib`:
+## Use the modules elsewhere
+
+The public API is `modules.nixos.<name>` and `modules.homeManager.<name>`. A
+module is independent of any user, machine or network. If it needs a value,
+it takes it as a module arg with no default, and its first line names the
+args it takes. Pass them as `specialArgs`/`extraSpecialArgs`:
 
 ```nix
-let
-  inherit (asgard.lib) makeAgentRules makeHost makeUser;
-  # The values features take as module args, shared by everything.
-  vars = {
-    tailnet.loginServer = "https://hs.work.com";
-    flakePath = "/home/trent/code/infra"; # nh
-    timeZone = "America/Chicago";
+{
+  inputs.nix-config.url = "github:trent-maetzold/nix-config";
+
+  outputs = {nix-config, home-manager, nixpkgs, ...}: {
+    homeConfigurations."me@work" = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      extraSpecialArgs = {tailnet.loginServer = "https://hs.work.com";};
+      modules = [
+        nix-config.modules.homeManager.git
+        nix-config.modules.homeManager.tmux
+        ./home.nix
+      ];
+    };
   };
-  trent = makeUser {
-    name = "trent";
-    groups = ["wheel"];               # everything below `name` is optional
-    shell = "zsh";
-    publicKeys = ["ssh-ed25519 ..."];
-    git = {name = "Trent"; email = "trent@work.com";};
-    hosts = {inherit box;};           # ssh client entries
-    specialArgs = vars;
-    imports = [asgard.homeModules.default ./home/trent (makeAgentRules {workflow = "- Open a PR.";})];
-  };
-  box = makeHost {
-    name = "box";
-    system = "x86_64-linux";
-    imports = [asgard.nixosModules.default asgard.modules.nixos.tailscale ./hosts/box];
-    users = [trent];
-    specialArgs = inputs // vars;     # everything below here is optional
-    address = "box.example.com";      # ssh HostName
-    hostId = "deadbeef";
-    lan = {address = "10.0.0.2"; prefixLength = 24; gateway = "10.0.0.1"; nameservers = []; interfaces = ["eno1"];};
-    deployment.targetHost = "10.0.0.2";
-  };
-in {
-  nixosConfigurations.box = box.nixosConfiguration;
-  homeConfigurations.trent = trent.homeConfiguration "x86_64-linux";
 }
 ```
 
-3. Override any value with `lib.mkForce`; drop a profile to drop its features.
-
-## Profiles
-
-- `nixosModules`: `default`
-- `homeModules`: `default`, `default-slim`, `desktop`, `kids`, `infra`
-- `modules.{nixos,homeManager}.<feature>`: each feature alone
-
-Features take your values as specialArgs without defaults, so a missing one
-fails evaluation (`tailscale` needs `tailnet.loginServer`, `locale` needs
-`timeZone`). Secrets are the path of a file holding only the value (`traefik` needs `cf-dns-api-token`, `tailscale-auth`
-needs `ts-authkey`).
-
-## Secrets
-
-[sops-nix](https://github.com/Mic92/sops-nix): every secret is in the root
-`secrets.yaml` (the `secrets` arg, sops' default file), under its feature's
-name, or `shared` (`sops.secrets.<n>.key = "traefik/cf-dns-api-token";`).
-`.sops.yaml` encrypts it to the age master key (Bitwarden item `age-master`) and
-every host's `/var/lib/age/key.txt`. `rbw unlock`, then `sops edit secrets.yaml`
-(`<leader>fS` in nvim); after changing a recipient, `sops updatekeys
-secrets.yaml`.
-
-## Functions
-
-- `makeUser` → `{name, homeModule, nixosModule, homeConfiguration = system: ...}`;
-  `specialArgs` reach its home modules, standalone or on a host.
-- `makeHost` → `{name, tailnetIp, lan, ssh, system?, nixosModule?, nixosConfiguration?, colmenaNode?}`:
-  any machine this flake knows: `ssh` entries for `address` and `lan.address`,
-  NixOS parts and `colmenaNode` only when `system`/`deployment` are given.
-  `lan.interfaces` bond into `bond0` behind `br0`.
-- `makeServiceRoute {hostname, ip, port, scheme?, public?}`
-  → a `routes.<n>` value; traefik routes it and headscale gives it a
-  tailnet record (public ones too, for split DNS).
-- `makeSubnetRoute {name, via, address, ssh?, ...}` → `{route, host, nixosModule}`
-  for a machine we don't build behind `via`'s `tailscale-subnet-router`:
-  `routes.<n>`, `flake.hosts.<name>` (ssh through `via`) and the module for
-  `flake.nixosModules.<via>` advertising `address/32`. Other args go to
-  `makeServiceRoute`.
-- `makeEnvFile {pkgs, name, vars}` → `{file, ExecStartPre}`: `/run/<name>.env`
-  written as root before the unit starts, from `vars = {VAR = <secret file>;}`.
-- `makeCli {pkgs, name, script}` → package with a PEP 723 (`uv init --script`)
-  script as `bin/<name>`, run on a Nix Python with its dependencies (pyproject-nix).
-- `makeAgentRules {context boundaries workflow style commands tools}` → home
-  module adding lines to those `~/.agents/AGENTS.md` sections (`agents.md.<section>`).
-- `makeAgentSkill {name, description, text, scripts?, references?}` → home
-  module adding `<name>` to `~/.agents/skills` and `~/.claude/skills`; scripts and
-  references map file names to text or paths, scripts are executable. Registry
-  skills: set `programs.agent-skills.sources.<name>.path = <flake input>` and list
-  ids in `programs.agent-skills.skills.enable` ([agent-skills-nix](https://github.com/Kyure-A/agent-skills-nix)).
+Variants are separate modules: if `git-home` and `git-work` exist, import the
+one you want. `nixosModules`, `homeModules`, `nixosConfigurations` and
+`homeConfigurations` are this flake's own machines and users, not API.
 
 ## Layout
 
-- `modules/<domain>/`: features, joined into profiles, with this flake's
-  instance (`hosts.<h>`, `routes.<n>`) and feature-owned options beside them.
-  Helpers sit in `_lib/`; packages are overlays in `pkgs/`.
-- `lib/`: `flake.lib`, the functions used outside their own module.
-- `options/`: global flake-parts options and the profile registry.
-- `vars.nix`: values shared by every host and user, merged into the flake's
-  inputs, which they get as specialArgs.
-- `hosts/<h>/default.nix`, `users/<u>/default.nix`: one host or user, calling
-  `makeHost`/`makeUser` into `flake.hosts`/`flake.users`; their plain modules live
-  in `_modules/`. `hosts/<h>/vms/<vm>/`: a VM its host runs, which owns its
-  own `_modules/`. `hosts/unmanaged.nix`: machines this flake doesn't
-  build, each a `makeSubnetRoute`.
+```
+flake.nix                         inputs, and the map of the infrastructure
+modules/nixos/<domain>/<name>.nix one NixOS module: modules.nixos.<name>
+modules/home/<domain>/<name>.nix  one Home Manager module: modules.homeManager.<name>
+packages/<name>.nix               packages.<system>.<name>, for modules to use
+lib/<name>.nix                    one shared helper, its contract on top (internal)
+**/_lib/<name>.nix                one local helper, beside the file that calls it
+hosts/<host>/default.nix          nixosConfigurations.<host>
+hosts/<host>/*                    that host's hardware, disks, facter.json
+users/<user>/default.nix          that user's homeModules, nixosModules, homeConfigurations
+users/<user>/config/<app>/        that user's out-of-store configs, mirroring ~/.config
+services/<service>/default.nix    nixosModules.<service>: a service this flake runs
+services/<service>/*              that service's data files
+checks/                           checks: the rules in this README, enforced
+secrets.yaml, .sops.yaml          every secret, and who can decrypt it
+justfile                          operational recipes (install, deploy, rotate keys)
+stacks/, terraform/               container stacks and OCI infra, still to be migrated
+```
 
-Every `.nix` under `apps hosts lib modules options users` (except `_` paths) is loaded by import-tree; `vars.nix` is merged into the inputs. This flake's homes are `legacyPackages.<system>.homeConfigurations.<u>`.
+There are no profiles or bundles, no overlays and no global options. To see
+what is on a machine or in a home, open its `hosts/` or `users/` file.
+Everything it gets is listed in its imports.
+
+### The map: `flake.nix`
+
+`flake.nix` is the map of what exists. It holds:
+
+- **Inputs**, grouped by purpose. Nix requires them to be a literal attrset
+  in `flake.nix`.
+- **Imports**: import-tree loads `modules/`, `lib/` and `checks/`. Every host,
+  user and service directory is listed by hand, so the import list is the
+  inventory.
+- **`infra`**, a flake-parts module arg read only by host, user and service
+  files. It
+  holds the shared constants (domain, ACME email, time zone, tailnet login
+  server, domain and subnet), every machine's addresses (tailnet, LAN, ssh),
+  including machines this flake doesn't build, the Traefik dynamic config
+  (`infra.routes`), and the Headscale extra DNS records (`infra.dns`). Each
+  value is in the format its consumer takes. A helper builds them only if it
+  removes real repetition, such as the boilerplate of many routes.
+
+### Modules
+
+- A module file sets exactly one `flake.modules.<class>.<name>` directly, with
+  no wrapping `let`. Its name is the file name, unique within its class. Data
+  files a module reads sit in a directory beside it (`<name>/`).
+- The directory name under `modules/<class>/` is the domain:
+  - `nix`: Nix itself.
+  - `system`: host OS behaviour.
+  - `network`: tailnet and routing on the client side.
+  - `services`: servers that clients connect to (headscale, traefik, honcho).
+  - `shell`: the terminal.
+  - `dev`: writing code.
+  - `ai`: agents, models and memory.
+  - `desktop`: graphical sessions.
+  - `infra`: running fleets.
+- Importing a module enables it, so modules have no `enable` options.
+  Modules never import each other; the host or user lists every one it uses.
+- A module uses this flake's inputs and `packages` through its own closure
+  (`inputs.<x>`, `self.packages.<system>.<name>`), so a consumer needs no
+  overlay.
+- `packages/` holds plain derivations (`<name>.nix` or `<name>/package.nix`).
+  `lib.filesystem.packagesFromDirectoryRecursive` turns them into the
+  `packages` output. That is the only `callPackage` in the repo; modules,
+  hosts, users and services never call it.
+- Modules never declare secrets. A secret a module needs is an arg holding the
+  path of a file containing only its value. Where an upstream option already
+  takes the file (`services.tailscale.authKeyFile`), the host sets that option
+  and the module takes no arg.
+
+### Helpers
+
+Reach for upstream first: nixpkgs `lib`, `sops.templates`, `pkgs.writers`,
+or a mature flake. When a computation still reads as noise in the file that
+needs it, it becomes a helper in its own file, so the caller reads as config:
+
+- **Local** by default: `_lib/<name>.nix` beside the one file that calls it.
+  It's a plain function, imported by relative path (import-tree skips `_`
+  paths).
+- **Shared** when more than one file calls it, or it's general-purpose (for
+  example, merging an attrset with a JSON file): `lib/<name>.nix` sets
+  `_module.args.<name>`, and flake-parts files take it as an arg
+  (`{mergeJson, ...}:`).
+- The name says exactly what it returns and from what, so the call reads
+  without opening the helper.
+- The file opens with its contract: every arg and what it means, what it
+  returns, and one example call.
+
+Helpers are internal: there is no `lib` output. The flake exports modules, plus
+the `packages` those modules use.
+
+### Services
+
+A service splits in two:
+
+- **The reusable part** is a module in `modules/nixos/services/`. Like every
+  module, it knows nothing about where it runs.
+- **The instance** is `services/<service>/default.nix`, which sets
+  `flake.nixosModules.<service>`. It imports the module, then adds what
+  belongs to this deployment: values from `infra`, bind addresses, its
+  `sops.secrets`, persistence, and data files beside it. For example,
+  `services/traefik` sets `services.traefik.dynamicConfigOptions = infra.routes`.
+
+The host that runs a service imports its `nixosModules.<service>`, so the host
+file still lists everything on the machine. Services and users share the
+`nixosModules` namespace, so their names are unique.
+
+### Hosts
+
+`hosts/<host>/default.nix` sets `flake.nixosConfigurations.<host>` with
+`nixpkgs.lib.nixosSystem`. It contains:
+
+- `specialArgs`, built from `infra`.
+- Every module the host uses, including `modules.nixos.home-manager`, which
+  loads Home Manager into NixOS once per host.
+- The `nixosModules.<user>` of each person who logs in, and the
+  `nixosModules.<service>` of each service it runs.
+- The host's own config: hardware, disks, `stateVersion`, its
+  `sops.secrets`, and anything that names this machine.
+
+A machine that runs another, such as a VM, declares it in its own file.
+
+### Users and configs
+
+`users/<user>/default.nix` builds everything for one person:
+
+- `flake.homeModules.<user>`, plus variants like `<user>-server` when machines
+  need different homes. Each lists its home modules and contains the user's
+  personal settings and their `stateVersion`.
+- `flake.nixosModules.<user>`, plus the same variants. Each creates the
+  account (`users.users.<user>`) and sets `home-manager.users.<user>` to the
+  matching home module and `home-manager.extraSpecialArgs` from `infra`.
+  NixOS hosts run Home Manager as this NixOS module, never standalone.
+- `flake.homeConfigurations."<user>@<host>"` for each machine that isn't
+  NixOS (Omarchy), with `targets.genericLinux.enable`.
+
+How often a config changes decides how it is managed:
+
+- **Changes often** (harness, editor, MCP, skills, agent rules): plain files
+  in `users/<user>/config/<app>/`, linked with
+  `config.lib.file.mkOutOfStoreSymlink "<checkout>/users/<user>/config/<app>"`.
+  Edits take effect immediately; commit them like code.
+- **Set once** (git identity, shell, tmux): Home Manager options, read-only in
+  the store.
+
+On Omarchy, Omarchy owns its desktop configs (Hyprland, Waybar and the rest)
+until one is adopted. To adopt one (nvim and herdr, for example):
+
+1. Move Omarchy's config into the repo:
+   `mv ~/.config/<app> users/<user>/config/<app>`.
+2. Add the link, then switch.
+
+From then on, the repo is the only copy. Home Manager refuses to overwrite a
+file it doesn't manage, so a switch that would clobber an unadopted config
+fails until that config is moved. Nothing here sets `backupFileExtension`,
+`-b` or `force`. An app that hasn't been adopted is left to Omarchy.
+
+Nix owns every installed package; there's no mise and no global npm or pip.
+A project's own toolchain lives in that project's flake devShell, loaded by
+direnv.
+
+### Checkouts and worktrees
+
+I own my checkouts (`~/Projects`, `~/Work`, and this repo's live checkout).
+Agents own `~/.worktrees` and edit code only there, at
+`~/.worktrees/<repo>/<branch>`. Every tool that creates worktrees is
+configured to use that directory, either natively or through a hook:
+
+- herdr: `<repo>/<branch>`.
+- Claude Code (`WorktreeCreate`/`WorktreeRemove` hooks): `<repo>/<branch>`.
+- cursor-agent (`CURSOR_WORKTREES_ROOT`): `<repo>/<branch>`.
+- Codex and Paseo: the layout is fixed by the tool, so they get dot-prefixed
+  roots, `.codex/` and `.paseo/`, that can't collide with a repo name.
+
+The global agent rules are one file, `~/.agents/AGENTS.md`, linked into every
+harness that reads a global file (Claude Code, Codex, pi, opencode). It
+carries the worktree rule. These configs live in `users/<user>/config/`.
+
+This repo's live checkout is the running config, because the out-of-store
+links point into it. Its branch is switched only to pull, never to review.
+To review, diff against the branch instead.
+
+## Machines
+
+| Machine   | What                                             | Built as              | Users                             |
+| --------- | ------------------------------------------------ | --------------------- | --------------------------------- |
+| muninn    | Omarchy workstation                              | `homeConfigurations`  | trent                             |
+| frigg     | family PC (Cinnamon, GTX 980)                    | `nixosConfigurations` | trent, justine, leo, violet, june |
+| thor      | gaming PC, headless for now                      | `nixosConfigurations` | trent                             |
+| heimdall  | public edge on OCI (Traefik, Headscale), aarch64 | `nixosConfigurations` | trent (server)                    |
+| yggdrasil | home server (agents, models, VMs)                | `nixosConfigurations` | trent (server)                    |
+| mimir     | Unraid VM on yggdrasil, HBA passed through       | `infra` only          | -                                 |
+
+## Secrets
+
+[sops-nix](https://github.com/Mic92/sops-nix). Every secret is in the root
+`secrets.yaml`, the single source of truth, under a group named for what uses
+it (`tailscale/ts-authkey`) or under `shared/`. The host or user file that
+needs a secret declares `sops.secrets.<n>.key` and passes the path on.
+`.sops.yaml` encrypts the file to the age master key (Bitwarden item
+`age-master`), every host's `/var/lib/age/key.txt`, and the user key of every
+standalone home.
+
+```sh
+rbw unlock && sops edit secrets.yaml   # edit
+sops updatekeys secrets.yaml           # after changing a recipient
+```
 
 ## Commands
 
 ```sh
-nix fmt                          # format (alejandra)
-nix flake check --no-build       # evaluate everything
-colmena apply --on heimdall      # deploy (never from CI)
-nh os build -d always            # rebuild diff; nh home build needs nvd on PATH
-nix store diff-closures /run/current-system ./result
+nix fmt                                            # format (alejandra)
+nix flake check --no-build                         # evaluate every config and check
+home-manager switch --flake .#trent@muninn         # a non-NixOS home
+sudo nixos-rebuild switch --flake .#<host>         # on the host
+nixos-rebuild switch --flake .#<host> --target-host <host> --build-host <host> --sudo
 ```
+
+Servers are deployed over ssh with the last command until GitOps replaces it.
+There's no colmena.
