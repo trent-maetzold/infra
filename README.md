@@ -67,7 +67,8 @@ hosts/<host>/default.nix          nixosConfigurations.<host>
 hosts/<host>/*                    that host's hardware, disks, facter.json
 users/<user>/default.nix          that user's homeModules, nixosModules, homeConfigurations
 users/<user>/config/<app>/        that user's out-of-store configs, mirroring ~/.config
-stacks/<stack>/compose.yaml       a service, deployed to Dockhand by GitOps
+stacks/<stack>/compose.yaml       a service, deployed by Komodo via GitOps
+stacks/<stack>/stack.toml         that stack as a Komodo resource: its server, its files
 stacks/<stack>/*                  that stack's config files
 services/<service>/default.nix    nixosModules.<service>: a service that can't be a stack
 services/<service>/*              that service's data files
@@ -154,19 +155,26 @@ the `packages` those modules use.
 
 ### Stacks
 
-Services run as Docker Compose stacks on
-[Dockhand](https://github.com/Finsys/dockhand), in the `dockhand` microvm on
-yggdrasil. Dockhand watches `stacks/` in this repo and deploys a stack when
-its directory changes, so a merged PR is a deploy. Nobody edits stacks in
-Dockhand's UI.
+Services run as Docker Compose stacks managed by
+[Komodo](https://komo.do/). Komodo Core runs in the `komodo` microvm on
+yggdrasil, and a Komodo Periphery agent runs beside every Docker that runs
+stacks. A Komodo ResourceSync reads every `stacks/*/stack.toml` from `main`,
+so Core polls this repo and deploys a stack when its files change: a merged PR
+is a deploy. Nobody creates or edits resources in Komodo's UI; the sync shows
+any drift as a pending change and the repo wins.
 
 - `stacks/<stack>/compose.yaml` is the whole service, plus its config files
   beside it. Images are pinned by tag.
+- `stacks/<stack>/stack.toml` declares the Komodo Stack: which server runs it
+  and which files in this repo it deploys. Nothing else about the service
+  lives there.
 - A stack that needs a database runs its own Postgres container. There is no
   shared database server.
-- Secrets come from `secrets.yaml`, never from Dockhand. sops-nix in the
-  microvm writes each stack's secrets to `/run/secrets/stacks/<stack>.env`,
-  and the stack loads it with `env_file`.
+- Secrets come from `secrets.yaml`, never from Komodo's variables or
+  secrets. sops-nix on the stack's host writes its secrets to
+  `/run/secrets/stacks/<stack>.env`, and the stack loads it with `env_file`.
+- Komodo Core keeps its state in FerretDB on its own Postgres, like any
+  other stack's database. There is no MongoDB.
 - Data lives on yggdrasil and reaches the microvm through virtiofs shares.
   Each stack mounts only its own directories.
 - Logins go through Authelia on heimdall: OIDC where the app supports it,
@@ -176,8 +184,10 @@ Dockhand's UI.
 
 A service is a NixOS service instead of a stack only with a reason, which
 the first line of its `services/<service>/default.nix` states. The reasons
-that qualify: it runs on a host without Dockhand (Headscale, Headplane,
-Authelia and Traefik on heimdall, so edge logins never depend on home), Dockhand depends on it (the microvm, Docker, Dockhand itself), or
+that qualify: it runs on a host without Komodo stacks (Headscale, Headplane,
+Authelia and Traefik on heimdall, so edge logins never depend on home), Komodo
+depends on it (the microvm, Docker, Periphery, and Core with its database,
+since Komodo can't deploy itself), or
 it needs the host's hardware (llama-swap on yggdrasil's GPU).
 
 A NixOS service splits in two:
@@ -289,7 +299,7 @@ To review, diff against the branch instead.
 | thor      | gaming PC, headless for now                       | `nixosConfigurations` | trent                             |
 | heimdall  | public edge on OCI (Traefik, Headscale, Authelia) | `nixosConfigurations` | trent (server)                    |
 | yggdrasil | home server (agents, models, VMs)                 | `nixosConfigurations` | trent (server)                    |
-| dockhand  | microvm on yggdrasil: Docker and every stack      | `nixosConfigurations` | -                                 |
+| komodo    | microvm on yggdrasil: Komodo, Docker, every stack | `nixosConfigurations` | -                                 |
 | runner    | microvm on yggdrasil: public-repo CI jobs         | `nixosConfigurations` | -                                 |
 | mimir     | Unraid VM on yggdrasil, retired by the migration  | `infra` only          | -                                 |
 
@@ -335,4 +345,4 @@ nixos-rebuild switch --flake .#<host> --target-host <host> --build-host <host> -
 
 Servers are deployed over ssh with the last command until GitOps replaces it.
 There's no colmena. Stacks are never deployed by hand: merge the change and
-Dockhand applies it.
+Komodo applies it.
