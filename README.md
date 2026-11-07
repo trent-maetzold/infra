@@ -73,6 +73,7 @@ services/<service>/default.nix    nixosModules.<service>: a service that can't b
 services/<service>/*              that service's data files
 checks/                           checks: the rules in this README, enforced
 .beads/                           beads config; its database is local, synced via Dolt
+.github/workflows/                CI for this repo (GitHub Actions)
 secrets.yaml, .sops.yaml          every secret, and who can decrypt it
 justfile                          operational recipes (install, deploy, rotate keys)
 docs/notes/<topic>.md             fixes made outside Nix, written so they can be redone
@@ -168,15 +169,15 @@ Dockhand's UI.
   and the stack loads it with `env_file`.
 - Data lives on yggdrasil and reaches the microvm through virtiofs shares.
   Each stack mounts only its own directories.
-- Logins go through Authelia: OIDC where the app supports it, forward auth
-  otherwise.
+- Logins go through Authelia on heimdall: OIDC where the app supports it,
+  forward auth otherwise.
 
 ### NixOS services
 
 A service is a NixOS service instead of a stack only with a reason, which
 the first line of its `services/<service>/default.nix` states. The reasons
-that qualify: it runs on a host without Dockhand (Headscale and Traefik on
-heimdall), Dockhand depends on it (the microvm, Docker, Dockhand itself), or
+that qualify: it runs on a host without Dockhand (Headscale, Headplane,
+Authelia and Traefik on heimdall, so edge logins never depend on home), Dockhand depends on it (the microvm, Docker, Dockhand itself), or
 it needs the host's hardware (llama-swap on yggdrasil's GPU).
 
 A NixOS service splits in two:
@@ -281,15 +282,16 @@ To review, diff against the branch instead.
 
 ## Machines
 
-| Machine   | What                                             | Built as              | Users                             |
-| --------- | ------------------------------------------------ | --------------------- | --------------------------------- |
-| muninn    | Omarchy workstation                              | `homeConfigurations`  | trent                             |
-| frigg     | family PC (Cinnamon, GTX 980)                    | `nixosConfigurations` | trent, justine, leo, violet, june |
-| thor      | gaming PC, headless for now                      | `nixosConfigurations` | trent                             |
-| heimdall  | public edge on OCI (Traefik, Headscale), aarch64 | `nixosConfigurations` | trent (server)                    |
-| yggdrasil | home server (agents, models, VMs)                | `nixosConfigurations` | trent (server)                    |
-| dockhand  | microvm on yggdrasil: Docker and every stack     | `nixosConfigurations` | -                                 |
-| mimir     | Unraid VM on yggdrasil, retired by the migration | `infra` only          | -                                 |
+| Machine   | What                                              | Built as              | Users                             |
+| --------- | ------------------------------------------------- | --------------------- | --------------------------------- |
+| muninn    | Omarchy workstation                               | `homeConfigurations`  | trent                             |
+| frigg     | family PC (Cinnamon, GTX 980)                     | `nixosConfigurations` | trent, justine, leo, violet, june |
+| thor      | gaming PC, headless for now                       | `nixosConfigurations` | trent                             |
+| heimdall  | public edge on OCI (Traefik, Headscale, Authelia) | `nixosConfigurations` | trent (server)                    |
+| yggdrasil | home server (agents, models, VMs)                 | `nixosConfigurations` | trent (server)                    |
+| dockhand  | microvm on yggdrasil: Docker and every stack      | `nixosConfigurations` | -                                 |
+| runner    | microvm on yggdrasil: public-repo CI jobs         | `nixosConfigurations` | -                                 |
+| mimir     | Unraid VM on yggdrasil, retired by the migration  | `infra` only          | -                                 |
 
 ## Secrets
 
@@ -305,6 +307,21 @@ standalone home.
 rbw unlock && sops edit secrets.yaml   # edit
 sops updatekeys secrets.yaml           # after changing a recipient
 ```
+
+## CI
+
+Actions, on our own runners: GitHub Actions for repos on GitHub, Forgejo
+Actions (the same workflow syntax) for private repos on Forgejo. Every PR runs
+`nix fmt --check` and `nix flake check --no-build`, and can't merge until they
+pass.
+
+- The Forgejo runner is a stack. It only ever runs my own private repos.
+- The GitHub runner runs public repos, so it treats every job as hostile. It
+  lives in its own `runner` microvm, takes one job and is reset, reaches only
+  the internet (no LAN, tailnet or other VMs), and holds no secrets. A fork's
+  PR waits for my approval before it runs, and workflow tokens are read-only
+  by default.
+- Nothing that can deploy runs on the GitHub runner.
 
 ## Commands
 
