@@ -12,7 +12,7 @@ data "external" "image" {
   program = [
     "bash",
     "-c",
-    "printf '{\"drv\":\"%s\"}' \"$(nix eval --raw ${path.module}/../../..#nixosConfigurations.heimdall.config.system.build.images.oci.drvPath)\"",
+    "printf '{\"drv\":\"%s\"}' \"$(nix eval --raw ${path.module}/../../../..#nixosConfigurations.heimdall.config.system.build.images.oci.drvPath)\"",
   ]
 }
 
@@ -38,7 +38,7 @@ resource "terraform_data" "image" {
   }
 
   provisioner "local-exec" {
-    command = "set -eu; out=$(nix build --no-link --print-out-paths ${path.module}/../../..#nixosConfigurations.heimdall.config.system.build.images.oci); qcow2=$(find -L \"$out\" -maxdepth 1 -type f -name '*.qcow2' -print -quit); nix run nixpkgs#oci-cli -- os object put --bucket-name ${oci_objectstorage_bucket.image.name} --name ${local.image_object} --file \"$qcow2\" --force"
+    command = "set -eu; out=$(nix build --no-link --print-out-paths ${path.module}/../../../..#nixosConfigurations.heimdall.config.system.build.images.oci); qcow2=$(find -L \"$out\" -maxdepth 1 -type f -name '*.qcow2' -print -quit); nix run nixpkgs#oci-cli -- os object put --bucket-name ${oci_objectstorage_bucket.image.name} --name ${local.image_object} --file \"$qcow2\" --force"
   }
 
   # A bucket cannot be deleted while an object is in it.
