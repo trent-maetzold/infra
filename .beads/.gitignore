@@ -1,0 +1,5 @@
+# Everything here is local beads state except its config; the issues sync through refs/dolt/data.
+*
+!.gitignore
+!config.yaml
+!metadata.json
