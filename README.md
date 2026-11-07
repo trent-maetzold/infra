@@ -156,7 +156,7 @@ the `packages` those modules use.
 ### Stacks
 
 Services run as Docker Compose stacks managed by
-[Komodo](https://komo.do/). Komodo Core runs in the `komodo` microvm on
+[Komodo](https://komo.do/). Komodo Core runs in the `noatun` microvm on
 yggdrasil, and a Komodo Periphery agent runs beside every Docker that runs
 stacks. A Komodo ResourceSync reads every `stacks/*/stack.toml` from `main`,
 so Core polls this repo and deploys a stack when its files change: a merged PR
@@ -299,7 +299,7 @@ To review, diff against the branch instead.
 | thor      | gaming PC, headless for now                       | `nixosConfigurations` | trent                             |
 | heimdall  | public edge on OCI (Traefik, Headscale, Authelia) | `nixosConfigurations` | trent (server)                    |
 | yggdrasil | home server (agents, models, VMs)                 | `nixosConfigurations` | trent (server)                    |
-| komodo    | microvm on yggdrasil: Komodo, Docker, every stack | `nixosConfigurations` | -                                 |
+| noatun    | microvm on yggdrasil: Komodo, Docker, every stack | `nixosConfigurations` | -                                 |
 | runner    | microvm on yggdrasil: public-repo CI jobs         | `nixosConfigurations` | -                                 |
 | mimir     | Unraid VM on yggdrasil, retired by the migration  | `infra` only          | -                                 |
 
