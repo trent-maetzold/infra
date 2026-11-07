@@ -1,7 +1,8 @@
 # nix-config
 
-My machines and homes, declared in one flake, plus the reusable NixOS and
-Home Manager modules they're built from. Nix installs every package. Configs I
+My infrastructure in one repo: machines and homes declared in one flake, the
+reusable NixOS and Home Manager modules they're built from, the services they
+run, and the cloud resources under them. Nix installs every package. Configs I
 edit often are out-of-store symlinks into this checkout, so I change them in
 place, commit, push, and pull on the next machine.
 
@@ -56,34 +57,41 @@ one you want. `nixosModules`, `homeModules`, `nixosConfigurations` and
 
 ## Layout
 
+Three trees: `nix/` is machines, homes and the modules they're built from;
+`services/` is everything that runs, on NixOS (`nix/`) or on Docker
+(`docker/`); `infra/` is the cloud resources underneath. The flake at the
+root ties them together.
+
 ```
-flake.nix                         inputs, and the map of the infrastructure
-modules/nixos/<domain>/<name>.nix one NixOS module: modules.nixos.<name>
-modules/home/<domain>/<name>.nix  one Home Manager module: modules.homeManager.<name>
-packages/<name>.nix               packages.<system>.<name>, for modules to use
-lib/<name>.nix                    one shared helper, its contract on top (internal)
-**/_lib/<name>.nix                one local helper, beside the file that calls it
-hosts/<host>/default.nix          nixosConfigurations.<host>
-hosts/<host>/*                    that host's hardware, disks, facter.json
-users/<user>/default.nix          that user's homeModules, nixosModules, homeConfigurations
-users/<user>/config/<app>/        that user's out-of-store configs, mirroring ~/.config
-stacks/<stack>/compose.yaml       a service, deployed by Komodo via GitOps
-stacks/<stack>/stack.toml         that stack as a Komodo resource: its server, its files
-stacks/<stack>/*                  that stack's config files
-services/<service>/default.nix    nixosModules.<service>: a service that can't be a stack
-services/<service>/*              that service's data files
-checks/                           checks: the rules in this README, enforced
-.beads/                           beads config; its database is local, synced via Dolt
-.github/workflows/                CI for this repo (GitHub Actions)
-secrets.yaml, .sops.yaml          every secret, and who can decrypt it
-justfile                          operational recipes (install, deploy, rotate keys)
-docs/notes/<topic>.md             fixes made outside Nix, written so they can be redone
-terraform/                        OCI infra, still to be migrated
+flake.nix, flake.lock                   inputs, and the map of the whole repo
+nix/modules/nixos/<domain>/<name>.nix   one NixOS module: modules.nixos.<name>
+nix/modules/home/<domain>/<name>.nix    one Home Manager module: modules.homeManager.<name>
+nix/packages/<name>.nix                 packages.<system>.<name>, for modules to use
+nix/lib/<name>.nix                      one shared helper, its contract on top (internal)
+**/_lib/<name>.nix                      one local helper, beside the file that calls it
+nix/hosts/<host>/default.nix            nixosModules.<host> and nixosConfigurations.<host>
+nix/hosts/<host>/*                      that host's hardware, disks, facter.json
+nix/users/<user>/default.nix            that user's homeModules, nixosModules, homeConfigurations
+nix/users/<user>/config/<app>/          that user's out-of-store configs, mirroring ~/.config
+nix/checks/                             checks: the rules in this README, enforced
+services/nix/<service>/default.nix      a NixOS service, adding itself to the host it runs on
+services/nix/<service>/*                that service's data files
+services/docker/<service>/compose.yaml  a Docker service, deployed by Komodo via GitOps
+services/docker/<service>/stack.toml    that service as a Komodo Stack: its server, its files
+services/docker/<service>/*             that service's config files
+infra/<name>.nix                        cloud resources as terranix, applied by a flake app
+infra/terraform/                        OCI's Terraform, until it's converted to terranix
+secrets.yaml, .sops.yaml                every secret, and who can decrypt it
+.beads/                                 beads config; its database is local, synced via Dolt
+.github/workflows/                      CI for this repo (GitHub Actions)
+justfile                                operational recipes (install, deploy, rotate keys)
+docs/notes/<topic>.md                   fixes made outside Nix, written so they can be redone
 ```
 
 There are no profiles or bundles, no overlays and no global options. To see
-what is on a machine or in a home, open its `hosts/` or `users/` file.
-Everything it gets is listed in its imports.
+what is in a home, open its `nix/users/` file. To see what is on a machine,
+open its `nix/hosts/` file and the NixOS services that add themselves to it
+(`rg -l 'nixosModules.<host>' services/nix`).
 
 ### The map: `flake.nix`
 
@@ -91,11 +99,13 @@ Everything it gets is listed in its imports.
 
 - **Inputs**, grouped by purpose. Nix requires them to be a literal attrset
   in `flake.nix`.
-- **Imports**: import-tree loads `modules/`, `lib/` and `checks/`. Every host,
-  user and service directory is listed by hand, so the import list is the
-  inventory.
-- **`infra`**, a flake-parts module arg read only by host, user and service
-  files. It
+- **Imports**: import-tree loads `nix/modules/`, `nix/lib/` and
+  `nix/checks/`. Every host, user and NixOS service directory is listed by
+  hand, so the import list is the inventory.
+- **Apps** that run what isn't Nix through Nix, such as OpenTofu for
+  `infra/`.
+- **`infra`**, a flake-parts module arg read only by host, user, service and
+  `infra/` files. It
   holds the shared constants (domain, ACME email, time zone, tailnet login
   server, domain and subnet), every machine's addresses (tailnet, LAN, ssh),
   including machines this flake doesn't build, the Traefik dynamic config
@@ -108,7 +118,7 @@ Everything it gets is listed in its imports.
 - A module file sets exactly one `flake.modules.<class>.<name>` directly, with
   no wrapping `let`. Its name is the file name, unique within its class. Data
   files a module reads sit in a directory beside it (`<name>/`).
-- The directory name under `modules/<class>/` is the domain:
+- The directory name under `nix/modules/<class>/` is the domain:
   - `nix`: Nix itself.
   - `system`: host OS behaviour.
   - `network`: tailnet and routing on the client side.
@@ -123,7 +133,7 @@ Everything it gets is listed in its imports.
 - A module uses this flake's inputs and `packages` through its own closure
   (`inputs.<x>`, `self.packages.<system>.<name>`), so a consumer needs no
   overlay.
-- `packages/` holds plain derivations (`<name>.nix` or `<name>/package.nix`).
+- `nix/packages/` holds plain derivations (`<name>.nix` or `<name>/package.nix`).
   `lib.filesystem.packagesFromDirectoryRecursive` turns them into the
   `packages` output. That is the only `callPackage` in the repo; modules,
   hosts, users and services never call it.
@@ -142,7 +152,7 @@ needs it, it becomes a helper in its own file, so the caller reads as config:
   It's a plain function, imported by relative path (import-tree skips `_`
   paths).
 - **Shared** when more than one file calls it, or it's general-purpose (for
-  example, merging an attrset with a JSON file): `lib/<name>.nix` sets
+  example, merging an attrset with a JSON file): `nix/lib/<name>.nix` sets
   `_module.args.<name>`, and flake-parts files take it as an arg
   (`{mergeJson, ...}:`).
 - The name says exactly what it returns and from what, so the call reads
@@ -153,38 +163,45 @@ needs it, it becomes a helper in its own file, so the caller reads as config:
 Helpers are internal: there is no `lib` output. The flake exports modules, plus
 the `packages` those modules use.
 
-### Stacks
+### Services
 
-Services run as Docker Compose stacks managed by
-[Komodo](https://komo.do/). Komodo Core runs in the `noatun` microvm on
-yggdrasil, and a Komodo Periphery agent runs beside every Docker that runs
-stacks. A Komodo ResourceSync reads every `stacks/*/stack.toml` from `main`,
-so Core polls this repo and deploys a stack when its files change: a merged PR
-is a deploy. Nobody creates or edits resources in Komodo's UI; the sync shows
-any drift as a pending change and the repo wins.
+Every service is self-contained in one directory under `services/`, and that
+directory says where it runs. Names are unique across `services/nix/` and
+`services/docker/`, so moving a service between them keeps its name.
 
-- `stacks/<stack>/compose.yaml` is the whole service, plus its config files
-  beside it. Images are pinned by tag.
-- `stacks/<stack>/stack.toml` declares the Komodo Stack: which server runs it
-  and which files in this repo it deploys. Nothing else about the service
-  lives there.
-- A stack that needs a database runs its own Postgres container. There is no
-  shared database server.
+#### Docker services
+
+Services run as Docker Compose projects managed by
+[Komodo](https://komo.do/), which calls each one a Stack. Komodo Core runs in
+the `noatun` microvm on yggdrasil, and a Komodo Periphery agent runs beside
+every Docker that runs services. A Komodo ResourceSync reads every
+`services/docker/*/stack.toml` from `main`, so Core polls this repo and
+deploys a service when its files change: a merged PR is a deploy. Nobody
+creates or edits resources in Komodo's UI; the sync shows any drift as a
+pending change and the repo wins.
+
+- `compose.yaml` is the whole service, plus its config files beside it.
+  Images are pinned by tag.
+- `stack.toml` declares the Komodo Stack: which server runs it and which
+  files in this repo it deploys. Nothing else about the service lives there.
+- A service that needs a database runs its own Postgres container. There is
+  no shared database server.
 - Secrets come from `secrets.yaml`, never from Komodo's variables or
-  secrets. sops-nix on the stack's host writes its secrets to
-  `/run/secrets/stacks/<stack>.env`, and the stack loads it with `env_file`.
+  secrets. sops-nix on the service's host writes its secrets to
+  `/run/secrets/services/<service>.env`, and the service loads it with
+  `env_file`.
 - Komodo Core keeps its state in FerretDB on its own Postgres, like any
-  other stack's database. There is no MongoDB.
+  other service's database. There is no MongoDB.
 - Data lives on yggdrasil and reaches the microvm through virtiofs shares.
-  Each stack mounts only its own directories.
+  Each service mounts only its own directories.
 - Logins go through Authelia on heimdall: OIDC where the app supports it,
   forward auth otherwise.
 
-### NixOS services
+#### NixOS services
 
-A service is a NixOS service instead of a stack only with a reason, which
-the first line of its `services/<service>/default.nix` states. The reasons
-that qualify: it runs on a host without Komodo stacks (Headscale, Headplane,
+A service runs on NixOS instead of Docker only with a reason, which the first
+line of its `services/nix/<service>/default.nix` states. The reasons that
+qualify: it runs on a host without Docker services (Headscale, Headplane,
 Authelia and Traefik on heimdall, so edge logins never depend on home), Komodo
 depends on it (the microvm, Docker, Periphery, and Core with its database,
 since Komodo can't deploy itself), or
@@ -192,28 +209,32 @@ it needs the host's hardware (llama-swap on yggdrasil's GPU).
 
 A NixOS service splits in two:
 
-- **The reusable part** is a module in `modules/nixos/services/`. Like every
-  module, it knows nothing about where it runs.
-- **The instance** is `services/<service>/default.nix`, which sets
-  `flake.nixosModules.<service>`. It imports the module, then adds what
-  belongs to this deployment: values from `infra`, bind addresses, its
-  `sops.secrets`, persistence, and data files beside it. For example,
-  `services/traefik` sets `services.traefik.dynamicConfigOptions = infra.routes`.
+- **The reusable part** is a module in `nix/modules/nixos/services/`. Like
+  every module, it knows nothing about where it runs.
+- **The instance** is `services/nix/<service>/default.nix`. It adds itself
+  to the host it runs on by setting `flake.nixosModules.<host>`, which
+  flake-parts merges with the host's own file. It imports the module, then
+  adds what belongs to this deployment: values from `infra`, bind addresses,
+  its `sops.secrets`, persistence, and data files beside it. For example,
+  `services/nix/traefik` sets `flake.nixosModules.heimdall` to import
+  `modules.nixos.traefik` with
+  `services.traefik.dynamicConfigOptions = infra.routes`.
 
-The host that runs a service imports its `nixosModules.<service>`, so the host
-file still lists everything on the machine. Services and users share the
+So the service file answers "where is this deployed?", and moving a service to
+another host changes one line. Hosts, users and services share the
 `nixosModules` namespace, so their names are unique.
 
 ### Hosts
 
-`hosts/<host>/default.nix` sets `flake.nixosConfigurations.<host>` with
-`nixpkgs.lib.nixosSystem`. It contains:
+`nix/hosts/<host>/default.nix` sets `flake.nixosModules.<host>` and builds
+`flake.nixosConfigurations.<host>` from it with `nixpkgs.lib.nixosSystem`.
+It contains:
 
 - `specialArgs`, built from `infra`.
 - Every module the host uses, including `modules.nixos.home-manager`, which
   loads Home Manager into NixOS once per host.
-- The `nixosModules.<user>` of each person who logs in, and the
-  `nixosModules.<service>` of each service it runs.
+- The `nixosModules.<user>` of each person who logs in. Services aren't
+  listed: each NixOS service adds itself.
 - The host's own config: hardware, disks, `stateVersion`, its
   `sops.secrets`, and anything that names this machine.
 
@@ -221,7 +242,7 @@ A machine that runs another, such as a VM, declares it in its own file.
 
 ### Users and configs
 
-`users/<user>/default.nix` builds everything for one person:
+`nix/users/<user>/default.nix` builds everything for one person:
 
 - `flake.homeModules.<user>`, plus variants like `<user>-server` when machines
   need different homes. Each lists its home modules and contains the user's
@@ -236,8 +257,8 @@ A machine that runs another, such as a VM, declares it in its own file.
 How often a config changes decides how it is managed:
 
 - **Changes often** (harness, editor, MCP, skills, agent rules): plain files
-  in `users/<user>/config/<app>/`, linked with
-  `config.lib.file.mkOutOfStoreSymlink "<checkout>/users/<user>/config/<app>"`.
+  in `nix/users/<user>/config/<app>/`, linked with
+  `config.lib.file.mkOutOfStoreSymlink "<checkout>/nix/users/<user>/config/<app>"`.
   Edits take effect immediately; commit them like code.
 - **Set once** (git identity, shell, tmux): Home Manager options, read-only in
   the store.
@@ -246,7 +267,7 @@ On Omarchy, Omarchy owns its desktop configs (Hyprland, Waybar and the rest)
 until one is adopted. To adopt one (nvim and herdr, for example):
 
 1. Move Omarchy's config into the repo:
-   `mv ~/.config/<app> users/<user>/config/<app>`.
+   `mv ~/.config/<app> nix/users/<user>/config/<app>`.
 2. Add the link, then switch.
 
 From then on, the repo is the only copy. Home Manager refuses to overwrite a
@@ -284,7 +305,7 @@ I own my checkouts in `~/Projects` and `~/Work`. This repo's live checkout is
 
 The global agent rules are one file, `~/.agents/AGENTS.md`, linked into every
 harness that reads a global file (Claude Code, Codex, pi, opencode). It
-carries the worktree rule. These configs live in `users/<user>/config/`.
+carries the worktree rule. These configs live in `nix/users/<user>/config/`.
 
 This repo's live checkout is the running config, because the out-of-store
 links point into it. Its branch is switched only to pull, never to review.
@@ -299,7 +320,7 @@ To review, diff against the branch instead.
 | thor      | gaming PC, headless for now                       | `nixosConfigurations` | trent                             |
 | heimdall  | public edge on OCI (Traefik, Headscale, Authelia) | `nixosConfigurations` | trent (server)                    |
 | yggdrasil | home server (agents, models, VMs)                 | `nixosConfigurations` | trent (server)                    |
-| noatun    | microvm on yggdrasil: Komodo, Docker, every stack | `nixosConfigurations` | -                                 |
+| noatun    | microvm on yggdrasil: Komodo and Docker services  | `nixosConfigurations` | -                                 |
 | runner    | microvm on yggdrasil: public-repo CI jobs         | `nixosConfigurations` | -                                 |
 | mimir     | Unraid VM on yggdrasil, retired by the migration  | `infra` only          | -                                 |
 
@@ -325,7 +346,7 @@ Actions (the same workflow syntax) for private repos on Forgejo. Every PR runs
 `nix fmt --check` and `nix flake check --no-build`, and can't merge until they
 pass.
 
-- The Forgejo runner is a stack. It only ever runs my own private repos.
+- The Forgejo runner is a Docker service. It only ever runs my own private repos.
 - The GitHub runner runs public repos, so it treats every job as hostile. It
   lives in its own `runner` microvm, takes one job and is reset, reaches only
   the internet (no LAN, tailnet or other VMs), and holds no secrets. A fork's
@@ -341,8 +362,19 @@ nix flake check --no-build                         # evaluate every config and c
 home-manager switch --flake .#trent@muninn         # a non-NixOS home
 sudo nixos-rebuild switch --flake .#<host>         # on the host
 nixos-rebuild switch --flake .#<host> --target-host <host> --build-host <host> --sudo
+nix run .#infra -- plan                            # OpenTofu on infra/'s terranix config
+nix run .#infra -- apply
 ```
 
-Servers are deployed over ssh with the last command until GitOps replaces it.
-There's no colmena. Stacks are never deployed by hand: merge the change and
-Komodo applies it.
+Servers are deployed over ssh with the nixos-rebuild line until GitOps
+replaces it. There's no colmena. Docker services are never deployed by hand:
+merge the change and Komodo applies it.
+
+## Infra
+
+Cloud resources (OCI for heimdall today; DNS and the rest later) are
+[terranix](https://terranix.org/) modules in `infra/`. They can read `infra`
+like any host, so an address is written once. `nix run .#infra` renders them
+to `config.tf.json` and runs OpenTofu on it, so OpenTofu comes from the flake
+and nothing is installed by hand. Credentials and state come from
+`secrets.yaml`, never from files left in the checkout.

@@ -23,7 +23,7 @@ Every change goes in this order:
 1. **Spec.** If the change alters what the repo looks like (layout, a rule, a
    machine, a user, a service, the public API), edit README.md first. If a request
    contradicts README.md, say so and settle it before touching code.
-2. **Checks.** Make `checks/` express the new spec, so they fail on the
+2. **Checks.** Make `nix/checks/` express the new spec, so they fail on the
    current code and will pass on the change.
 3. **Code.** Change code until the checks pass.
 4. **Verify.** Run `nix fmt`, then `nix flake check --no-build`. Report
@@ -38,15 +38,18 @@ changes because the code drifted.
 
 ## Checks
 
-`checks/` holds flake-parts modules that set `perSystem.checks`:
+`nix/checks/` holds flake-parts modules that set `perSystem.checks`:
 
 - They evaluate every `nixosConfigurations.<host>` and every
   `homeConfigurations.<home>`.
 - They enforce the README's structural rules. Examples: a module file sets
   exactly one `flake.modules.<class>.<name>`, and its class matches
-  `modules/nixos` or `modules/home`. No module mentions a host, user, domain
-  or address from `infra`. Every host, user and service directory is imported
-  in `flake.nix`. `nixosModules` names are unique across users and services.
+  `nix/modules/nixos` or `nix/modules/home`. No module mentions a host, user,
+  domain or address from `infra`. Every host, user and NixOS service
+  directory is imported in `flake.nix`. `nixosModules` names are unique
+  across hosts, users and services, and service names are unique across
+  `services/nix/` and `services/docker/`. Every NixOS service adds itself to
+  at least one host.
   Every helper file opens with its contract. The flake has no `lib` output.
 - They inspect evaluated config, not source, so values set indirectly or by
   upstream modules are caught too. On every NixOS host,
@@ -87,7 +90,7 @@ A rule worth writing down is worth a check.
   wrap (`inputs.sops-nix.nixosModules.sops`). An upstream module that several
   modules need (like Home Manager's NixOS module) gets its own module, which
   hosts import once.
-- Packages that nixpkgs lacks go in `packages/<name>.nix` (or
+- Packages that nixpkgs lacks go in `nix/packages/<name>.nix` (or
   `<name>/package.nix`) as plain derivations. They're loaded by
   `lib.filesystem.packagesFromDirectoryRecursive`. Modules use them as
   `self.packages.${pkgs.stdenv.hostPlatform.system}.<name>`. Never call
@@ -118,7 +121,7 @@ A rule worth writing down is worth a check.
   function that takes what it needs (`{lib}: ...`) and is imported by relative
   path.
 - Shared when more than one file calls it, or it's general-purpose (like
-  `mergeJson`): `lib/<name>.nix` sets `_module.args.<name>`, and flake-parts
+  `mergeJson`): `nix/lib/<name>.nix` sets `_module.args.<name>`, and flake-parts
   files take it as an arg. Move a local helper here when it gains a second
   caller.
 - The contract on top is mandatory: every arg, the return value, and one
@@ -135,34 +138,38 @@ A rule worth writing down is worth a check.
   addresses, emails, hostIds, keys, `stateVersion`, `sops.secrets`, routes,
   and which modules they use. They read `infra` and build the args their
   modules take.
-- `hosts/<host>/default.nix` sets `flake.nixosConfigurations.<host>` with
-  `nixpkgs.lib.nixosSystem`. Its imports list every module, every
-  `nixosModules.<user>` and every `nixosModules.<service>` on the machine.
-- A new service is a stack in `stacks/<stack>/`: a `compose.yaml` and a
-  `stack.toml`, deployed by Komodo when it merges. Give it its own Postgres
-  if it needs one, take secrets from `/run/secrets/stacks/<stack>.env`, and
-  never deploy or edit it by hand in Komodo. Make it a NixOS service only for one of README's reasons, stated
+- `nix/hosts/<host>/default.nix` sets `flake.nixosModules.<host>` and builds
+  `flake.nixosConfigurations.<host>` from it with `nixpkgs.lib.nixosSystem`.
+  Its imports list every module and every `nixosModules.<user>` on the
+  machine. It never lists services.
+- A new service is a Docker service in `services/docker/<service>/`: a
+  `compose.yaml` and a `stack.toml`, deployed by Komodo when it merges. Give
+  it its own Postgres if it needs one, take secrets from
+  `/run/secrets/services/<service>.env`, and never deploy or edit it by hand
+  in Komodo. Make it a NixOS service only for one of README's reasons, stated
   on the first line of its file; if none applies, push back.
-- `services/<service>/default.nix` sets `flake.nixosModules.<service>`: the
-  service's reusable module from `modules/nixos/services/`, plus this
-  deployment's values, secrets and data files. The host running it imports
-  it.
-- The test for a service: copying `modules/nixos/services/<x>.nix` into
+- `services/nix/<service>/default.nix` adds itself to the host it runs on by
+  setting `flake.nixosModules.<host>`: the service's reusable module from
+  `nix/modules/nixos/services/`, plus this deployment's values, secrets and
+  data files. Everything the service needs lives in its directory.
+- The test for a service: copying `nix/modules/nixos/services/<x>.nix` into
   another flake must work unchanged. Anything that would break that belongs
-  in `services/<x>/`.
-- `users/<user>/default.nix` sets `flake.homeModules.<user>` (and variants),
+  in `services/nix/<x>/`.
+- Cloud resources are terranix modules in `infra/`, run with
+  `nix run .#infra`. Never run `tofu` or `terraform` from a shell install.
+- `nix/users/<user>/default.nix` sets `flake.homeModules.<user>` (and variants),
   the matching `flake.nixosModules.<user>` for NixOS hosts (Home Manager as a
   NixOS module, never standalone there), and
   `flake.homeConfigurations."<user>@<host>"` for non-NixOS machines.
-- Configs that change often are files in `users/<user>/config/<app>/`, linked
+- Configs that change often are files in `nix/users/<user>/config/<app>/`, linked
   with `mkOutOfStoreSymlink`. Configs set once are Home Manager options.
 - To adopt an Omarchy-managed config, move it (`mv`, never copy) into
-  `users/<user>/config/<app>/`, then link it. Never manage an Omarchy config
+  `nix/users/<user>/config/<app>/`, then link it. Never manage an Omarchy config
   that hasn't been adopted this way.
 - Home Manager must fail, not clobber, when a file is in its way. Never set
   `backupFileExtension`, pass `-b`, or use `force`. The checks catch the
   options; `-b` is a CLI flag, so it's on you.
-- A new host, user or service is listed in `flake.nix` imports. A new host or
+- A new host, user or NixOS service is listed in `flake.nix` imports. A new host or
   user also gets a row in the README's Machines table.
 - Anything you fix outside Nix (distro packages, `/etc`, system units, app
   configs not yet adopted) gets a `docs/notes/<topic>.md` in the same session:
@@ -183,7 +190,7 @@ value.
 - Every file opens with a one-line description; module descriptions end with
   their args.
 - Plain attrsets over functions. When a function earns its place, it is a
-  `lib/` helper with a contract.
+  `nix/lib/` helper with a contract.
 - A mature upstream module or flake beats hand-rolled code, even as a new
   input.
 - Comments only where a reader would stumble. The why goes in the commit
