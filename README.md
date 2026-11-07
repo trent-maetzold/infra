@@ -50,12 +50,14 @@ hosts/<host>/default.nix          nixosConfigurations.<host>
 hosts/<host>/*                    that host's hardware, disks, facter.json
 users/<user>/default.nix          that user's homeModules, nixosModules, homeConfigurations
 users/<user>/config/<app>/        that user's out-of-store configs, mirroring ~/.config
-services/<service>/default.nix    nixosModules.<service>: a service this flake runs
+stacks/<stack>/compose.yaml       a service, deployed to Dockhand by GitOps
+stacks/<stack>/*                  that stack's config files
+services/<service>/default.nix    nixosModules.<service>: a service that can't be a stack
 services/<service>/*              that service's data files
 checks/                           checks: the rules in this README, enforced
 secrets.yaml, .sops.yaml          every secret, and who can decrypt it
 justfile                          operational recipes (install, deploy, rotate keys)
-stacks/, terraform/               container stacks and OCI infra, still to be migrated
+terraform/                        OCI infra, still to be migrated
 ```
 
 There are no profiles or bundles, no overlays and no global options. To see
@@ -89,7 +91,7 @@ Everything it gets is listed in its imports.
   - `nix`: Nix itself.
   - `system`: host OS behaviour.
   - `network`: tailnet and routing on the client side.
-  - `services`: servers that clients connect to (headscale, traefik, honcho).
+  - `services`: servers that clients connect to (headscale, traefik).
   - `shell`: the terminal.
   - `dev`: writing code.
   - `ai`: agents, models and memory.
@@ -130,9 +132,35 @@ needs it, it becomes a helper in its own file, so the caller reads as config:
 Helpers are internal: there is no `lib` output. The flake exports modules, plus
 the `packages` those modules use.
 
-### Services
+### Stacks
 
-A service splits in two:
+Services run as Docker Compose stacks on
+[Dockhand](https://github.com/Finsys/dockhand), in the `dockhand` microvm on
+yggdrasil. Dockhand watches `stacks/` in this repo and deploys a stack when
+its directory changes, so a merged PR is a deploy. Nobody edits stacks in
+Dockhand's UI.
+
+- `stacks/<stack>/compose.yaml` is the whole service, plus its config files
+  beside it. Images are pinned by tag.
+- A stack that needs a database runs its own Postgres container. There is no
+  shared database server.
+- Secrets come from `secrets.yaml`, never from Dockhand. sops-nix in the
+  microvm writes each stack's secrets to `/run/secrets/stacks/<stack>.env`,
+  and the stack loads it with `env_file`.
+- Data lives on yggdrasil and reaches the microvm through virtiofs shares.
+  Each stack mounts only its own directories.
+- Logins go through Authelia: OIDC where the app supports it, forward auth
+  otherwise.
+
+### NixOS services
+
+A service is a NixOS service instead of a stack only with a reason, which
+the first line of its `services/<service>/default.nix` states. The reasons
+that qualify: it runs on a host without Dockhand (Headscale and Traefik on
+heimdall), Dockhand depends on it (the microvm, Docker, Dockhand itself), or
+it needs the host's hardware (llama-swap on yggdrasil's GPU).
+
+A NixOS service splits in two:
 
 - **The reusable part** is a module in `modules/nixos/services/`. Like every
   module, it knows nothing about where it runs.
@@ -234,7 +262,8 @@ To review, diff against the branch instead.
 | thor      | gaming PC, headless for now                      | `nixosConfigurations` | trent                             |
 | heimdall  | public edge on OCI (Traefik, Headscale), aarch64 | `nixosConfigurations` | trent (server)                    |
 | yggdrasil | home server (agents, models, VMs)                | `nixosConfigurations` | trent (server)                    |
-| mimir     | Unraid VM on yggdrasil, HBA passed through       | `infra` only          | -                                 |
+| dockhand  | microvm on yggdrasil: Docker and every stack     | `nixosConfigurations` | -                                 |
+| mimir     | Unraid VM on yggdrasil, retired by the migration | `infra` only          | -                                 |
 
 ## Secrets
 
@@ -262,4 +291,5 @@ nixos-rebuild switch --flake .#<host> --target-host <host> --build-host <host> -
 ```
 
 Servers are deployed over ssh with the last command until GitOps replaces it.
-There's no colmena.
+There's no colmena. Stacks are never deployed by hand: merge the change and
+Dockhand applies it.

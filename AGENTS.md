@@ -130,6 +130,11 @@ A rule worth writing down is worth a check.
 - `hosts/<host>/default.nix` sets `flake.nixosConfigurations.<host>` with
   `nixpkgs.lib.nixosSystem`. Its imports list every module, every
   `nixosModules.<user>` and every `nixosModules.<service>` on the machine.
+- A new service is a stack in `stacks/<stack>/`, deployed by Dockhand when it
+  merges. Give it its own Postgres if it needs one, take secrets from
+  `/run/secrets/stacks/<stack>.env`, and never deploy or edit it by hand in
+  Dockhand. Make it a NixOS service only for one of README's reasons, stated
+  on the first line of its file; if none applies, push back.
 - `services/<service>/default.nix` sets `flake.nixosModules.<service>`: the
   service's reusable module from `modules/nixos/services/`, plus this
   deployment's values, secrets and data files. The host running it imports
