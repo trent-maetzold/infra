@@ -346,6 +346,11 @@ Actions (the same workflow syntax) for private repos on Forgejo. Every PR runs
 `nix fmt --check` and `nix flake check --no-build`, and can't merge until they
 pass.
 
+Every PR also gets one comment saying what it changes: for each host and home
+whose derivation differs, CI builds the base and the merge result and posts a
+`dix` diff in a fenced code block (`.github/nix-diff.sh`). It needs no secrets,
+so it runs on GitHub's hosted runners (x86_64 and aarch64 for heimdall).
+
 - The Forgejo runner is a Docker service. It only ever runs my own private repos.
 - The GitHub runner runs public repos, so it treats every job as hostile. It
   lives in its own `runner` microvm, takes one job and is reset, reaches only

@@ -1,0 +1,80 @@
+---
+# On every PR: build each host and home the PR changes, and post one comment
+# with a dix diff per output. Hosted runners: x86_64 and aarch64 (heimdall).
+name: nix diff
+on:
+  pull_request:
+    branches: [staging, main]
+permissions:
+  contents: read
+concurrency:
+  group: nix-diff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  diff:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - system: x86_64-linux
+            runner: ubuntu-24.04
+          - system: aarch64-linux
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Free disk space for builds
+        run: >-
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+          /opt/ghc /opt/hostedtoolcache
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: cachix/install-nix-action@v31
+      - name: Diff ${{ matrix.system }}
+        # github.sha is the merge commit: what staging would become.
+        env:
+          SYSTEM: ${{ matrix.system }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -o pipefail
+          { echo "## $SYSTEM"
+            .github/nix-diff.sh "$SYSTEM" "$BASE" "$GITHUB_SHA"
+          } | tee report.md
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-${{ matrix.system }}
+          path: report.md
+
+  comment:
+    needs: diff
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: diff-*
+      - name: Post or update the comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          marker='<!-- nix-diff -->'
+          { echo "$marker"
+            echo "# What this PR changes (at ${GITHUB_SHA::7})"
+            for f in diff-*/report.md; do echo; cat "$f"; done
+          } > body.md
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" |
+            head -1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" \
+              -F body=@body.md >/dev/null
+          else
+            gh api "repos/$REPO/issues/$PR/comments" \
+              -F body=@body.md >/dev/null
+          fi
