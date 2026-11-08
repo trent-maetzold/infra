@@ -1,164 +1,108 @@
+# The map of the repo: inputs, what is imported, and the infra every host, user and service reads.
 {
-  outputs = flakeInputs: let
-    inputs = flakeInputs // import ./vars.nix // {secrets = ./secrets.yaml;};
-    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena;
-  in
-    flake-parts.lib.mkFlake {
-      inherit inputs;
-      specialArgs = inputs;
-    } ({config, ...}: {
-      imports = [
-        flake-parts.flakeModules.modules
-        home-manager.flakeModules.home-manager
-        (import-tree [./hosts ./lib ./modules ./options ./users])
-      ];
-
-      flake.colmenaHive = let
-        hosts = nixpkgs.lib.filterAttrs (_: h: h ? colmenaNode) config.flake.hosts;
-      in
-        colmena.lib.makeHive ({
-            meta = {
-              nixpkgs = import nixpkgs {system = "x86_64-linux";};
-              nodeNixpkgs = builtins.mapAttrs (_: h: import nixpkgs {inherit (h) system;}) hosts;
-              nodeSpecialArgs = builtins.mapAttrs (_: h: h.specialArgs) hosts;
-            };
-          }
-          // builtins.mapAttrs (_: h: h.colmenaNode) hosts);
-
-      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
-
-      perSystem = {
-        pkgs,
-        system,
-        ...
-      }: {
-        _module.args.pkgs = import nixpkgs {
-          inherit system;
-          overlays = builtins.attrValues config.flake.overlays;
-        };
-
-        formatter = pkgs.alejandra;
-      };
-    });
-
   inputs = {
     # Base
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    # Flake structure
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:denful/import-tree";
+
+    # Homes
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Flake
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    import-tree.url = "github:denful/import-tree";
-
-    # Nix
-    nix-index-database = {
-      url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Hardware
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    disko-zfs = {
-      url = "github:numtide/disko-zfs";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.disko.follows = "disko";
-    };
-
-    preservation.url = "github:nix-community/preservation";
-
-    # Desktop
-    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
-
-    # Infra
+    # Secrets
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    colmena = {
-      url = "github:zhaofengli/colmena";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    NixVirt = {
-      url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # WSL
-    nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Homelab
-    quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
-
-    # Development
-    lazyvim.url = "github:pfassina/lazyvim-nix";
-
-    pyproject-nix = {
-      url = "github:pyproject-nix/pyproject.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    revdiff = {
-      url = "github:umputun/revdiff";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Pins its own nixpkgs to match its SBCL.
-    autolith.url = "github:lambda-symbolics/autolith";
-
-    agent-skills = {
-      url = "github:Kyure-A/agent-skills-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    hermes-agent.url = "github:NousResearch/hermes-agent";
-    hermes-webui.url = "github:nesquena/hermes-webui";
-
-    hermex-push = {
-      url = "github:uzairansaruzi/hermex-push";
-      flake = false;
-    };
-
-    honcho = {
-      url = "github:plastic-labs/honcho";
-      flake = false;
-    };
-
-    oh-my-hermes = {
-      url = "github:rlaope/oh-my-hermes";
-      flake = false;
-    };
-
-    paseo = {
-      url = "github:getpaseo/paseo";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    i-have-adhd = {
-      url = "github:ayghri/i-have-adhd";
-      flake = false;
-    };
-
-    awesome-copilot = {
-      url = "github:github/awesome-copilot";
-      flake = false;
-    };
   };
+
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+      imports = [
+        inputs.flake-parts.flakeModules.modules
+        inputs.home-manager.flakeModules.home-manager
+        (inputs.import-tree [./nix/modules ./nix/lib ./nix/checks])
+        # Every host, user and NixOS service directory, listed by hand: this list is the inventory.
+      ];
+
+      systems = ["x86_64-linux" "aarch64-linux"];
+
+      # treefmt walks the tree; bare alejandra would read stdin, since nix fmt passes no paths.
+      perSystem = {pkgs, ...}: {
+        formatter = pkgs.treefmt.withConfig {
+          settings.formatter.alejandra = {
+            command = pkgs.lib.getExe pkgs.alejandra;
+            includes = ["*.nix"];
+          };
+        };
+      };
+
+      _module.args.infra = {
+        domain = "trkm.io";
+        acmeEmail = "tkm89@proton.me";
+        timeZone = "America/Chicago";
+
+        tailnet = {
+          loginServer = "https://hs.trkm.io";
+          domain = "ts.trkm.io";
+          subnet = "100.64.0.0/10";
+        };
+
+        machines = {
+          muninn = {
+            lan.address = "10.10.10.125";
+            ssh.hostname = "muninn.ts.trkm.io";
+          };
+
+          frigg.ssh = {
+            hostname = "frigg.ts.trkm.io";
+            user = "trent";
+          };
+
+          thor.ssh = {
+            hostname = "thor.ts.trkm.io";
+            user = "trent";
+          };
+
+          heimdall = {
+            tailnet = "100.64.0.6";
+            ssh.hostname = "heimdall.ts.trkm.io";
+          };
+
+          yggdrasil = {
+            tailnet = "100.64.0.2";
+            ssh.hostname = "yggdrasil.ts.trkm.io";
+
+            lan = {
+              address = "10.10.20.10";
+              prefixLength = 24;
+              gateway = "10.10.20.1";
+              nameservers = ["10.10.20.1" "1.1.1.1"];
+            };
+          };
+
+          yggdrasil-bmc = {
+            lan.address = "10.10.20.154";
+
+            ssh = {
+              hostname = "bmc.yggdrasil.ts.trkm.io";
+              user = "root";
+            };
+          };
+
+          mimir.ssh = {
+            hostname = "mimir.ts.trkm.io";
+            user = "root";
+          };
+        };
+
+        routes = {};
+        dns = [];
+      };
+    };
 }
