@@ -1,9 +1,14 @@
-# muninn's complete NixOS configuration; no shared repository modules.
+# muninn's complete NixOS configuration; no shared repository modules. Args: preservation.
 {
   lib,
   pkgs,
+  preservation,
   ...
 }: {
+  imports = [preservation.nixosModules.default];
+
+  hardware.facter.reportPath = ../facter.json;
+
   networking = {
     hostName = "muninn";
     networkmanager.enable = true;
