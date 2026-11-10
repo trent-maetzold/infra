@@ -1,7 +1,7 @@
 {
   outputs = flakeInputs: let
     inputs = flakeInputs // import ./vars.nix // {secrets = ./secrets.yaml;};
-    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena disko preservation;
+    inherit (inputs) nixpkgs home-manager flake-parts import-tree colmena;
   in
     flake-parts.lib.mkFlake {
       inherit inputs;
@@ -24,17 +24,6 @@
             };
           }
           // builtins.mapAttrs (_: h: h.colmenaNode) hosts);
-
-      flake.nixosConfigurations.muninn = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          disko.nixosModules.disko
-          preservation.nixosModules.default
-          ./hosts/muninn/_modules/configuration.nix
-          ./hosts/muninn/_modules/disko.nix
-          {hardware.facter.reportPath = ./hosts/muninn/facter.json;}
-        ];
-      };
 
       systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
 
