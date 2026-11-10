@@ -1,26 +1,16 @@
-# muninn: the WSL workstation.
+# muninn: the encrypted ephemeral-root workstation.
 {
-  config,
-  inputs,
+  disko,
+  nixpkgs,
+  preservation,
   ...
-}: let
-  inherit (config.flake) nixosModules users;
-in {
-  flake.hosts.muninn = config.flake.lib.makeHost {
-    name = "muninn";
-    address = "muninn.ts.trkm.io";
+}: {
+  flake.nixosConfigurations.muninn = nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
-    imports = [
-      nixosModules.default
-      nixosModules.muninn
-      ./_modules/binfmt.nix
+    specialArgs = {inherit disko preservation;};
+    modules = [
+      ./_modules/configuration.nix
+      ./_modules/disko.nix
     ];
-    users = [users.tm];
-    lan.address = "10.10.10.125";
-    specialArgs = inputs;
   };
-
-  flake.nixosConfigurations.muninn = config.flake.hosts.muninn.nixosConfiguration;
-
-  flake.nixosModules.muninn = {};
 }
