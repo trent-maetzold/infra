@@ -328,7 +328,9 @@ Muninn boots with systemd-boot from a 2 GiB ESP. The rest of its NVMe is a
 LUKS2 container holding Btrfs subvolumes for `/nix`, `/persist`, and `/home`;
 `/` is tmpfs, and Preservation binds declared system state from `/persist`.
 Its Disko layout and machine-specific Facter report live with the host so the
-same flake both installs and rebuilds it.
+same flake both installs and rebuilds it. `flake.nix` explicitly assembles
+Muninn from those local files and its Disko and Preservation inputs; the host
+files contain only NixOS options and do not import or discover dependencies.
 
 ## Secrets
 
