@@ -76,5 +76,5 @@
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  system.stateVersion = "26.05";
+  system.stateVersion = "26.11";
 }
