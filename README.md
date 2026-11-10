@@ -315,7 +315,7 @@ To review, diff against the branch instead.
 
 | Machine   | What                                              | Built as              | Users                             |
 | --------- | ------------------------------------------------- | --------------------- | --------------------------------- |
-| muninn    | Omarchy workstation                               | `homeConfigurations`  | trent                             |
+| muninn    | encrypted ephemeral-root workstation              | `nixosConfigurations` | trent                             |
 | frigg     | family PC (Cinnamon, GTX 980)                     | `nixosConfigurations` | trent, justine, leo, violet, june |
 | thor      | gaming PC, headless for now                       | `nixosConfigurations` | trent                             |
 | heimdall  | public edge on OCI (Traefik, Headscale, Authelia) | `nixosConfigurations` | trent (server)                    |
@@ -323,6 +323,12 @@ To review, diff against the branch instead.
 | noatun    | microvm on yggdrasil: Komodo and Docker services  | `nixosConfigurations` | -                                 |
 | runner    | microvm on yggdrasil: public-repo CI jobs         | `nixosConfigurations` | -                                 |
 | mimir     | Unraid VM on yggdrasil, retired by the migration  | `infra` only          | -                                 |
+
+Muninn boots with systemd-boot from a 2 GiB ESP. The rest of its NVMe is a
+LUKS2 container holding Btrfs subvolumes for `/nix`, `/persist`, and `/home`;
+`/` is tmpfs, and Preservation binds declared system state from `/persist`.
+Its Disko layout and machine-specific Facter report live with the host so the
+same flake both installs and rebuilds it.
 
 ## Secrets
 

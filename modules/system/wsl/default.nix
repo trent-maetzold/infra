@@ -32,7 +32,4 @@ in {
   # Flake Modules
   flake.modules.nixos.wsl = modules.nixos;
   flake.modules.nixos.wsl-ctk = modules.nixos-ctk;
-
-  # NixOS Configuration Modules
-  flake.nixosModules.muninn.imports = with config.flake.modules.nixos; [wsl wsl-ctk];
 }

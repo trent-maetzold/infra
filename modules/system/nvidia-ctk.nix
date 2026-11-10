@@ -7,7 +7,4 @@
 in {
   # Flake Modules
   flake.modules.nixos.nvidia-ctk = modules.nixos;
-
-  # NixOS Configuration Modules
-  flake.nixosModules.muninn.imports = [config.flake.modules.nixos.nvidia-ctk];
 }
